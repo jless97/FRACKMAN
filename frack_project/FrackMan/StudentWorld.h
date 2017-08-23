@@ -25,6 +25,11 @@
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////-----------STUDENTWORLD--------------///////////////////
 ///////////////////////////////////////////////////////////////////////////
+
+/* Note: The StudentWorld class is derived from the GameWorld class to utilize
+ *       some standard base functions created by Professor Smallberg.
+ */
+
 class StudentWorld : public GameWorld {
   public:
     // Constructor
@@ -46,3 +51,9 @@ class StudentWorld : public GameWorld {
 };
 
 #endif // STUDENTWORLD_H_
+
+
+
+
+
+

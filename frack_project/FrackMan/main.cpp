@@ -10,8 +10,8 @@ using namespace std;
   // replace the string literal with a full path name to the directory,
   // e.g., "Z:/CS32/BoulderBlast/Assets" or "/Users/fred/cs32/BoulderBlast/Assets"
 
-const string assetDirectory =
-        "/Users/JasonLess/Desktop/FRACKMAN/frack_project/DerivedData/FrackMan/Build/Products/Debug/Assets";
+// Note: The path of the assets directory needs to be specified to access images and sound effects
+const string assetDirectory = "/Users/JasonLess/Desktop/FRACKMAN/frack_project/DerivedData/FrackMan/      Build/Products/Debug/Assets";
 
 class GameWorld;
 
