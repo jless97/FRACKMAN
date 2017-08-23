@@ -23,6 +23,13 @@
 #include <vector>
 
 ///////////////////////////////////////////////////////////////////////////
+//////////////////////-----------GLOBALS--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+#define GRID_WIDTH 64
+#define GRID_HEIGHTH 60
+
+///////////////////////////////////////////////////////////////////////////
 ///////////////////-----------STUDENTWORLD--------------///////////////////
 ///////////////////////////////////////////////////////////////////////////
 
@@ -36,18 +43,28 @@ class StudentWorld : public GameWorld {
     StudentWorld(std::string assetDir);
     // Destructor
     ~StudentWorld();
-    // Derived pure virtual functions from GameWorld
+    /* Derived pure virtual functions from GameWorld (called automatically by GameWorld) */
+      // Function used to initialize the oil field by populating it with the actors
+      // Note: This function is called automatically by the GameWorld object
     virtual int init();
+      // Function to be called each clock tick to update the actors in the oil field
+      // In addition, cleans up dead actors (which is done after updating the actors)
+      // Actors update at a frequency of 10-20 Hz (as specified by GameWorld)
     virtual int move();
+      // Function to clear out active actors in the oil field
+      // Called when the player loses a life, or completes the current level
     virtual void cleanUp();
     // TODO: Add StudentWorld Functions
     bool isDirt(int x, int y);
     bool removeDirt(int x, int y, int direction);
     
   private:
-    // TODO: Add StudentWorld variables
+    // Vector container to hold all actors (except FrackMan and dirt)
     std::vector<Actor*> m_actor;
+    // 2D Array of dirt pointers
     Dirt* m_dirt[VIEW_WIDTH][VIEW_HEIGHT];
+    // FrackMan pointer
+    FrackMan* m_frackman;
 };
 
 #endif // STUDENTWORLD_H_

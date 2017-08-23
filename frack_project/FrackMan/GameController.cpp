@@ -54,7 +54,7 @@ static const double PI = 4 * atan(1.0);
 
 struct SpriteInfo
 {
-	UINT imageID;
+	UINT image_id;
 	UINT frameNum;
 	std::string	 tgaFileName;
 };
@@ -112,7 +112,7 @@ void GameController::initDrawersAndSounds()
 		if (!path.empty())
 			path += '/';
 		const SpriteInfo& d = drawers[k];
-		if (!m_spriteManager.loadSprite(path + d.tgaFileName, d.imageID, d.frameNum))
+		if (!m_spriteManager.loadSprite(path + d.tgaFileName, d.image_id, d.frameNum))
 			exit(0);
 	}
 	for (int k = 0; k < sizeof(sounds)/sizeof(sounds[0]); k++)
@@ -370,21 +370,21 @@ void GameController::displayGamePlay()
 
 	for (int i = NUM_LAYERS - 1; i >= 0; --i)
 	{
-		std::set<GraphObject*> &graphObjects = GraphObject::getGraphObjects(i);
+		std::set<GraphObject*> &graph_objects = GraphObject::get_graph_objects(i);
 
-		for (auto it = graphObjects.begin(); it != graphObjects.end(); it++)
+		for (auto it = graph_objects.begin(); it != graph_objects.end(); it++)
 		{
 			GraphObject* cur = *it;
-			if (cur->isVisible())
+			if (cur->is_visible())
 			{
 				cur->animate();
 
 				double x, y, gx, gy, gz;
-				cur->getAnimationLocation(x, y);
+				cur->get_animation_location(x, y);
 				convertToGlutCoords(x, y, gx, gy, gz);
 
 				SpriteManager::Angle angle;
-				switch (cur->getDirection())
+				switch (cur->get_direction())
 				{
 				case GraphObject::up:
 					angle = SpriteManager::face_up;
@@ -402,13 +402,13 @@ void GameController::displayGamePlay()
 					break;
 				}
 
-				int imageID = cur->getID();
+				int image_id = cur->getID();
 
 				// the specialized Dirt plotting is an optimization to deal with the background Dirt, which requires a lot of horsepower to plot
-				if (imageID == IID_DIRT)
-					drawDirt(gx, gy, gz, cur->getSize());
+				if (image_id == IID_DIRT)
+					drawDirt(gx, gy, gz, cur->get_size());
 				else
-					m_spriteManager.plotSprite(imageID, cur->getAnimationNumber() % m_spriteManager.getNumFrames(imageID), gx, gy, gz, angle, cur->getSize());
+					m_spriteManager.plotSprite(image_id, cur->get_animation_number() % m_spriteManager.getNumFrames(image_id), gx, gy, gz, angle, cur->get_size());
 			}
 		}
 	}

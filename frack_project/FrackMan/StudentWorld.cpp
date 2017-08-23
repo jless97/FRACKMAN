@@ -21,6 +21,7 @@ using namespace std;
 ///////////////////-----------STUDENTWORLD--------------///////////////////
 ///////////////////////////////////////////////////////////////////////////
 
+// Creates a game world object pointer, which points to this student world object (used in main.c)
 GameWorld* createStudentWorld(string assetDir) {
 	return new StudentWorld(assetDir);
 }
@@ -29,23 +30,25 @@ GameWorld* createStudentWorld(string assetDir) {
 /////////////-----------CONSTRUCTOR/DESTRUCTOR--------------///////////////
 ///////////////////////////////////////////////////////////////////////////
 
+/* StudentWorld default constructor that needs a parameter (i.e. the assets directory path)
+ * to initialize the GameWorld object
+ */
 StudentWorld::StudentWorld(std::string assetDir)
   :GameWorld(assetDir) {
 }
 
+// StudentWorld destructor to free all memory consumed by the actors of the game
 StudentWorld::~StudentWorld() {
   //Delete all actors
   for (int i = 0; i < m_actor.size(); i++) {
     delete m_actor.at(i);
   }
+  
   m_actor.clear();
 
   //Delete all dirt objects
   for (int i = 0; i < 30; i++) {
-    for (int j = 0; j < VIEW_HEIGHT - 4; j++) {
-      delete m_dirt[i][j];
-    }
-    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++) {
+    for (int j = 0; j < GRID_HEIGHTH; j++) {
       delete m_dirt[i][j];
     }
   }
@@ -54,15 +57,9 @@ StudentWorld::~StudentWorld() {
     for (int j = 0; j < 4; j++) {
       delete m_dirt[i][j];
     }
-    for (int j = 4; j < VIEW_HEIGHT; j++) {
-      delete m_dirt[i][j];
-    }
   }
   for (int i = 34; i < VIEW_WIDTH; i++) {
-    for (int j = 0; j < VIEW_HEIGHT - 4; j++) {
-      delete m_dirt[i][j];
-    }
-    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++) {
+    for (int j = 0; j < GRID_HEIGHTH; j++) {
       delete m_dirt[i][j];
     }
   }
@@ -72,45 +69,42 @@ StudentWorld::~StudentWorld() {
 ///////////-----------GAMEWORLD: VIRTUAL FUNCTIONS--------------///////////
 ///////////////////////////////////////////////////////////////////////////
 
+/* DESCRIPTION:
+ A. Initialize the data structures used to keep track of your game’s virtual world
+ B. Construct a new oil field that meets the requirements stated in the section below
+ (filled with Dirt, Barrels of oil, Boulders, Gold Nuggets, etc.)
+ C. Allocate and insert a valid FrackMan object into the game world at the proper
+ location
+ */
 int StudentWorld::init() {
-  //Create the FrackMan object and push onto the vector container
-  FrackMan* frackMan = new FrackMan(this);
-  m_actor.push_back(frackMan);
+  //Create the FrackMan player, which points to the StudentWorld object
+  m_frackman = new FrackMan(this);
   
-  for (int i = 0; i < 30; i++) //Create all the dirt objects and set their visible/invisible status
-  {
-    for (int j = 0; j < VIEW_HEIGHT - 4; j++)
-    {
-        m_dirt[i][j] = new Dirt(this, i, j);
-    }
-    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
-    {
-        m_dirt[i][j] = new Dirt(this, i, j);
-        m_dirt[i][j]->setVisible(false);
+  // Push the FrackMan object into the actor vector
+  m_actor.push_back(m_frackman);
+  
+  /* Create all the dirt objects and set their visible/invisible status
+   * Note: Oil Field grows left to right, and bottom to top (i.e. x = 0, y = 0 is bottom-left of grid)
+  */
+  // Initialize left-side of oil field
+  for (int i = 0; i < 30; i++) {
+    for (int j = 0; j < GRID_HEIGHTH; j++) {
+      m_dirt[i][j] = new Dirt(this, i, j);
+      m_dirt[i][j]->set_visible(true);
     }
   }
-  for (int i = 30; i < 34; i++)
-  {
-    for (int j = 0; j < 4; j++)
-    {
-        m_dirt[i][j] = new Dirt(this, i, j);
-    }
-    for (int j = 4; j < VIEW_HEIGHT; j++)
-    {
-        m_dirt[i][j] = new Dirt(this, i , j);
-        m_dirt[i][j]->setVisible(false);
+  // Initialize empty area in the middle of the oil field
+  for (int i = 30; i < 34; i++) {
+    for (int j = 0; j < 4; j++){
+      m_dirt[i][j] = new Dirt(this, i, j);
+      m_dirt[i][j]->set_visible(true);
     }
   }
-  for (int i = 34; i < VIEW_WIDTH; i++)
-  {
-    for (int j = 0; j < VIEW_HEIGHT - 4; j++)
-    {
+  // Initialize right-side of the oil field
+  for (int i = 34; i < VIEW_WIDTH; i++) {
+    for (int j = 0; j < GRID_HEIGHTH; j++) {
       m_dirt[i][j] = new Dirt(this, i, j);
-    }
-    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
-    {
-      m_dirt[i][j] = new Dirt(this, i, j);
-      m_dirt[i][j]->setVisible(false);
+      m_dirt[i][j]->set_visible(true);
     }
   }
 
@@ -120,7 +114,7 @@ int StudentWorld::init() {
 int StudentWorld::move() {
   //For each actor, have them call the doSomething function
   for (int i = 0; i < m_actor.size(); i++) {
-    m_actor.at(i)->doSomething();
+    m_actor.at(i)->do_something();
   }
   
   return GWSTATUS_CONTINUE_GAME;
@@ -136,10 +130,7 @@ void StudentWorld::cleanUp() {
   
   //Delete all the dirt objects
   for (int i = 0; i < 30; i++) {
-    for (int j = 0; j < VIEW_HEIGHT - 4; j++) {
-      delete m_dirt[i][j];
-    }
-    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++) {
+    for (int j = 0; j < GRID_HEIGHTH; j++) {
       delete m_dirt[i][j];
     }
   }
@@ -147,15 +138,9 @@ void StudentWorld::cleanUp() {
     for (int j = 0; j < 4; j++) {
       delete m_dirt[i][j];
     }
-    for (int j = 4; j < VIEW_HEIGHT; j++) {
-      delete m_dirt[i][j];
-    }
   }
   for (int i = 34; i < VIEW_WIDTH; i++) {
-    for (int j = 0; j < VIEW_HEIGHT - 4; j++) {
-      delete m_dirt[i][j];
-    }
-    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++) {
+    for (int j = 0; j < GRID_HEIGHTH; j++) {
       delete m_dirt[i][j];
     }
   }
@@ -167,7 +152,7 @@ void StudentWorld::cleanUp() {
 
 //Check to see if there is dirt in a given location
 bool StudentWorld::isDirt(int x, int y) {
-  if (m_dirt[x][y]->isVisible()) {
+  if (m_dirt[x][y]->is_visible()) {
     return true;
   }
   
@@ -182,22 +167,22 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
     {
         if (isDirt(x, y + i)) //If FrackMan were to be placed in dirt to begin, set all dirt to invisible
         {
-            m_dirt[x][y + i]->setVisible(false);
+            m_dirt[x][y + i]->set_visible(false);
             playSound = true;
         }
         if (isDirt(x + 1, y + i))
         {
-            m_dirt[x + 1][y + i]->setVisible(false);
+            m_dirt[x + 1][y + i]->set_visible(false);
             playSound = true;
         }
         if (isDirt(x + 2, y + i))
         {
-            m_dirt[x + 2][y + i]->setVisible(false);
+            m_dirt[x + 2][y + i]->set_visible(false);
             playSound = true;
         }
         if (isDirt(x + 3, y + i))
         {
-            m_dirt[x + 3][y + i]->setVisible(false);
+            m_dirt[x + 3][y + i]->set_visible(false);
             playSound = true;
         }
     }
@@ -209,14 +194,14 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
                 if (isDirt(x, y + i))
                 {
                     playSound = true;
-                    m_dirt[x][y + i]->setVisible(false);
+                    m_dirt[x][y + i]->set_visible(false);
                 }
             break;
         case KEY_PRESS_RIGHT:
             for (int i = 0; i < 4; i++)
                 if (isDirt(x + 3, y + i))
                 {
-                    m_dirt[x + 3][y + i]->setVisible(false);
+                    m_dirt[x + 3][y + i]->set_visible(false);
                     playSound = true;
                 }
             break;
@@ -224,7 +209,7 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
             for (int i = 0; i < 4; i++)
                 if (isDirt(x + i, y + 3))
                 {
-                    m_dirt[x + i][y + 3]->setVisible(false);
+                    m_dirt[x + i][y + 3]->set_visible(false);
                     playSound = true;
                 }
             break;
@@ -232,7 +217,7 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
             for (int i = 0; i < 4; i++)
                 if (isDirt(x + i, y))
                 {
-                    m_dirt[x + i][y]->setVisible(false);
+                    m_dirt[x + i][y]->set_visible(false);
                     playSound = true;
                 }
             break;

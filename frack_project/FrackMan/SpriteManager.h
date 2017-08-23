@@ -31,15 +31,15 @@ public:
 		m_mipMapped = status;
 	}
 
-	bool loadSprite(std::string filename_tga, int imageID, int frameNum)
+	bool loadSprite(std::string filename_tga, int image_id, int frameNum)
 	{
 		  // Load Texture Data From TGA File
 
-		unsigned int spriteID = getSpriteID(imageID, frameNum);
+		unsigned int spriteID = getSpriteID(image_id, frameNum);
 		if (INVALID_SPRITE_ID == spriteID)
 			return false;
 
-		m_frameCountPerSprite[imageID]++;	// keep track of how many frames per sprite we loaded
+		m_frameCountPerSprite[image_id]++;	// keep track of how many frames per sprite we loaded
 
 		std::string line;
 		std::string contents = "";
@@ -136,9 +136,9 @@ public:
 		return true;
 	}
 
-	unsigned int getNumFrames(int imageID) const
+	unsigned int getNumFrames(int image_id) const
 	{
-		auto it = m_frameCountPerSprite.find(imageID);
+		auto it = m_frameCountPerSprite.find(image_id);
 		if (it == m_frameCountPerSprite.end())
 			return 0;
 
@@ -150,9 +150,9 @@ public:
 		face_left = 1, face_right = 2, face_up = 3, face_down = 4
 	};
 
-	bool plotSprite(int imageID, int frame, double gx, double gy, double gz, Angle angleDegrees, double size)
+	bool plotSprite(int image_id, int frame, double gx, double gy, double gz, Angle angleDegrees, double size)
 	{
-		unsigned int spriteID = getSpriteID(imageID,frame);
+		unsigned int spriteID = getSpriteID(image_id,frame);
 		if (INVALID_SPRITE_ID == spriteID)
 			return false;
 
@@ -258,12 +258,12 @@ private:
 	static const int MAX_IMAGES = 1000;
 	static const int MAX_FRAMES_PER_SPRITE = 100;
 
-	int getSpriteID(unsigned int imageID, unsigned int frame) const
+	int getSpriteID(unsigned int image_id, unsigned int frame) const
 	{
-		if (imageID >= MAX_IMAGES || frame >= MAX_FRAMES_PER_SPRITE)
+		if (image_id >= MAX_IMAGES || frame >= MAX_FRAMES_PER_SPRITE)
 			return INVALID_SPRITE_ID;
 
-		return imageID * MAX_FRAMES_PER_SPRITE + frame;
+		return image_id * MAX_FRAMES_PER_SPRITE + frame;
 	}
 };
 

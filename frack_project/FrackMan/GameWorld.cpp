@@ -4,26 +4,25 @@
 #include <cstdlib>
 using namespace std;
 
-bool GameWorld::getKey(int& value)
-{
+bool GameWorld::getKey(int& value) {
 	bool gotKey = m_controller->getLastKey(value);
 
-	if (gotKey)
-	{
-		if (value == 'q')
+	if (gotKey) {
+    if (value == 'q') {
 			m_controller->quitGame();
-		else if (value == '\x03')  // CTRL-C
+    }
+    else if (value == '\x03') { // CTRL-C
 			exit(0);
+    }
 	}
+  
 	return gotKey;
 }
 
-void GameWorld::playSound(int soundID)
-{
+void GameWorld::playSound(int soundID) {
 	m_controller->playSound(soundID);
 }
 
-void GameWorld::setGameStatText(string text)
-{
+void GameWorld::setGameStatText(string text) {
 	m_controller->setGameStatText(text);
 }
