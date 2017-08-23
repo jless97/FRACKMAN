@@ -11,7 +11,7 @@ using namespace std;
   // e.g., "Z:/CS32/BoulderBlast/Assets" or "/Users/fred/cs32/BoulderBlast/Assets"
 
 // Note: The path of the assets directory needs to be specified to access images and sound effects
-const string assetDirectory = "/Users/JasonLess/Desktop/FRACKMAN/frack_project/DerivedData/FrackMan/      Build/Products/Debug/Assets";
+const string assetDirectory = "/Users/JasonLess/Desktop/FRACKMAN/frack_project/DerivedData/FrackMan/Build/Products/Debug/Assets";
 
 class GameWorld;
 
