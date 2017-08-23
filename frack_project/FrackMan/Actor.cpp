@@ -23,69 +23,69 @@ using namespace std;
 ///////////////////////-----------ACTOR--------------//////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-Actor::Actor(int imageID, int startX, int startY, Direction startDirection,
+Actor::Actor(int image_id, int start_x, int start_y, Direction start_direction,
              float size, unsigned int depth, StudentWorld* world)
-:GraphObject(imageID, startX, startY, startDirection, size, depth),
-m_world(world), m_isAlive(true)
+:GraphObject(image_id, start_x, start_y, start_direction, size, depth),
+m_world(world), m_is_alive(true)
 {
   set_visible(false);
 }
 
 Actor::~Actor()
 {
-  m_isAlive = false;
+  m_is_alive = false;
   set_visible(false);
 }
 
-StudentWorld* Actor::returnWorld() const
+StudentWorld* Actor::return_world() const
 {
   return m_world;
 }
 
-bool Actor::isAlive() const
+bool Actor::is_alive() const
 {
-  if (m_isAlive == true)
+  if (m_is_alive == true)
     return true;
   return false;
   
 }
 
-void Actor::setAlive(bool value)
+void Actor::set_alive(bool value)
 {
-  m_isAlive = false;
+  m_is_alive = false;
 }
 
-bool Actor::canActorsPassThroughMe() const
+bool Actor::can_actors_pass_through_me() const
 {
   return false;
 }
 
-bool Actor::moveDir(int direction, int numMoves)
+bool Actor::move_dir(int direction, int num_moves)
 {
   int x = get_x();
   int y = get_y();
   //Check to see if I'm allowed to move in a given direction
-  if (returnWorld()->isBoulder(x, y, direction))
+  if (return_world()->is_boulder(x, y, direction))
     return false;
-  if (returnWorld()->isDirt(x, y, direction))
+  if (return_world()->is_dirt(x, y, direction))
     return false;
-  if (!returnWorld()->canActormove_to(this, x, y))
+  if (!return_world()->can_actor_move_to(this, x, y))
     return false;
   
   //If so, then move in the specified direction
   switch (direction)
   {
     case GraphObject::up:
-      move_to(x, y + numMoves);
+      move_to(x, y + num_moves);
       break;
     case GraphObject::down:
-      move_to(x, y - numMoves);
+      move_to(x, y - num_moves);
       break;
     case GraphObject::right:
-      move_to(x + numMoves, y);
+      move_to(x + num_moves, y);
       break;
     case GraphObject::left:
-      move_to(x - numMoves, y);
+      move_to(x - num_moves, y);
       break;
     default:
       break;
@@ -107,18 +107,18 @@ FrackMan::FrackMan(int x, int y, StudentWorld* world)
 FrackMan::~FrackMan()
 {}
 
-void FrackMan::doSomething()
+void FrackMan::do_something()
 {
-  if (!isAlive()) //Check to see if FrackMan is alive
+  if (!is_alive()) //Check to see if FrackMan is alive
     return;
   int x = get_x();
   int y = get_y();
-  returnWorld()->removeDirt(x, y); //If FrackMan spawns in a dirt location, remove the dirt
+  return_world()->remove_dirt(x, y); //If FrackMan spawns in a dirt location, remove the dirt
   int ch;
-  StudentWorld* world = returnWorld();
-  if (validPosition(x, y) == false)
+  StudentWorld* world = return_world();
+  if (valid_position(x, y) == false)
     return;
-  if (returnWorld()->get_key(ch) == true) //Check to see if a valid key was input by the user
+  if (return_world()->get_key(ch) == true) //Check to see if a valid key was input by the user
   {
     switch (ch) //To see what FrackMan is going to do in the given turn (tick)
     {
@@ -127,13 +127,13 @@ void FrackMan::doSomething()
         {
           if (x != 0)
           {
-            if (!world->isNearBoulder(x - 1, y, 3))
+            if (!world->is_near_boulder(x - 1, y, 3))
             {
               move_to(x - 1, y);
-              if (world->removeDirt(x - 1, y, KEY_PRESS_LEFT))
+              if (world->remove_dirt(x - 1, y, KEY_PRESS_LEFT))
                 world->play_sound(SOUND_DIG);
             }
-            else if (world->canActormove_to(this, x - 1, y))
+            else if (world->can_actor_move_to(this, x - 1, y))
               set_direction(left);
           }
           if (x == 0)
@@ -147,13 +147,13 @@ void FrackMan::doSomething()
         {
           if (x != 60)
           {
-            if (!world->isNearBoulder(x + 1, y, 3))
+            if (!world->is_near_boulder(x + 1, y, 3))
             {
               move_to(x + 1, y);
-              if (world->removeDirt(x + 1, y, KEY_PRESS_RIGHT))
+              if (world->remove_dirt(x + 1, y, KEY_PRESS_RIGHT))
                 world->play_sound(SOUND_DIG);
             }
-            else if (world->canActormove_to(this, x + 1, y))
+            else if (world->can_actor_move_to(this, x + 1, y))
               set_direction(right);
           }
           if (x == 60)
@@ -167,13 +167,13 @@ void FrackMan::doSomething()
         {
           if (y != 0)
           {
-            if (!world->isNearBoulder(x, y - 1, 3))
+            if (!world->is_near_boulder(x, y - 1, 3))
             {
               move_to(x, y - 1);
-              if (world->removeDirt(x, y - 1, KEY_PRESS_DOWN))
+              if (world->remove_dirt(x, y - 1, KEY_PRESS_DOWN))
                 world->play_sound(SOUND_DIG);
             }
-            else if (world->canActormove_to(this, x, y - 1))
+            else if (world->can_actor_move_to(this, x, y - 1))
               set_direction(down);
           }
           if (y == 0)
@@ -187,13 +187,13 @@ void FrackMan::doSomething()
         {
           if (y != 60)
           {
-            if (!world->isNearBoulder(x, y + 1, 3))
+            if (!world->is_near_boulder(x, y + 1, 3))
             {
               move_to(x, y + 1);
-              if (world->removeDirt(x, y + 1, KEY_PRESS_UP))
+              if (world->remove_dirt(x, y + 1, KEY_PRESS_UP))
                 world->play_sound(SOUND_DIG);
             }
-            else if (world->canActormove_to(this, x, y + 1))
+            else if (world->can_actor_move_to(this, x, y + 1))
               set_direction(up);
           }
           if (y == 60)
@@ -206,27 +206,27 @@ void FrackMan::doSomething()
         if (m_squirts >= 1)
         {
           m_squirts--;
-          returnWorld()->addWaterSquirt(this, get_direction());
-          returnWorld()->play_sound(SOUND_PLAYER_SQUIRT);
+          return_world()->add_water_squirt(this, get_direction());
+          return_world()->play_sound(SOUND_PLAYER_SQUIRT);
         }
         break;
       case KEY_PRESS_TAB: //Drops gold (by creating a bribe object in oil field)
         if (m_gold >= 1)
         {
           m_gold--;
-          returnWorld()->addBribe(this);
+          return_world()->add_bribe(this);
         }
         break;
       case KEY_PRESS_ESCAPE: //resets the level (or if no lives left, ends game)
-        setDead();
+        set_dead();
         break;
       case 'Z': //Uses a sonar to check for goodies in surrounding region
       case 'z':
         if (m_sonars >= 1)
         {
           m_sonars--;
-          returnWorld()->isNearActor(this, 12);
-          returnWorld()->play_sound(SOUND_SONAR);
+          return_world()->is_near_actor(this, 12);
+          return_world()->play_sound(SOUND_SONAR);
         }
         break;
       default:
@@ -235,67 +235,67 @@ void FrackMan::doSomething()
   }
 }
 
-void FrackMan::getAnnoyed(int howMuch)
+void FrackMan::get_annoyed(int how_much)
 {
   m_health -= 2;
   if (m_health <= 0)
   {
-    setDead();
-    returnWorld()->play_sound(SOUND_PLAYER_GIVE_UP);
+    set_dead();
+    return_world()->play_sound(SOUND_PLAYER_GIVE_UP);
   }
 }
 
-bool FrackMan::validPosition(int x, int y) const
+bool FrackMan::valid_position(int x, int y) const
 {
   if (x < 0 || x > 60 || y < 0 || y > 60)
     return false;
   return true;
 }
 
-int FrackMan::getSquirts() const
+int FrackMan::get_squirts() const
 {
   return m_squirts;
 }
 
-int FrackMan::getSonars() const
+int FrackMan::get_sonars() const
 {
   return m_sonars;
 }
 
-int FrackMan::getGold() const
+int FrackMan::get_gold() const
 {
   return m_gold;
 }
 
-int FrackMan::getHealth() const
+int FrackMan::get_health() const
 {
   return m_health;
 }
 
-void FrackMan::setSquirts(int howMuch)
+void FrackMan::set_squirts(int how_much)
 {
-  m_squirts += howMuch;
+  m_squirts += how_much;
 }
 
-void FrackMan::setSonars(int howMuch)
+void FrackMan::set_sonars(int how_much)
 {
-  m_sonars += howMuch;
+  m_sonars += how_much;
 }
 
-void FrackMan::setGold(int howMuch)
+void FrackMan::set_gold(int how_much)
 {
-  m_gold += howMuch;
+  m_gold += how_much;
 }
 
-void FrackMan::setDead()
+void FrackMan::set_dead()
 {
-  returnWorld()->play_sound(SOUND_PLAYER_GIVE_UP);
+  return_world()->play_sound(SOUND_PLAYER_GIVE_UP);
   set_visible(false);
   m_health = 0;
-  setAlive(false);
+  set_alive(false);
 }
 
-void FrackMan::setBribe()
+void FrackMan::set_bribe()
 {}
 
 
@@ -304,181 +304,181 @@ void FrackMan::setBribe()
 ////////////////////-----------PROTESTER--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-Protester::Protester(int imageID, int startX, int startY, Direction startDirection, float size,
+Protester::Protester(int image_id, int start_x, int start_y, Direction start_direction, float size,
                      unsigned int depth, StudentWorld* world, int health)
-:Actor(imageID, startX, startY, startDirection, size, depth, world), m_health(health)
+:Actor(image_id, start_x, start_y, start_direction, size, depth, world), m_health(health)
 {
-  numMoves = world->randInt(8, 60);
-  restingTicks = max(0, 3 - world->getCurrentLevel() / 4);
-  waitingTicksToShout = 15;
-  leaveField = false;
+  num_moves = world->rand_int(8, 60);
+  resting_ticks = max(0, 3 - world->get_current_level() / 4);
+  waiting_ticks_to_shout = 15;
+  leave_field = false;
   set_visible(true);
 }
 
 Protester::~Protester()
 {}
 
-int Protester::getHealth() const
+int Protester::get_health() const
 {
   return m_health;
 }
 
-bool Protester::getLeaveOilFieldState() const
+bool Protester::get_leave_oil_field_state() const
 {
-  return leaveField == true;
+  return leave_field == true;
 }
 
 
-void Protester::decHealth(int hitpoints) {
+void Protester::dec_health(int hitpoints) {
   m_health -= hitpoints;
 }
 
-void Protester::setDead()
+void Protester::set_dead()
 {
   if (getID() == IID_PLAYER)
-    returnWorld()->play_sound(SOUND_PLAYER_GIVE_UP);
+    return_world()->play_sound(SOUND_PLAYER_GIVE_UP);
   else if (getID() == IID_HARD_CORE_PROTESTER || getID() == IID_PROTESTER)
-    returnWorld()->play_sound(SOUND_PROTESTER_GIVE_UP);
+    return_world()->play_sound(SOUND_PROTESTER_GIVE_UP);
   
   set_visible(false);
   m_health = 0;
-  setAlive(false);
+  set_alive(false);
 }
 
-void Protester::setBribe()
+void Protester::set_bribe()
 {
-  leaveField = true;
+  leave_field = true;
 }
 
-void Protester::setLeaveOilFieldState(bool value)
+void Protester::set_leave_oil_field_state(bool value)
 {
-  leaveField = value;
+  leave_field = value;
 }
 
-void Protester::doesTheSomething()
+void Protester::does_the_something()
 {
   int x = get_x();
   int y = get_y();
   
-  if (!isAlive())
+  if (!is_alive())
     return;
-  if (leaveField == true)
-    restingTicks = 0;
+  if (leave_field == true)
+    resting_ticks = 0;
   
-  if (restingTicks > 0 && newRestingTicks > 0)	// rest state
+  if (resting_ticks > 0 && new_resting_ticks > 0)	// rest state
   {
-    restingTicks--;
-    newRestingTicks--;
+    resting_ticks--;
+    new_resting_ticks--;
     return;
   }
-  if (restingTicks > 0)
+  if (resting_ticks > 0)
   {
-    restingTicks--;
+    resting_ticks--;
     return;
   }
-  if (newRestingTicks > 0)
+  if (new_resting_ticks > 0)
   {
-    newRestingTicks--;
+    new_resting_ticks--;
     return;
   }
-  if (restingTicks == 0)
-    restingTicks = max(0, 3 - returnWorld()->getCurrentLevel() / 4);
+  if (resting_ticks == 0)
+    resting_ticks = max(0, 3 - return_world()->get_current_level() / 4);
   
-  waitingTicksToShout--;
+  waiting_ticks_to_shout--;
   
-  if (leaveField == true)
+  if (leave_field == true)
   {
     if (get_x() == 60 && get_y() == 60) { // exit point
-      setDead();
-      restingTicks = INT_MAX;
+      set_dead();
+      resting_ticks = INT_MAX;
       return;
     }
     // move one square closer to its exit point(at x = 60, y = 60)
     set_direction(up);
-    if (returnWorld()->canActormove_to(this, get_x(), get_y()))
-      doMove(x, y, get_direction());
+    if (return_world()->can_actor_move_to(this, get_x(), get_y()))
+      do_move(x, y, get_direction());
     else {
       set_direction(right);
-      doMove(x, y, get_direction());
+      do_move(x, y, get_direction());
     }
     
-    restingTicks = max(0, 3 - returnWorld()->getCurrentLevel() / 4);
+    resting_ticks = max(0, 3 - return_world()->get_current_level() / 4);
     return;
   }
   
   //If the protestor is within the proper distance of the frackman, then annoy him
   //Reset the ticks to wait before you can shout again, and reset resting ticks
-  if (returnWorld()->isNearFrackMan(this, 4)
-      && returnWorld()->facingTowardFrackMan(this)
-      && waitingTicksToShout <= 0)
+  if (return_world()->is_near_frackman(this, 4)
+      && return_world()->facing_toward_frackman(this)
+      && waiting_ticks_to_shout <= 0)
   {
-    returnWorld()->play_sound(SOUND_PROTESTER_YELL);
-    returnWorld()->annoyFrackMan();
-    waitingTicksToShout = 15;
-    newRestingTicks = max(50, 100 - returnWorld()->getCurrentLevel() * 10);
+    return_world()->play_sound(SOUND_PROTESTER_YELL);
+    return_world()->annoy_frackman();
+    waiting_ticks_to_shout = 15;
+    new_resting_ticks = max(50, 100 - return_world()->get_current_level() * 10);
     return;
   }
   
   //If the protester is right next to the frackman, then he should stop moving
-  if (returnWorld()->isNearFrackMan(this, 3))
+  if (return_world()->is_near_frackman(this, 3))
     return;
   
   /// if frackman is in line of sight, move 1 toward
   
-  GraphObject::Direction dir = returnWorld()->lineOfSightToFrackMan(this);
+  GraphObject::Direction dir = return_world()->line_of_sight_to_frackman(this);
   
-  if (dir != GraphObject::none && !returnWorld()->isNearFrackMan(this, 3) )
+  if (dir != GraphObject::none && !return_world()->is_near_frackman(this, 3) )
   {
     // face frackman and take a step towards him if possible
     
-    if (canMove(x, y, dir))
+    if (can_move(x, y, dir))
     {
       set_direction(dir);
-      doMove(x, y, dir);
-      numMoves = 0;
+      do_move(x, y, dir);
+      num_moves = 0;
       return;
     }
   }
   
-  if (numMoves > 0 && canMove(x, y, get_direction()))
+  if (num_moves > 0 && can_move(x, y, get_direction()))
   {
-    doMove(x, y, get_direction());
+    do_move(x, y, get_direction());
     return;
   }
   else
   {
     //If number of moves is 0, and you can't move in a given direction, change direction
-    changeDirectionToMove();
+    change_direction_to_move();
   }
   
   return;
   
 }
 
-void Protester::getAnnoyed(int howMuch)
+void Protester::get_annoyed(int how_much)
 {
-  decHealth(howMuch);
+  dec_health(how_much);
   
   //If dead, then prepare to leave the oil field
-  if (getHealth() <= 0)
+  if (get_health() <= 0)
   {
-    leaveField = true;
-    returnWorld()->play_sound(SOUND_PROTESTER_GIVE_UP);
-    restingTicks = 0;
-    returnWorld()->increase_score(100);
+    leave_field = true;
+    return_world()->play_sound(SOUND_PROTESTER_GIVE_UP);
+    resting_ticks = 0;
+    return_world()->increase_score(100);
   }
   else //Just annoy the protester
   {
-    returnWorld()->play_sound(SOUND_PROTESTER_ANNOYED);
-    restingTicks = max(50, 100 - returnWorld()->getCurrentLevel() * 10);
+    return_world()->play_sound(SOUND_PROTESTER_ANNOYED);
+    resting_ticks = max(50, 100 - return_world()->get_current_level() * 10);
   }
 }
 
-void Protester::changeDirectionToMove()
+void Protester::change_direction_to_move()
 {
   int x = get_x();
   int y = get_y();
-  numMoves = 0;
+  num_moves = 0;
   Direction direction = get_direction();
   do
   {
@@ -491,43 +491,43 @@ void Protester::changeDirectionToMove()
       direction = up;
     if (randNum == 3)
       direction = down;
-  } while (canMove(x,y,direction) == false); //keep changind directions, until a valid direction is found
+  } while (can_move(x,y,direction) == false); //keep changind directions, until a valid direction is found
   set_direction(direction);
-  numMoves = returnWorld()->randInt(8, 60); //reset the number of moves
+  num_moves = return_world()->rand_int(8, 60); //reset the number of moves
 }
 
-bool Protester::canMove(int x, int y, int direction)
+bool Protester::can_move(int x, int y, int direction)
 {
   //Check to see if the protester can move in a given direction
   if (direction == left)
-    if (returnWorld()->canActormove_to(this, x - 1, y))
+    if (return_world()->can_actor_move_to(this, x - 1, y))
       return true;
   if (direction == right)
-    if (returnWorld()->canActormove_to(this, x + 1, y))
+    if (return_world()->can_actor_move_to(this, x + 1, y))
       return true;
   if (direction == up)
-    if (returnWorld()->canActormove_to(this, x, y + 1))
+    if (return_world()->can_actor_move_to(this, x, y + 1))
       return true;
   if (direction == down)
-    if (returnWorld()->canActormove_to(this, x, y - 1))
+    if (return_world()->can_actor_move_to(this, x, y - 1))
       return true;
   return false;
 }
 
-void Protester::doMove(int x, int y, int direction)
+void Protester::do_move(int x, int y, int direction)
 {
   //If you can move in a given direction, then move in that direction
   if (direction == left)
-    if (canMove(x - 1, y, left))
+    if (can_move(x - 1, y, left))
       move_to(x - 1, y);
   if (direction == right)
-    if (canMove(x - 1, y, right))
+    if (can_move(x - 1, y, right))
       move_to(x + 1, y);
   if (direction == up)
-    if (canMove(x, y + 1, up))
+    if (can_move(x, y + 1, up))
       move_to(x, y + 1);
   if (direction == down)
-    if (canMove(x, y - 1, down))
+    if (can_move(x, y - 1, down))
       move_to(x, y - 1);
 }
 
@@ -542,10 +542,10 @@ RegularProtester::RegularProtester(int x, int y, StudentWorld* world)
 RegularProtester::~RegularProtester()
 {}
 
-void RegularProtester::doSomething()
+void RegularProtester::do_something()
 {
   //Call protester's method to initiate the move
-  doesTheSomething();
+  does_the_something();
 }
 
 
@@ -560,15 +560,15 @@ HardcoreProtester::HardcoreProtester(int x, int y, StudentWorld* world)
 HardcoreProtester::~HardcoreProtester()
 {}
 
-void HardcoreProtester::doSomething()
+void HardcoreProtester::do_something()
 {
   //Call the protester's method to intiate the move
-  doesTheSomething();
+  does_the_something();
 }
 
-void HardcoreProtester::setBribe()
+void HardcoreProtester::set_bribe()
 {
-  setLeaveOilFieldState(false);
+  set_leave_oil_field_state(false);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -576,7 +576,7 @@ void HardcoreProtester::setBribe()
 ///////////////////////////////////////////////////////////////////////////
 
 Boulder::Boulder(int x, int y, StudentWorld* world)
-:Actor(IID_BOULDER, x, y, down, 1.0, 1, world), m_state(STABLE_STATE), m_waitingStateCounter(0)
+:Actor(IID_BOULDER, x, y, down, 1.0, 1, world), m_state(STABLE_STATE), m_waiting_state_counter(0)
 {
   set_visible(true);
 }
@@ -584,12 +584,12 @@ Boulder::Boulder(int x, int y, StudentWorld* world)
 Boulder::~Boulder()
 {}
 
-int Boulder::getWaitingStateCounter() const
+int Boulder::get_waiting_state_counter() const
 {
-  return m_waitingStateCounter;
+  return m_waiting_state_counter;
 }
 
-bool Boulder::isDirtBelow() const
+bool Boulder::is_dirt_below() const
 {
   //Check to see if there is dirt below the boulder
   int x = get_x();
@@ -597,7 +597,7 @@ bool Boulder::isDirtBelow() const
   bool dirtBelow = false;
   for (int i = 0; i < 4; i++)
   {
-    if (y != 0 && returnWorld()->isDirt(x + i, y - 1))
+    if (y != 0 && return_world()->is_dirt(x + i, y - 1))
       dirtBelow = true;
   }
   if (!dirtBelow)
@@ -607,7 +607,7 @@ bool Boulder::isDirtBelow() const
   return true;
 }
 
-void Boulder::moveBoulder()
+void Boulder::move_boulder()
 {
   bool frackManBelow = false;
   bool ProtesterBelow = false;
@@ -619,64 +619,64 @@ void Boulder::moveBoulder()
   move_to(x, y - 1);
   
   //Check to see if the frackman, protester, or another boulder is below the boulder
-  if (returnWorld()->isNearFrackMan(this, 3))
+  if (return_world()->is_near_frackman(this, 3))
     frackManBelow = true;
-  if (isDirtBelow() || boulderBelow == true || y == -1)
+  if (is_dirt_below() || boulderBelow == true || y == -1)
   {
-    setAlive(false);
+    set_alive(false);
   }
   if (ProtesterBelow == true)
   {
-    returnWorld()->annoyProtester(this, 20);
-    returnWorld()->increase_score(500);
+    return_world()->annoy_protester(this, 20);
+    return_world()->increase_score(500);
   }
   if (frackManBelow == true)
   {
-    returnWorld()->killFrackMan();
+    return_world()->kill_frackman();
   }
 }
 
-void Boulder::doSomething()
+void Boulder::do_something()
 {
-  if (!isAlive())
+  if (!is_alive())
     return;
   
   //Initial state when there is dirt below the boulder
   if (m_state == STABLE_STATE)
   {
-    if (!isDirtBelow())
+    if (!is_dirt_below())
     {
       m_state = WAITING_STATE;
-      m_waitingStateCounter++;
+      m_waiting_state_counter++;
     }
     else
       return;
   }
   if (m_state == WAITING_STATE) //If dirt was removed below the boulder, change to waiting state
   {
-    if (getWaitingStateCounter() == 30)
+    if (get_waiting_state_counter() == 30)
     {
       m_state = FALLING_STATE;
-      returnWorld()->play_sound(SOUND_FALLING_ROCK);
+      return_world()->play_sound(SOUND_FALLING_ROCK);
     }
     else
-      m_waitingStateCounter++;
+      m_waiting_state_counter++;
   }
   if (m_state == FALLING_STATE) //If the boulder is in a falling state check to see if it can move down
   {
-    moveBoulder();
+    move_boulder();
   }
 }
 
-void Boulder::getAnnoyed(int howMuch)
+void Boulder::get_annoyed(int how_much)
 {}
 
-bool Boulder::canActorsPassThroughMe() const
+bool Boulder::can_actors_pass_through_me() const
 {
   return false;
 }
 
-void Boulder::setBribe()
+void Boulder::set_bribe()
 {}
 
 
@@ -691,31 +691,31 @@ Barrel::Barrel(int x, int y, StudentWorld* world)
 Barrel::~Barrel()
 {}
 
-void Barrel::doSomething()
+void Barrel::do_something()
 {
-  if (!isAlive())
+  if (!is_alive())
     return;
   
-  if (!is_visible() && returnWorld()->isNearFrackMan(this, 4)) //Activate visibility
+  if (!is_visible() && return_world()->is_near_frackman(this, 4)) //Activate visibility
   {
     set_visible(true);
     return;
   }
-  if (returnWorld()->isNearFrackMan(this, 3)) //Frackman picks up barrel
+  if (return_world()->is_near_frackman(this, 3)) //Frackman picks up barrel
   {
-    setAlive(false);
-    returnWorld()->setBarrel(-1);
-    returnWorld()->play_sound(SOUND_FOUND_OIL);
-    returnWorld()->increase_score(1000);
+    set_alive(false);
+    return_world()->set_barrel(-1);
+    return_world()->play_sound(SOUND_FOUND_OIL);
+    return_world()->increase_score(1000);
     return;
   }
   
 }
 
-void Barrel::getAnnoyed(int howMuch)
+void Barrel::get_annoyed(int how_much)
 {}
 
-void Barrel::setBribe()
+void Barrel::set_bribe()
 {}
 
 
@@ -730,30 +730,30 @@ Gold::Gold(int x, int y, StudentWorld* world)
 Gold::~Gold()
 {}
 
-void Gold::doSomething()
+void Gold::do_something()
 {
-  if (!isAlive())
+  if (!is_alive())
     return;
-  if (!is_visible() && returnWorld()->isNearFrackMan(this, 4)) //Activate visibility
+  if (!is_visible() && return_world()->is_near_frackman(this, 4)) //Activate visibility
   {
     set_visible(true);
     return;
   }
-  if (returnWorld()->isNearFrackMan(this, 3)) //FrackMan picks up gold
+  if (return_world()->is_near_frackman(this, 3)) //FrackMan picks up gold
   {
-    setAlive(false);
+    set_alive(false);
     set_visible(false);
-    returnWorld()->play_sound(SOUND_GOT_GOODIE);
-    returnWorld()->increase_score(10);
-    returnWorld()->setGold(1);
+    return_world()->play_sound(SOUND_GOT_GOODIE);
+    return_world()->increase_score(10);
+    return_world()->set_gold(1);
   }
   
 }
 
-void Gold::getAnnoyed(int howMuch)
+void Gold::get_annoyed(int how_much)
 {}
 
-void Gold::setBribe()
+void Gold::set_bribe()
 {}
 
 
@@ -768,33 +768,33 @@ Bribe::Bribe(int x, int y, StudentWorld* world)
   m_ticks = 100;
 }
 
-void Bribe::doSomething()
+void Bribe::do_something()
 {
-  if (!isAlive())
+  if (!is_alive())
     return;
   m_ticks--;
   if (m_ticks <= 0)
   {
-    setAlive(false);
+    set_alive(false);
     set_visible(false);
     return;
   }
-  if (returnWorld()->isNearProtester(this, 3)) //Protester picks up bribe
+  if (return_world()->is_near_protester(this, 3)) //Protester picks up bribe
   {
-    setAlive(false);
-    returnWorld()->play_sound(SOUND_PROTESTER_FOUND_GOLD);
-    returnWorld()->increase_score(25);
-    returnWorld()->setBribe(1);
+    set_alive(false);
+    return_world()->play_sound(SOUND_PROTESTER_FOUND_GOLD);
+    return_world()->increase_score(25);
+    return_world()->set_bribe(1);
   }
 }
 
-void Bribe::getAnnoyed(int howMuch)
+void Bribe::get_annoyed(int how_much)
 {}
 
 Bribe::~Bribe()
 {}
 
-void Bribe::setBribe()
+void Bribe::set_bribe()
 {}
 
 
@@ -806,36 +806,36 @@ Sonar::Sonar(int x, int y, StudentWorld* world)
 :Actor(IID_SONAR, x, y, right, 1.0, 2, world)
 {
   set_visible(true);
-  m_ticks = max(100, 300 - 10 * returnWorld()->getCurrentLevel());
+  m_ticks = max(100, 300 - 10 * return_world()->get_current_level());
 }
 
 Sonar::~Sonar()
 {}
 
-void Sonar::doSomething()
+void Sonar::do_something()
 {
-  if (!isAlive())
+  if (!is_alive())
     return;
   m_ticks--;
   if (m_ticks <= 0) //If ticks expire, remove from oil field
   {
-    setAlive(false);
+    set_alive(false);
     set_visible(false);
     return;
   }
-  if (returnWorld()->isNearFrackMan(this, 3)) //FrackMan picks up sonar
+  if (return_world()->is_near_frackman(this, 3)) //FrackMan picks up sonar
   {
-    setAlive(false);
-    returnWorld()->play_sound(SOUND_GOT_GOODIE);
-    returnWorld()->setSonars(1);
-    returnWorld()->increase_score(75);
+    set_alive(false);
+    return_world()->play_sound(SOUND_GOT_GOODIE);
+    return_world()->set_sonars(1);
+    return_world()->increase_score(75);
   }
 }
 
-void Sonar::getAnnoyed(int howMuch)
+void Sonar::get_annoyed(int how_much)
 {}
 
-void Sonar::setBribe()
+void Sonar::set_bribe()
 {}
 
 
@@ -852,68 +852,68 @@ WaterSquirt::WaterSquirt(int x, int y, Direction direction, StudentWorld* world)
 WaterSquirt::~WaterSquirt()
 {}
 
-void WaterSquirt::doSomething()
+void WaterSquirt::do_something()
 {
   int direction = get_direction();
-  StudentWorld* world = returnWorld();
+  StudentWorld* world = return_world();
   int x = get_x();
   int y = get_y();
-  bool isDirt = false;
+  bool is_dirt = false;
   
-  if (!isAlive())
+  if (!is_alive())
     return;
   
-  if (returnWorld()->isNearProtester(this, 3)) //If next to protester, stop moving
+  if (return_world()->is_near_protester(this, 3)) //If next to protester, stop moving
   {
-    returnWorld()->annoyProtester(this, 2);
-    setAlive(false);
+    return_world()->annoy_protester(this, 2);
+    set_alive(false);
     set_visible(false);
   }
   
   if (m_distance == 0) //If squirt traveled its distance, then remove squirt
   {
-    setAlive(false);
+    set_alive(false);
     set_visible(false);
   }
   
   switch (direction) //Check to see if squirt can move in the given direction
   {
     case left:
-      if (world->isDirt(x, y, left) || (x < 0))
-        isDirt = true;
+      if (world->is_dirt(x, y, left) || (x < 0))
+        is_dirt = true;
       break;
     case right:
-      if (world->isDirt(x, y, right) || (x > 60))
-        isDirt = true;
+      if (world->is_dirt(x, y, right) || (x > 60))
+        is_dirt = true;
       break;
     case down:
-      if (world->isDirt(x, y, down) || (y < 0))
-        isDirt = true;
+      if (world->is_dirt(x, y, down) || (y < 0))
+        is_dirt = true;
       break;
     case up:
-      if (world->isDirt(x, y, up) || (y > 60))
-        isDirt = true;
+      if (world->is_dirt(x, y, up) || (y > 60))
+        is_dirt = true;
       break;
   }
-  if (isDirt == true ||
-      returnWorld()->isNearBoulder(get_x(), get_y(), 3))
+  if (is_dirt == true ||
+      return_world()->is_near_boulder(get_x(), get_y(), 3))
   {
-    setAlive(false);
+    set_alive(false);
     set_visible(false);
   }
   
   else
   {
-    moveDir(get_direction(), 1); //If the squirt moves, then reduce it's allowed travel distance
+    move_dir(get_direction(), 1); //If the squirt moves, then reduce it's allowed travel distance
     m_distance--;
   }
   
 }
 
-void WaterSquirt::getAnnoyed(int howMuch)
+void WaterSquirt::get_annoyed(int how_much)
 {}
 
-void WaterSquirt::setBribe()
+void WaterSquirt::set_bribe()
 {}
 
 
@@ -925,36 +925,36 @@ WaterPool::WaterPool(int x, int y, StudentWorld* world)
 :Actor(IID_WATER_POOL, x, y, right, 1.0, 2, world)
 {
   set_visible(true);
-  m_ticks = max(100, 300 - 10 * returnWorld()->getCurrentLevel());
+  m_ticks = max(100, 300 - 10 * return_world()->get_current_level());
 }
 
 WaterPool::~WaterPool()
 {}
 
-void WaterPool::doSomething()
+void WaterPool::do_something()
 {
   m_ticks--;
-  if (!isAlive())
+  if (!is_alive())
     return;
   if (m_ticks <= 0) //If ticks runs out, remove pool from oil field
   {
-    setAlive(false);
+    set_alive(false);
     set_visible(false);
     return;
   }
-  if (returnWorld()->isNearFrackMan(this, 3)) //FrackMan picks up the pool of water
+  if (return_world()->is_near_frackman(this, 3)) //FrackMan picks up the pool of water
   {
-    setAlive(false);
-    returnWorld()->play_sound(SOUND_GOT_GOODIE);
-    returnWorld()->setSquirts(5);
-    returnWorld()->increase_score(100);
+    set_alive(false);
+    return_world()->play_sound(SOUND_GOT_GOODIE);
+    return_world()->set_squirts(5);
+    return_world()->increase_score(100);
   }
 }
 
-void WaterPool::getAnnoyed(int howMuch)
+void WaterPool::get_annoyed(int how_much)
 {}
 
-void WaterPool::setBribe()
+void WaterPool::set_bribe()
 {}
 
 
@@ -971,16 +971,16 @@ Dirt::Dirt(int x, int y, StudentWorld* world)
 Dirt::~Dirt()
 {}
 
-void Dirt::doSomething()
+void Dirt::do_something()
 {}
 
-void Dirt::getAnnoyed(int howMuch)
+void Dirt::get_annoyed(int how_much)
 {}
 
-bool Dirt::canActorsPassThroughMe() const
+bool Dirt::can_actors_pass_through_me() const
 {
   return false;
 }
 
-void Dirt::setBribe()
+void Dirt::set_bribe()
 {}

@@ -119,9 +119,9 @@ void GameController::initDrawersAndSounds()
 		m_soundMap[sounds[k].first] = sounds[k].second;
 }
 
-static void doSomethingCallback()
+static void do_somethingCallback()
 {
-	Game().doSomething();
+	Game().do_something();
 }
 
 static void reshapeCallback(int w, int h)
@@ -141,7 +141,7 @@ static void specialKeyboardEventCallback(int key, int x, int y)
 
 static void timerFuncCallback(int val)
 {
-	Game().doSomething();
+	Game().do_something();
 	glutTimerFunc(MS_PER_FRAME, timerFuncCallback, 0);
 }
 
@@ -167,7 +167,7 @@ void GameController::run(int argc, char* argv[], GameWorld* gw, string windowTit
 	glutKeyboardFunc(keyboardEventCallback);
 	glutSpecialFunc(specialKeyboardEventCallback);
 	glutReshapeFunc(reshapeCallback);
-	glutDisplayFunc(doSomethingCallback);
+	glutDisplayFunc(do_somethingCallback);
 	glutTimerFunc(MS_PER_FRAME, timerFuncCallback, 0);
 
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
@@ -218,7 +218,7 @@ void GameController::play_sound(int soundID)
 	}
 }
 
-void GameController::doSomething()
+void GameController::do_something()
 {
 	switch (m_gameState)
 	{

@@ -222,7 +222,7 @@ int     glutJoystickGetNumAxes( int ident );
 int     glutJoystickGetNumButtons( int ident );
 int     glutJoystickNotWorking( int ident );
 float   glutJoystickGetDeadBand( int ident, int axis );
-void    glutJoystickSetDeadBand( int ident, int axis, float db );
+void    glutJoystickset_deadBand( int ident, int axis, float db );
 float   glutJoystickGetSaturation( int ident, int axis );
 void    glutJoystickSetSaturation( int ident, int axis, float st );
 void    glutJoystickSetMinRange( int ident, float *axes );

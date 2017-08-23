@@ -34,9 +34,9 @@ class GameController;
 class GameWorld {
   public:
     // Constructor
-    GameWorld(std::string assetDir)
+    GameWorld(std::string asset_dir)
      : m_lives(START_PLAYER_LIVES), m_score(0), m_level(0),
-       m_controller(nullptr), m_assetDir(assetDir) {}
+       m_controller(nullptr), m_asset_dir(asset_dir) {}
     // Destructor
     virtual ~GameWorld() {}
     // Pure Virtual Functions
@@ -88,7 +88,7 @@ class GameWorld {
     }
       // Access of the images and sound effects in the assets directory
     std::string asset_directory() const {
-      return m_assetDir;
+      return m_asset_dir;
     }
 	
   private:
@@ -96,7 +96,7 @@ class GameWorld {
     UINT	m_score;
     UINT	m_level;
     GameController* m_controller;
-    std::string		m_assetDir;
+    std::string		m_asset_dir;
 };
 
 #endif // GAMEWORLD_H_

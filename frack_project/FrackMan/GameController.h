@@ -39,7 +39,7 @@ class GameController
 		m_gameStatText = text;
 	}
 
-	void doSomething();
+	void do_something();
 
 	void reshape(int w, int h);
 	void keyboardEvent(unsigned char key, int x, int y);

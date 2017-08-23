@@ -38,21 +38,21 @@ class Actor : public GraphObject //abstract base class
 {
 public:
   
-  Actor(int imageID, int startX, int startY, Direction startDirection,
+  Actor(int image_id, int start_x, int start_y, Direction start_direction,
         float size, unsigned int depth, StudentWorld* world);
   virtual ~Actor();
-  StudentWorld* returnWorld() const;
-  virtual void doSomething() = 0;
-  virtual void getAnnoyed(int howMuch) = 0;
-  virtual void setBribe() = 0;
-  virtual bool canActorsPassThroughMe() const;
-  bool isAlive() const;
-  void setAlive(bool value);
-  bool moveDir(int direction, int numSquaresToMove);
+  StudentWorld* return_world() const;
+  virtual void do_something() = 0;
+  virtual void get_annoyed(int how_much) = 0;
+  virtual void set_bribe() = 0;
+  virtual bool can_actors_pass_through_me() const;
+  bool is_alive() const;
+  void set_alive(bool value);
+  bool move_dir(int direction, int num_squares_to_move);
   
 private:
   StudentWorld* m_world;
-  bool m_isAlive;
+  bool m_is_alive;
 };
 
 
@@ -63,31 +63,31 @@ private:
 class Protester : public Actor //abstract base class
 {
 public:
-  Protester(int imageID, int startX, int startY, Direction startDirection, float size, unsigned int depth, StudentWorld* world, int health);
+  Protester(int image_id, int start_x, int start_y, Direction start_direction, float size, unsigned int depth, StudentWorld* world, int health);
   virtual ~Protester();
-  virtual void doSomething() = 0;
-  void doesTheSomething();
-  virtual void getAnnoyed(int howMuch);
-  virtual void setBribe();
-  int getHealth() const;
-  bool getLeaveOilFieldState() const;
-  void setLeaveOilFieldState(bool value);
-  void decHealth(int hitpoints);  ///
-  void hitByBoulder();
-  void setDead();
-  void changeDirectionToMove();
-  bool canMove(int x, int y, int direction);
-  void doMove(int x, int y, int direction);
+  virtual void do_something() = 0;
+  void does_the_something();
+  virtual void get_annoyed(int how_much);
+  virtual void set_bribe();
+  int get_health() const;
+  bool get_leave_oil_field_state() const;
+  void set_leave_oil_field_state(bool value);
+  void dec_health(int hitpoints);  ///
+  void hit_by_boulder();
+  void set_dead();
+  void change_direction_to_move();
+  bool can_move(int x, int y, int direction);
+  void do_move(int x, int y, int direction);
   
 private:
   int m_health;
-  bool leaveField;
-  int numMoves;
-  int restingTicks;
-  int newRestingTicks;
-  int waitingTicksToShout;
-  bool hasShouted;
-  int shoutCounter;
+  bool leave_field;
+  int num_moves;
+  int resting_ticks;
+  int new_resting_ticks;
+  int waiting_ticks_to_shout;
+  bool has_shouted;
+  int shout_counter;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ class RegularProtester : public Protester
 public:
   RegularProtester(int x, int y, StudentWorld* world);
   virtual ~RegularProtester();
-  virtual void doSomething();
+  virtual void do_something();
   
 private: ///
 };
@@ -115,8 +115,8 @@ class HardcoreProtester : public Protester
 public:
   HardcoreProtester(int x, int y, StudentWorld* world);
   virtual ~HardcoreProtester();
-  virtual void doSomething();
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void set_bribe();
   
 private: ///
 };
@@ -131,18 +131,18 @@ class FrackMan : public Actor
 public:
   FrackMan(int x, int y, StudentWorld* world);
   virtual ~FrackMan();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  bool validPosition(int x, int y) const;
-  int getSquirts() const;
-  int getSonars() const;
-  int getGold() const;
-  int getHealth() const;
-  void setSquirts(int howMuch);
-  void setSonars(int howMuch);
-  void setGold(int howMuch);
-  void setDead();
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  bool valid_position(int x, int y) const;
+  int get_squirts() const;
+  int get_sonars() const;
+  int get_gold() const;
+  int get_health() const;
+  void set_squirts(int how_much);
+  void set_sonars(int how_much);
+  void set_gold(int how_much);
+  void set_dead();
+  virtual void set_bribe();
   
 private:
   int m_squirts;
@@ -161,10 +161,10 @@ class Dirt : public Actor
 public:
   Dirt(int x, int y, StudentWorld* world);
   virtual ~Dirt();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  virtual bool canActorsPassThroughMe() const;
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  virtual bool can_actors_pass_through_me() const;
+  virtual void set_bribe();
   
 private:
 };
@@ -179,17 +179,17 @@ class Boulder : public Actor
 public:
   Boulder(int x, int y, StudentWorld* world);
   virtual ~Boulder();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  bool isDirtBelow() const;
-  int getWaitingStateCounter() const;
-  void moveBoulder();
-  virtual bool canActorsPassThroughMe() const;
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  bool is_dirt_below() const;
+  int get_waiting_state_counter() const;
+  void move_boulder();
+  virtual bool can_actors_pass_through_me() const;
+  virtual void set_bribe();
   
 private:
   int m_state;
-  int m_waitingStateCounter;
+  int m_waiting_state_counter;
   
 };
 
@@ -203,9 +203,9 @@ class Barrel : public Actor
 public:
   Barrel(int x, int y, StudentWorld* world);
   virtual ~Barrel();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  virtual void set_bribe();
   
 private:
 };
@@ -220,9 +220,9 @@ class Gold : public Actor
 public:
   Gold(int x, int y, StudentWorld* world);
   virtual ~Gold();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  virtual void set_bribe();
   
 private:
 };
@@ -237,9 +237,9 @@ class Bribe : public Actor
 public:
   Bribe(int x, int y, StudentWorld* world);
   virtual ~Bribe();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  virtual void set_bribe();
   
 private:
   int m_ticks;
@@ -255,9 +255,9 @@ class Sonar : public Actor
 public:
   Sonar(int x, int y, StudentWorld* world);
   virtual ~Sonar();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  virtual void set_bribe();
   
 private:
   int m_ticks;
@@ -273,9 +273,9 @@ class WaterSquirt : public Actor
 public:
   WaterSquirt(int x, int y, Direction direction, StudentWorld* world);
   virtual ~WaterSquirt();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  virtual void set_bribe();
   
 private:
   int m_distance;
@@ -291,9 +291,9 @@ class WaterPool : public Actor
 public:
   WaterPool(int x, int y, StudentWorld* world);
   virtual ~WaterPool();
-  virtual void doSomething();
-  virtual void getAnnoyed(int howMuch);
-  virtual void setBribe();
+  virtual void do_something();
+  virtual void get_annoyed(int how_much);
+  virtual void set_bribe();
   
 private:
   int m_ticks;

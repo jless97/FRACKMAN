@@ -15,7 +15,7 @@ const string asset_directory = "/Users/JasonLess/Desktop/FRACKMAN/frack_project/
 
 class GameWorld;
 
-GameWorld* createStudentWorld(string assetDir = "");
+GameWorld* createStudentWorld(string asset_dir = "");
 
 int main(int argc, char* argv[])
 {

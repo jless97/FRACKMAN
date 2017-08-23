@@ -27,9 +27,9 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////
 
 // Creates a game world object pointer, which points to this student world object (used in main.c)
-GameWorld* createStudentWorld(string assetDir)
+GameWorld* createStudentWorld(string asset_dir)
 {
-  return new StudentWorld(assetDir);
+  return new StudentWorld(asset_dir);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -40,8 +40,8 @@ GameWorld* createStudentWorld(string assetDir)
  * to initialize the GameWorld object
  */
 
-StudentWorld::StudentWorld(std::string assetDir)
-:GameWorld(assetDir), m_currentLevel(0)
+StudentWorld::StudentWorld(std::string asset_dir)
+:GameWorld(asset_dir), m_currentLevel(0)
 {}
 
 StudentWorld::~StudentWorld()
@@ -59,11 +59,11 @@ int StudentWorld::init()
   m_barrels = 0;
   m_protesters = 0;
   
-  m_frackMan = new FrackMan(30, 60, this);
+  m_frackman = new FrackMan(30, 60, this);
   
-  createDirt();
+  create_dirt();
   
-  addInitialActors();                                         // Add initial objects
+  add_initial_actors();                                         // Add initial objects
   
   return GWSTATUS_CONTINUE_GAME;
 }
@@ -72,10 +72,10 @@ int StudentWorld::move()
 {
   m_ticks++;
   
-  updateDisplayText();                                    // Update status text (see new function)
+  update_display_text();                                    // Update status text (see new function)
   
-  m_frackMan->doSomething();
-  if (!m_frackMan->isAlive())
+  m_frackman->do_something();
+  if (!m_frackman->is_alive())
   {
     dec_lives();
     return GWSTATUS_PLAYER_DIED;
@@ -83,8 +83,8 @@ int StudentWorld::move()
   
   for (unsigned int i = 0; i < m_actor.size(); i++)	// Give each Actor a chance to do something
   {
-    if (m_actor.at(i)->isAlive())
-      m_actor.at(i)->doSomething();
+    if (m_actor.at(i)->is_alive())
+      m_actor.at(i)->do_something();
     else
     {
       int id = m_actor.at(i)->getID();			/// update counts
@@ -96,7 +96,7 @@ int StudentWorld::move()
   }
   
   bool frackManDied = false;
-  if (!m_frackMan->isAlive())
+  if (!m_frackman->is_alive())
   {
     frackManDied = true;
     dec_lives();
@@ -104,7 +104,7 @@ int StudentWorld::move()
   for (unsigned int i = 0; i < m_actor.size(); i++) // Remove newly-dead actors after each tick
   {
     
-    if (!m_actor.at(i)->isAlive())
+    if (!m_actor.at(i)->is_alive())
     {
       delete m_actor.at(i);
       vector<Actor*>::iterator it = m_actor.begin();
@@ -126,7 +126,7 @@ int StudentWorld::move()
   if (frackManDied)
     return GWSTATUS_PLAYER_DIED;
   
-  addMoreActors();									// add protesters, waterpools, sonars
+  add_more_actors();									// add protesters, waterpools, sonars
   
   return GWSTATUS_CONTINUE_GAME;
 }
@@ -134,7 +134,7 @@ int StudentWorld::move()
 
 void StudentWorld::clean_up()
 {
-  delete m_frackMan;
+  delete m_frackman;
   
   for (unsigned int i = 0; i < m_actor.size(); i++)		// Delete the actors in the vector container
     delete m_actor.at(i);
@@ -151,51 +151,51 @@ void StudentWorld::clean_up()
 //////////////-----------STUDENTWORLD FUNCTIONS--------------//////////////
 ///////////////////////////////////////////////////////////////////////////
 
-void StudentWorld::killFrackMan()
+void StudentWorld::kill_frackman()
 {
-  m_frackMan->setDead();
+  m_frackman->set_dead();
 }
 
-void StudentWorld::annoyFrackMan()
+void StudentWorld::annoy_frackman()
 {
-  m_frackMan->getAnnoyed(2);
+  m_frackman->get_annoyed(2);
 }
 
-void StudentWorld::annoyProtester(Actor* a, int howMuch)
+void StudentWorld::annoy_protester(Actor* a, int how_much)
 {
   //Check to find protester, and if it is the right protester, annoy him
   for (unsigned int i = 0; i < m_actor.size(); i++)
   {
-    int imageID = m_actor.at(i)->getID();
-    if (imageID == IID_PROTESTER || imageID == IID_HARD_CORE_PROTESTER)
+    int image_id = m_actor.at(i)->getID();
+    if (image_id == IID_PROTESTER || image_id == IID_HARD_CORE_PROTESTER)
     {
       if (radius(a->get_x(), a->get_y(), m_actor.at(i)->get_x(), m_actor.at(i)->get_y()) <= 4)
-        m_actor.at(i)->getAnnoyed(howMuch);
+        m_actor.at(i)->get_annoyed(how_much);
     }
   }
 }
 
-void StudentWorld::setBarrel(int howMuch)
+void StudentWorld::set_barrel(int how_much)
 {
-  m_barrels += howMuch;
+  m_barrels += how_much;
 }
 
-void StudentWorld::setSquirts(int howMuch)
+void StudentWorld::set_squirts(int how_much)
 {
-  m_frackMan->setSquirts(howMuch);
+  m_frackman->set_squirts(how_much);
 }
 
-void StudentWorld::setSonars(int howMuch)
+void StudentWorld::set_sonars(int how_much)
 {
-  m_frackMan->setSonars(howMuch);
+  m_frackman->set_sonars(how_much);
 }
 
-void StudentWorld::setGold(int howMuch)
+void StudentWorld::set_gold(int how_much)
 {
-  m_frackMan->setGold(howMuch);
+  m_frackman->set_gold(how_much);
 }
 
-void StudentWorld::setBribe(int howMuch)
+void StudentWorld::set_bribe(int how_much)
 {
   //Find the protester, and give him the gold (bribe)
   int count = 0;
@@ -207,40 +207,40 @@ void StudentWorld::setBribe(int howMuch)
       break;
     if ((*it)->getID() == IID_PROTESTER || (*it)->getID() == IID_HARD_CORE_PROTESTER)
     {
-      (*it)->setBribe();
+      (*it)->set_bribe();
       count++;
     }
     it++;
   }
 }
 
-void StudentWorld::addBribe(Actor* a)
+void StudentWorld::add_bribe(Actor* a)
 {
   // Add gold (bribe) to the oil field
   m_actor.push_back(new Bribe(a->get_x(), a->get_y(), this));
 }
 
-void StudentWorld::addWaterSquirt(Actor* a, Actor::Direction direction)
+void StudentWorld::add_water_squirt(Actor* a, Actor::Direction direction)
 {
   //Add a squirt object to the oil field, depending on coordinates and direction of FrackMan
   int x = a->get_x();
   int y = a->get_y();
   
   if (direction == Actor::left)
-    if (!(isDirt(x - 3, y) && !(isBoulder(x - 3, y, Actor::left))))
+    if (!(is_dirt(x - 3, y) && !(is_boulder(x - 3, y, Actor::left))))
       m_actor.push_back(new WaterSquirt(a->get_x() - 3, a->get_y(), direction, this));
   if (direction == Actor::right)
-    if (!(isDirt(x + 3, y) && !(isBoulder(x + 3, y, Actor::right))))
+    if (!(is_dirt(x + 3, y) && !(is_boulder(x + 3, y, Actor::right))))
       m_actor.push_back(new WaterSquirt(a->get_x() + 3, a->get_y(), direction, this));
   if (direction == Actor::down)
-    if (!(isDirt(x, y - 3) && !(isBoulder(x, y - 3, Actor::up))))
+    if (!(is_dirt(x, y - 3) && !(is_boulder(x, y - 3, Actor::up))))
       m_actor.push_back(new WaterSquirt(a->get_x(), a->get_y() - 3, direction, this));
   if (direction == Actor::up)
-    if (!(isDirt(x, y + 3) && !(isBoulder(x, y + 3, Actor::up))))
+    if (!(is_dirt(x, y + 3) && !(is_boulder(x, y + 3, Actor::up))))
       m_actor.push_back(new WaterSquirt(a->get_x(), a->get_y() + 3, direction, this));
 }
 
-void StudentWorld::addInitialActors()
+void StudentWorld::add_initial_actors()
 {
   // Add a Protester on very first tick
   m_actor.push_back(new RegularProtester(60, 60, this));
@@ -249,9 +249,9 @@ void StudentWorld::addInitialActors()
   int gold = max(5 - m_currentLevel / 2, 2);
   for (int i = 0; i < gold;)
   {
-    int x = randInt(0, 60);
-    int y = randInt(20, 56);
-    if (isPlaceable(x, y))
+    int x = rand_int(0, 60);
+    int y = rand_int(20, 56);
+    if (is_placeable(x, y))
     {
       m_actor.push_back(new Gold(x, y, this));
       i++;
@@ -262,9 +262,9 @@ void StudentWorld::addInitialActors()
   int barrels = min(2 + m_currentLevel, 20);
   for (int i = 0; i < barrels;)
   {
-    int x = randInt(0, 60);
-    int y = randInt(20, 56);
-    if (isPlaceable(x, y))
+    int x = rand_int(0, 60);
+    int y = rand_int(20, 56);
+    if (is_placeable(x, y))
     {
       m_actor.push_back(new Barrel(x, y, this));
       m_barrels++;
@@ -276,20 +276,20 @@ void StudentWorld::addInitialActors()
   int boulders = min(m_currentLevel / 2 + 2, 6);
   for (int i = 0; i < boulders;)
   {
-    int x = randInt(0, 60);
-    int y = randInt(20, 56);
-    if (isPlaceable(x, y))
+    int x = rand_int(0, 60);
+    int y = rand_int(20, 56);
+    if (is_placeable(x, y))
     {
       m_actor.push_back(new Boulder(x, y, this));
       
       // Remove dirt around boulder
-      removeDirt(x, y);
+      remove_dirt(x, y);
       i++;
     }
   }
 }
 
-void StudentWorld::addMoreActors()
+void StudentWorld::add_more_actors()
 {
   // add protester
   if (m_ticks >= max(25, 200 - m_currentLevel))
@@ -317,14 +317,14 @@ void StudentWorld::addMoreActors()
       do {
         x = rand() % 60;
         y = rand() % 56;
-      } while ((noDirt(x,y) == false) || (checkRadius(x,y) == false));
+      } while ((no_dirt(x,y) == false) || (check_radius(x,y) == false));
       
       m_actor.push_back(new WaterPool(x, y, this));
     }
   }
 }
 
-bool StudentWorld::isPlaceable(int x, int y)
+bool StudentWorld::is_placeable(int x, int y)
 {
   //Used for initial placement of boulders
   vector<Actor*>::iterator it = m_actor.begin();
@@ -340,7 +340,7 @@ bool StudentWorld::isPlaceable(int x, int y)
   return true;
 }
 
-bool StudentWorld::checkRadius(int x, int y)
+bool StudentWorld::check_radius(int x, int y)
 {
   //Check to make sure there isn't another actor occupying a given location
   vector<Actor*>::iterator it = m_actor.begin();
@@ -354,14 +354,14 @@ bool StudentWorld::checkRadius(int x, int y)
   return true;
 }
 
-bool StudentWorld::isNearFrackMan(Actor* a, int r) const
+bool StudentWorld::is_near_frackman(Actor* a, int r) const
 {
-  if (radius(m_frackMan->get_x(), m_frackMan->get_y(), a->get_x(), a->get_y()) <= r)
+  if (radius(m_frackman->get_x(), m_frackman->get_y(), a->get_x(), a->get_y()) <= r)
     return true;
   return false;
 }
 
-bool StudentWorld::isNearProtester(Actor* a, int r)
+bool StudentWorld::is_near_protester(Actor* a, int r)
 {
   vector<Actor*>::iterator it = m_actor.begin();
   
@@ -377,7 +377,7 @@ bool StudentWorld::isNearProtester(Actor* a, int r)
   return false;
 }
 
-void StudentWorld::isNearActor(Actor* a, int r)
+void StudentWorld::is_near_actor(Actor* a, int r)
 {
   //Check to see if frackman is near a barrel or gold
   vector<Actor*>::iterator it = m_actor.begin();
@@ -393,7 +393,7 @@ void StudentWorld::isNearActor(Actor* a, int r)
   }
 }
 
-bool StudentWorld::isNearBoulder(int x, int y, int r)
+bool StudentWorld::is_near_boulder(int x, int y, int r)
 {
   //Check to see if an actor is near a boulder
   vector<Actor*>::iterator it = m_actor.begin();
@@ -410,12 +410,12 @@ bool StudentWorld::isNearBoulder(int x, int y, int r)
   return false;
 }
 
-bool StudentWorld::facingTowardFrackMan(Actor* a) const
+bool StudentWorld::facing_toward_frackman(Actor* a) const
 {
   return true;  /// to be done
 }
 
-GraphObject::Direction StudentWorld::lineOfSightToFrackMan(Actor* a) const
+GraphObject::Direction StudentWorld::line_of_sight_to_frackman(Actor* a) const
 {
   //If the protester is in line with the FrackMan, then set its direction to that given direction
   int x = a->get_x();
@@ -423,8 +423,8 @@ GraphObject::Direction StudentWorld::lineOfSightToFrackMan(Actor* a) const
   
   GraphObject::Direction dir;
   
-  int target_x = m_frackMan->get_x();
-  int target_y = m_frackMan->get_y();
+  int target_x = m_frackman->get_x();
+  int target_y = m_frackman->get_y();
   
   dir = GraphObject::up;
   for (int i = y; i < 61; i++) {
@@ -459,8 +459,8 @@ GraphObject::Direction StudentWorld::lineOfSightToFrackMan(Actor* a) const
 	
 	GraphObject::Direction dir;
  
-	int target_x = m_frackMan->get_x();
-	int target_y = m_frackMan->get_y();
+	int target_x = m_frackman->get_x();
+	int target_y = m_frackman->get_y();
  
 	dir = GraphObject::up;
 	for (int i = y; i < 60; i++) {
@@ -487,22 +487,22 @@ GraphObject::Direction StudentWorld::lineOfSightToFrackMan(Actor* a) const
  }
  */
 
-bool StudentWorld::canActormove_to(Actor* a, int x, int y) const
+bool StudentWorld::can_actor_move_to(Actor* a, int x, int y) const
 {
   if (x<0 || x>60 || y<0 || y>60)
     return false;
   
-  if (isDirt(x, y))
+  if (is_dirt(x, y))
     return false;
   
-  if (isBoulder(x,y, a->get_direction()))
+  if (is_boulder(x,y, a->get_direction()))
     return false;
   
   return true;
 }
 
 
-void StudentWorld::updateDisplayText()
+void StudentWorld::update_display_text()
 {
   int score = get_score();
   if (score < 0)
@@ -511,16 +511,16 @@ void StudentWorld::updateDisplayText()
 		"Scr: " + std::string(6 - to_string(score).length(), '0') + to_string(score) + "  "
 		+ "Lvl: " + std::string(2 - to_string(m_currentLevel).length(), ' ') + to_string(m_currentLevel) + "  "
 		+ "Lives: " + to_string(get_lives()) + "  "
-		+ "Hlth: " + std::string(3 - to_string(m_frackMan->getHealth() * 10).length(), ' ') + to_string(m_frackMan->getHealth() * 10) + "%  "
-		+ "Wtr: " + std::string(2 - to_string(m_frackMan->getSquirts()).length(), ' ') + to_string(m_frackMan->getSquirts()) + "  "
-		+ "Gld: " + std::string(2 - to_string(m_frackMan->getGold()).length(), ' ') + to_string(m_frackMan->getGold()) + "  "
-		+ "Sonar: " + std::string(2 - to_string(m_frackMan->getSonars()).length(), ' ') + to_string(m_frackMan->getSonars()) + "  "
+		+ "Hlth: " + std::string(3 - to_string(m_frackman->get_health() * 10).length(), ' ') + to_string(m_frackman->get_health() * 10) + "%  "
+		+ "Wtr: " + std::string(2 - to_string(m_frackman->get_squirts()).length(), ' ') + to_string(m_frackman->get_squirts()) + "  "
+		+ "Gld: " + std::string(2 - to_string(m_frackman->get_gold()).length(), ' ') + to_string(m_frackman->get_gold()) + "  "
+		+ "Sonar: " + std::string(2 - to_string(m_frackman->get_sonars()).length(), ' ') + to_string(m_frackman->get_sonars()) + "  "
 		+ "Oil Left: " + std::string(2 - to_string(m_barrels).length(), ' ') + to_string(m_barrels);
   
   set_game_stat_text(text);
 }
 
-int StudentWorld::getCurrentLevel() const
+int StudentWorld::get_current_level() const
 {
   //Was having a problem with the getLevel()
   return m_currentLevel;
@@ -537,7 +537,7 @@ double StudentWorld::radius(int x1, int y1, int x2, int y2) const
   return distance;
 }
 
-int StudentWorld::randInt(int min, int max)
+int StudentWorld::rand_int(int min, int max)
 {
   //Generate a random number (taken from project 1)
   if (max < min)
@@ -548,7 +548,7 @@ int StudentWorld::randInt(int min, int max)
   return distro(generator);
 }
 
-void StudentWorld::createDirt()
+void StudentWorld::create_dirt()
 {
   for (int i = 0; i < 30; i++)   //Create all the dirt objects and set their visible/invisible status
   {
@@ -588,7 +588,7 @@ void StudentWorld::createDirt()
   }
 }
 
-bool StudentWorld::isDirt(int x, int y) const
+bool StudentWorld::is_dirt(int x, int y) const
 {
   if (x < 0 || x > 60 || y < 0 || y > 60)
     return false;
@@ -597,7 +597,7 @@ bool StudentWorld::isDirt(int x, int y) const
   return false;
 }
 
-bool StudentWorld::isDirt(int x, int y, int direction) const
+bool StudentWorld::is_dirt(int x, int y, int direction) const
 {
   if (x < 0 || x > 60 || y < 0 || y > 60)
     return false;
@@ -653,9 +653,9 @@ bool StudentWorld::isDirt(int x, int y, int direction) const
 }
 
 
-bool StudentWorld::noDirt(int startX, int startY) const
+bool StudentWorld::no_dirt(int start_x, int start_y) const
 {
-  if (startX> VIEW_WIDTH - 4 || startY> VIEW_HEIGHT - 4)
+  if (start_x> VIEW_WIDTH - 4 || start_y> VIEW_HEIGHT - 4)
   {
     return false;
   }
@@ -663,7 +663,7 @@ bool StudentWorld::noDirt(int startX, int startY) const
   {
     for (int j = 0; j<4; j++)
     {
-      if (isDirt(startX + i, startY + j) == true)
+      if (is_dirt(start_x + i, start_y + j) == true)
       {
         return false;
       }
@@ -672,7 +672,7 @@ bool StudentWorld::noDirt(int startX, int startY) const
   return true;
 }
 
-bool StudentWorld::isBoulder(int x, int y, int direction) const
+bool StudentWorld::is_boulder(int x, int y, int direction) const
 {
   if (x < 0 || x > 60 || y < 0 || y > 60)
     return false;
@@ -680,8 +680,8 @@ bool StudentWorld::isBoulder(int x, int y, int direction) const
   bool boulderPresent = false;
   for (unsigned int i = 0; i < m_actor.size(); i++)
   {
-    int imageID = m_actor.at(i)->getID();
-    if (imageID == IID_BOULDER)
+    int image_id = m_actor.at(i)->getID();
+    if (image_id == IID_BOULDER)
     {
       int a = m_actor.at(i)->get_x();
       int b = m_actor.at(i)->get_y();
@@ -747,28 +747,28 @@ bool StudentWorld::isBoulder(int x, int y, int direction) const
   return false;
 }
 
-bool StudentWorld::removeDirt(int x, int y, int direction)
+bool StudentWorld::remove_dirt(int x, int y, int direction)
 {
   bool play_sound = false; //To keep track of when dirt is being mined (set to invisible)
   
   for (int i = 0; i < 4; i++) //Check to see if FrackMan spawns in dirt location
   {
-    if (isDirt(x, y + i)) //If FrackMan were to be placed in dirt to begin, set all dirt to invisible
+    if (is_dirt(x, y + i)) //If FrackMan were to be placed in dirt to begin, set all dirt to invisible
     {
       m_dirt[x][y + i]->set_visible(false);
       play_sound = true;
     }
-    if (isDirt(x + 1, y + i))
+    if (is_dirt(x + 1, y + i))
     {
       m_dirt[x + 1][y + i]->set_visible(false);
       play_sound = true;
     }
-    if (isDirt(x + 2, y + i))
+    if (is_dirt(x + 2, y + i))
     {
       m_dirt[x + 2][y + i]->set_visible(false);
       play_sound = true;
     }
-    if (isDirt(x + 3, y + i))
+    if (is_dirt(x + 3, y + i))
     {
       m_dirt[x + 3][y + i]->set_visible(false);
       play_sound = true;
@@ -779,7 +779,7 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
   {
     case KEY_PRESS_LEFT:
       for (int i = 0; i < 4; i++)
-        if (isDirt(x, y + i))
+        if (is_dirt(x, y + i))
         {
           play_sound = true;
           m_dirt[x][y + i]->set_visible(false);
@@ -787,7 +787,7 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
       break;
     case KEY_PRESS_RIGHT:
       for (int i = 0; i < 4; i++)
-        if (isDirt(x + 3, y + i))
+        if (is_dirt(x + 3, y + i))
         {
           m_dirt[x + 3][y + i]->set_visible(false);
           play_sound = true;
@@ -795,7 +795,7 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
       break;
     case KEY_PRESS_UP:
       for (int i = 0; i < 4; i++)
-        if (isDirt(x + i, y + 3))
+        if (is_dirt(x + i, y + 3))
         {
           m_dirt[x + i][y + 3]->set_visible(false);
           play_sound = true;
@@ -803,7 +803,7 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
       break;
     case KEY_PRESS_DOWN:
       for (int i = 0; i < 4; i++)
-        if (isDirt(x + i, y))
+        if (is_dirt(x + i, y))
         {
           m_dirt[x + i][y]->set_visible(false);
           play_sound = true;
@@ -815,7 +815,7 @@ bool StudentWorld::removeDirt(int x, int y, int direction)
   return false;
 }
 
-void StudentWorld::removeDirt(int x, int y)
+void StudentWorld::remove_dirt(int x, int y)
 {
   for (int i = x; i < x + 4; i++)
   {
