@@ -16,15 +16,17 @@
 /////////////////////-----------INCLUDES--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-#include "globals.h"
 #include "GraphObject.h"
 
+
 ///////////////////////////////////////////////////////////////////////////
-//////////////////////-----------GLOBALS--------------/////////////////////
+/////////////////////-----------GLOBALS--------------//////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-#define EDGE_LOWER 0
-#define EDGE_UPPER 60
+const int STABLE_STATE = 1;
+const int WAITING_STATE = 2;
+const int FALLING_STATE = 3;
+
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////-----------ACTOR--------------//////////////////////
@@ -32,100 +34,269 @@
 
 class StudentWorld;
 
-/* Derived from GraphObject:
- int        m_image_id;          // Supply image ID
- bool       m_visible;          // Objects start out invisible
- double     m_x;                // Supply initial x-coord
- double     m_y;                // Supply initial y-coord
- double     m_destX;            // Same as m_x
- double     m_destY;            // Same as m_y
- double     m_brightness;       // Objects have brightness of 1
- int		m_animationNumber;      // Objects have animation of 0
- Direction	m_direction;        // Supply initial direction
- double     m_size;             // Supply object's size
- int		m_depth;                // Supply the depth of the object
- Additional Actor objects:
- StudentWorld* world;           // Each actor needs to point to the oil field object
-*/
-class Actor : public GraphObject {
-  public:
-    // Constructor
-    Actor(int image_id, int start_x, int start_y, Direction start_direction,
-          float size, UINT depth, StudentWorld* world);
-    // Destructor
-    virtual ~Actor();
-    // Pure virtual (as each derived actor object does a different doSomething function)
-    virtual void do_something() = 0;
-    StudentWorld* return_world() const;
-    
-  private:
-    // TODO: Add Actor variables
-    StudentWorld* m_world;
+class Actor : public GraphObject //abstract base class
+{
+public:
+  
+  Actor(int imageID, int startX, int startY, Direction startDirection,
+        float size, unsigned int depth, StudentWorld* world);
+  virtual ~Actor();
+  StudentWorld* returnWorld() const;
+  virtual void doSomething() = 0;
+  virtual void getAnnoyed(int howMuch) = 0;
+  virtual void setBribe() = 0;
+  virtual bool canActorsPassThroughMe() const;
+  bool isAlive() const;
+  void setAlive(bool value);
+  bool moveDir(int direction, int numSquaresToMove);
+  
+private:
+  StudentWorld* m_world;
+  bool m_isAlive;
+};
+
+
+///////////////////////////////////////////////////////////////////////////
+////////////////////-----------PROTESTER--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+class Protester : public Actor //abstract base class
+{
+public:
+  Protester(int imageID, int startX, int startY, Direction startDirection, float size, unsigned int depth, StudentWorld* world, int health);
+  virtual ~Protester();
+  virtual void doSomething() = 0;
+  void doesTheSomething();
+  virtual void getAnnoyed(int howMuch);
+  virtual void setBribe();
+  int getHealth() const;
+  bool getLeaveOilFieldState() const;
+  void setLeaveOilFieldState(bool value);
+  void decHealth(int hitpoints);  ///
+  void hitByBoulder();
+  void setDead();
+  void changeDirectionToMove();
+  bool canMove(int x, int y, int direction);
+  void doMove(int x, int y, int direction);
+  
+private:
+  int m_health;
+  bool leaveField;
+  int numMoves;
+  int restingTicks;
+  int newRestingTicks;
+  int waitingTicksToShout;
+  bool hasShouted;
+  int shoutCounter;
+};
+
+///////////////////////////////////////////////////////////////////////////
+////////////////-----------REGULAR PROTESTER--------------/////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_Protester
+class RegularProtester : public Protester
+{
+public:
+  RegularProtester(int x, int y, StudentWorld* world);
+  virtual ~RegularProtester();
+  virtual void doSomething();
+  
+private: ///
+};
+
+///////////////////////////////////////////////////////////////////////////
+///////////////-----------HARDCORE PROTESTER--------------/////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_HARD_CORE_Protester
+class HardcoreProtester : public Protester
+{
+public:
+  HardcoreProtester(int x, int y, StudentWorld* world);
+  virtual ~HardcoreProtester();
+  virtual void doSomething();
+  virtual void setBribe();
+  
+private: ///
 };
 
 ///////////////////////////////////////////////////////////////////////////
 /////////////////////-----------FRACKMAN--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-//Image ID : IID_PLAYER
-//Start Location : x = 30, y = 60
-//State: 10 hit points, 5 water units, 1 sonar charge, 0 gold nuggets, Direction: right
-//Depth = 0 (Foreground), size = 1.0;
-//set_visible(true)
-class FrackMan : public Actor {
-  public:
-    // Constructor
-    FrackMan(StudentWorld* world);
-    // Destructor
-    virtual ~FrackMan();
-    // Derived virtual functions
-    virtual void do_something();
-    // TODO: Add FrackMan functions
-    bool isAlive() const;
-    bool validPosition(int x, int y) const;
-    void moveFrackMan(int dir);
-
-  private:
-    int m_health;
-    int m_squirts;
-    int m_sonars;
-    int m_gold;
+//IID_PLAYER
+class FrackMan : public Actor
+{
+public:
+  FrackMan(int x, int y, StudentWorld* world);
+  virtual ~FrackMan();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  bool validPosition(int x, int y) const;
+  int getSquirts() const;
+  int getSonars() const;
+  int getGold() const;
+  int getHealth() const;
+  void setSquirts(int howMuch);
+  void setSonars(int howMuch);
+  void setGold(int howMuch);
+  void setDead();
+  virtual void setBribe();
+  
+private:
+  int m_squirts;
+  int m_sonars;
+  int m_gold;
+  int m_health;
 };
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////-----------DIRT--------------///////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-//Image ID : IID_DIRT
-//Direction : RIGHT
-//depth = 3; (background)
-//size = .25 (1x1 square in the oil field)
-//set_visible(true)
-class Dirt : public Actor {
-  public:
-    // Constructor
-    Dirt(StudentWorld* world, int x, int y);
-    // Destructor
-    virtual ~Dirt();
-    // Derived virtual functions
-    virtual void do_something();
-    // TODO: Add Dirt functions
-    
-  private:
-    // TODO: Add Dirt variables
+//IID_DIRT
+class Dirt : public Actor
+{
+public:
+  Dirt(int x, int y, StudentWorld* world);
+  virtual ~Dirt();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  virtual bool canActorsPassThroughMe() const;
+  virtual void setBribe();
+  
+private:
+};
+
+///////////////////////////////////////////////////////////////////////////
+//////////////////////-----------BOULDER--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_BOULDER
+class Boulder : public Actor
+{
+public:
+  Boulder(int x, int y, StudentWorld* world);
+  virtual ~Boulder();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  bool isDirtBelow() const;
+  int getWaitingStateCounter() const;
+  void moveBoulder();
+  virtual bool canActorsPassThroughMe() const;
+  virtual void setBribe();
+  
+private:
+  int m_state;
+  int m_waitingStateCounter;
+  
+};
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////-----------BARREL--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_BARREL
+class Barrel : public Actor
+{
+public:
+  Barrel(int x, int y, StudentWorld* world);
+  virtual ~Barrel();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  virtual void setBribe();
+  
+private:
+};
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////////-----------GOLD--------------///////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_GOLD
+class Gold : public Actor
+{
+public:
+  Gold(int x, int y, StudentWorld* world);
+  virtual ~Gold();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  virtual void setBribe();
+  
+private:
+};
+
+///////////////////////////////////////////////////////////////////////////
+////////////////////////-----------BRIBE--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_GOLD
+class Bribe : public Actor
+{
+public:
+  Bribe(int x, int y, StudentWorld* world);
+  virtual ~Bribe();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  virtual void setBribe();
+  
+private:
+  int m_ticks;
+};
+
+///////////////////////////////////////////////////////////////////////////
+////////////////////-----------SONAR KIT--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_SONAR
+class Sonar : public Actor
+{
+public:
+  Sonar(int x, int y, StudentWorld* world);
+  virtual ~Sonar();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  virtual void setBribe();
+  
+private:
+  int m_ticks;
+};
+
+///////////////////////////////////////////////////////////////////////////
+//////////////////-----------WATER SQUIRT--------------////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_WATER_SPURT
+class WaterSquirt : public Actor
+{
+public:
+  WaterSquirt(int x, int y, Direction direction, StudentWorld* world);
+  virtual ~WaterSquirt();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  virtual void setBribe();
+  
+private:
+  int m_distance;
+};
+
+///////////////////////////////////////////////////////////////////////////
+///////////////////-----------WATER POOL--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+//IID_WATER_POOL
+class WaterPool : public Actor
+{
+public:
+  WaterPool(int x, int y, StudentWorld* world);
+  virtual ~WaterPool();
+  virtual void doSomething();
+  virtual void getAnnoyed(int howMuch);
+  virtual void setBribe();
+  
+private:
+  int m_ticks;
 };
 
 #endif // ACTOR_H_
-
-
-
-
-
-
-
-
-
-
-
-
-

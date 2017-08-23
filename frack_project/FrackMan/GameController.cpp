@@ -108,7 +108,7 @@ void GameController::initDrawersAndSounds()
 
 	for (int k = 0; k < sizeof(drawers)/sizeof(drawers[0]); k++)
 	{
-		string path = m_gw->assetDirectory();
+		string path = m_gw->asset_directory();
 		if (!path.empty())
 			path += '/';
 		const SpriteInfo& d = drawers[k];
@@ -147,7 +147,7 @@ static void timerFuncCallback(int val)
 
 void GameController::run(int argc, char* argv[], GameWorld* gw, string windowTitle)
 {
-	gw->setController(this);
+	gw->set_controller(this);
 	m_gw = gw;
 	setGameState(welcome);
 	m_lastKeyHit = INVALID_KEY;
@@ -203,7 +203,7 @@ void GameController::specialKeyboardEvent(int key, int /* x */, int /* y */)
 	}
 }
 
-void GameController::playSound(int soundID)
+void GameController::play_sound(int soundID)
 {
 	if (soundID == SOUND_NONE)
 		return;
@@ -211,7 +211,7 @@ void GameController::playSound(int soundID)
 	SoundMapType::const_iterator p = m_soundMap.find(soundID);
 	if (p != m_soundMap.end())
 	{
-		string path = m_gw->assetDirectory();
+		string path = m_gw->asset_directory();
 		if (!path.empty())
 			path += '/';
 		SoundFX().playClip(path + p->second);
@@ -225,7 +225,7 @@ void GameController::doSomething()
 		case not_applicable:
 			break;
 		case welcome:
-			playSound(SOUND_THEME);
+			play_sound(SOUND_THEME);
 			m_mainMessage = "Welcome to FrackMan!";
 			m_secondMessage = "Press Enter to begin play...";
 			setGameState(prompt);
@@ -235,13 +235,13 @@ void GameController::doSomething()
 			m_mainMessage = "You lost a life!";
 			m_secondMessage = "Press Enter to continue playing...";
 			setGameState(prompt);
-			m_nextStateAfterPrompt = cleanup;
+			m_nextStateAfterPrompt = clean_up;
 			break;
 		case finishedlevel:
 			m_mainMessage = "Woot! You finished the level!";
 			m_secondMessage = "Press Enter to continue playing...";
 			setGameState(prompt);
-			m_nextStateAfterPrompt = cleanup;
+			m_nextStateAfterPrompt = clean_up;
 			break;
 		case makemove:
 			m_curIntraFrameTick = ANIMATION_POSITIONS_PER_TICK;
@@ -251,11 +251,11 @@ void GameController::doSomething()
 				if (status == GWSTATUS_PLAYER_DIED)
 				{
 					  // animate one last frame so the player can see what happened
-					m_nextStateAfterAnimate = (m_gw->isGameOver() ? gameover : contgame);
+					m_nextStateAfterAnimate = (m_gw->is_game_over() ? gameover : contgame);
 				}
 				else if (status == GWSTATUS_FINISHED_LEVEL)
 				{
-					m_gw->advanceToNextLevel();
+					m_gw->advance_to_next_level();
 					  // animate one last frame so the player can see what happened
 					m_nextStateAfterAnimate = finishedlevel;
 				}
@@ -276,15 +276,15 @@ void GameController::doSomething()
 				}
 			}
 			break;
-		case cleanup:
-			m_gw->cleanUp();
+		case clean_up:
+			m_gw->clean_up();
 			setGameState(init);
 			break;
 		case gameover:
 			{
 				ostringstream oss;
 				oss << (m_playerWon ? "You won the game!" : "Game Over!")
-					<< " Final score: " << m_gw->getScore() << "!";
+					<< " Final score: " << m_gw->get_score() << "!";
 				m_mainMessage = oss.str();
 			}
 			m_secondMessage = "Press Enter to quit...";

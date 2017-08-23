@@ -42,52 +42,52 @@ class GameWorld {
     // Pure Virtual Functions
     virtual int init() = 0;
     virtual int move() = 0;
-    virtual void cleanUp() = 0;
+    virtual void clean_up() = 0;
     // Initialize the scoreboard
-    void setGameStatText(std::string text);
+    void set_game_stat_text(std::string text);
     // Update gameworld, and play sounds (if necessary)
-    bool getKey(int& value);
-    void playSound(int soundID);
+    bool get_key(int& value);
+    void play_sound(int soundID);
     /* Functions to be utilized by StudentWorld (and to update game) */
       // Get the current level
-    UINT getLevel() const {
+    UINT get_level() const {
       return m_level;
     }
       // Get the current lives of the player
-    UINT getLives() const {
+    UINT get_lives() const {
       return m_lives;
     }
       // Decrement the player lives count
-    void decLives() {
+    void dec_lives() {
       m_lives--;
     }
       // Increment the player lives count
-	  void incLives() {
+	  void inc_lives() {
 		  m_lives++;
 	  }
       // Get the current score of the player
-    UINT getScore() const {
+    UINT get_score() const {
       return m_score;
     }
       // Increase the score of the player every clock tick (if necessary)
-    void increaseScore(UINT howMuch) {
-      m_score += howMuch;
+    void increase_score(UINT how_much) {
+      m_score += how_much;
     }
     /* NOTE: The following should be used by only the framework, not the student */
       // Check if the player has run out of lives
-    bool isGameOver() const {
+    bool is_game_over() const {
       return m_lives == 0;
     }
       // If the player has collected all of the oil barrels, advance to the next level
-    void advanceToNextLevel() {
+    void advance_to_next_level() {
       ++m_level;
     }
       // Game engine stuff
-    void setController(GameController* controller) {
+    void set_controller(GameController* controller) {
       m_controller = controller;
     }
       // Access of the images and sound effects in the assets directory
-    std::string assetDirectory() const {
+    std::string asset_directory() const {
       return m_assetDir;
     }
 	

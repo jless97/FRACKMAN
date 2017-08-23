@@ -8,7 +8,7 @@
 #include <sstream>
 
 enum GameControllerState {
-	welcome, contgame, finishedlevel, init, cleanup, makemove, animate, gameover, prompt, quit, not_applicable
+	welcome, contgame, finishedlevel, init, clean_up, makemove, animate, gameover, prompt, quit, not_applicable
 };
 
 const int INVALID_KEY = 0;
@@ -32,9 +32,9 @@ class GameController
 		return false;
 	}
 
-	void playSound(int soundID);
+	void play_sound(int soundID);
 
-	void setGameStatText(std::string text)
+	void set_game_stat_text(std::string text)
 	{
 		m_gameStatText = text;
 	}
