@@ -16,7 +16,7 @@
             startingLineNumber = "113"
             endingLineNumber = "113"
             landmarkName = "StudentWorld::cleanUp()"
-            landmarkType = "5">
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -30,9 +30,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "854"
-            endingLineNumber = "854"
-            landmarkName = "WaterSquirt::doSomething()"
-            landmarkType = "7">
+            endingLineNumber = "854">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -46,9 +44,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "853"
-            endingLineNumber = "853"
-            landmarkName = "WaterSquirt::doSomething()"
-            landmarkType = "7">
+            endingLineNumber = "853">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

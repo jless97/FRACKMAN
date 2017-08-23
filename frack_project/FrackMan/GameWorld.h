@@ -2,61 +2,59 @@
 #define GAMEWORLD_H_
 
 #include "GameConstants.h"
+#include "globals.h"
 #include <string>
 
 const int START_PLAYER_LIVES = 3;
 
 class GameController;
 
-class GameWorld
-{
-public:
+class GameWorld {
+  public:
+    // Constructor
+    GameWorld(std::string assetDir)
+     : m_lives(START_PLAYER_LIVES), m_score(0), m_level(0),
+       m_controller(nullptr), m_assetDir(assetDir)
+    {}
+    // Destructor
+    virtual ~GameWorld()
+    {}
+    // Pure Virtual Functions
+    virtual int init() = 0;
+    virtual int move() = 0;
+    virtual void cleanUp() = 0;
+    // Initialize the scoreboard
+    void setGameStatText(std::string text);
+    // Update gameworld, and play sounds (if necessary)
+    bool getKey(int& value);
+    void playSound(int soundID);
 
-	GameWorld(std::string assetDir)
-	 : m_lives(START_PLAYER_LIVES), m_score(0), m_level(0),
-	   m_controller(nullptr), m_assetDir(assetDir)
-	{
-	}
+    UINT getLevel() const
+    {
+      return m_level;
+    }
 
-	virtual ~GameWorld()
-	{
-	}
-	
-	virtual int init() = 0;
-	virtual int move() = 0;
-	virtual void cleanUp() = 0;
-
-	void setGameStatText(std::string text);
-
-	bool getKey(int& value);
-	void playSound(int soundID);
-
-	unsigned int getLevel() const
-	{
-		return m_level;
-	}
-
-	unsigned int getLives() const
-	{
-		return m_lives;
-	}
-	
-	void decLives()
-	{
-		m_lives--;
-	}
+    UINT getLives() const
+    {
+      return m_lives;
+    }
+    
+    void decLives()
+    {
+      m_lives--;
+    }
 	
 	void incLives()
     {
 		m_lives++;
 	}
 
-	unsigned int getScore() const
+	UINT getScore() const
 	{
 		return m_score;
 	}
 	
-	void increaseScore(unsigned int howMuch)
+	void increaseScore(UINT howMuch)
 	{
 		m_score += howMuch;
 	}
@@ -84,9 +82,9 @@ public:
 	}
 	
 private:
-	unsigned int	m_lives;
-	unsigned int	m_score;
-	unsigned int	m_level;
+	UINT	m_lives;
+	UINT	m_score;
+	UINT	m_level;
 	GameController* m_controller;
 	std::string		m_assetDir;
 };

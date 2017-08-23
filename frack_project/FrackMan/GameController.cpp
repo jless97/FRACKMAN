@@ -54,8 +54,8 @@ static const double PI = 4 * atan(1.0);
 
 struct SpriteInfo
 {
-	unsigned int imageID;
-	unsigned int frameNum;
+	UINT imageID;
+	UINT frameNum;
 	std::string	 tgaFileName;
 };
 
@@ -129,7 +129,7 @@ static void reshapeCallback(int w, int h)
 	Game().reshape(w, h);
 }
 
-static void keyboardEventCallback(unsigned char key, int x, int y)
+static void keyboardEventCallback(BYTE key, int x, int y)
 {
 	Game().keyboardEvent(key, x, y);
 }
@@ -175,7 +175,7 @@ void GameController::run(int argc, char* argv[], GameWorld* gw, string windowTit
 	delete m_gw;
 }
 
-void GameController::keyboardEvent(unsigned char key, int /* x */, int /* y */)
+void GameController::keyboardEvent(BYTE key, int /* x */, int /* y */)
 {
 	switch (key)
 	{
@@ -440,7 +440,7 @@ static void doOutputStroke(double x, double y, double z, double size, const char
 {
 	if (centered)
 	{
-		double len = glutStrokeLength(GLUT_STROKE_ROMAN, reinterpret_cast<const unsigned char*>(str)) / FONT_SCALEDOWN;
+		double len = glutStrokeLength(GLUT_STROKE_ROMAN, reinterpret_cast<const BYTE*>(str)) / FONT_SCALEDOWN;
 		x = -len / 2;
 		size = 1;
 	}

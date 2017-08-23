@@ -1,158 +1,177 @@
+/*******************************************************************************
+ *StudentWorld.cpp
+ *
+ * This routine is responsible for setting up the configuration of the game
+ * (i.e. (de)initializing actors, updating actors)
+ *
+ * $LastChangedBy: jless $
+ * $LastChangedDate: 2017-08-23 11:11:11 -0700 (Wed, 23 Aug 2017) $
+ *
+ ******************************************************************************/
+
+///////////////////////////////////////////////////////////////////////////
+/////////////////////-----------INCLUDES--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
 #include "StudentWorld.h"
 #include <string>
 using namespace std;
 
-GameWorld* createStudentWorld(string assetDir)
-{
+///////////////////////////////////////////////////////////////////////////
+///////////////////-----------STUDENTWORLD--------------///////////////////
+///////////////////////////////////////////////////////////////////////////
+
+GameWorld* createStudentWorld(string assetDir) {
 	return new StudentWorld(assetDir);
 }
 
+///////////////////////////////////////////////////////////////////////////
+/////////////-----------CONSTRUCTOR/DESTRUCTOR--------------///////////////
+///////////////////////////////////////////////////////////////////////////
+
 StudentWorld::StudentWorld(std::string assetDir)
-  :GameWorld(assetDir)
-{}
-
-StudentWorld::~StudentWorld()
-{
-    for (int i = 0; i < m_actor.size(); i++) //Delete all actors
-        delete m_actor.at(i);
-    m_actor.clear();
-    
-    for (int i = 0; i < 30; i++) //Delete all dirt objects
-    {
-        for (int j = 0; j < VIEW_HEIGHT - 4; j++)
-        {
-            delete m_dirt[i][j];
-        }
-        for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
-        {
-            delete m_dirt[i][j];
-        }
-    }
-    for (int i = 30; i < 34; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            delete m_dirt[i][j];
-        }
-        for (int j = 4; j < VIEW_HEIGHT; j++)
-        {
-            delete m_dirt[i][j];
-        }
-    }
-    for (int i = 34; i < VIEW_WIDTH; i++)
-    {
-        for (int j = 0; j < VIEW_HEIGHT - 4; j++)
-        {
-            delete m_dirt[i][j];
-        }
-        for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
-        {
-            delete m_dirt[i][j];
-        }
-    }
+  :GameWorld(assetDir) {
 }
 
-int StudentWorld::init()
-{
-    FrackMan* frackMan = new FrackMan(this); //Create the FrackMan object and push onto the vector container
-    m_actor.push_back(frackMan);
-    
-    for (int i = 0; i < 30; i++) //Create all the dirt objects and set their visible/invisible status
-    {
-        for (int j = 0; j < VIEW_HEIGHT - 4; j++)
-        {
-            m_dirt[i][j] = new Dirt(this, i, j);
-        }
-        for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
-        {
-            m_dirt[i][j] = new Dirt(this, i, j);
-            m_dirt[i][j]->setVisible(false);
-        }
+StudentWorld::~StudentWorld() {
+  //Delete all actors
+  for (int i = 0; i < m_actor.size(); i++) {
+    delete m_actor.at(i);
+  }
+  m_actor.clear();
+
+  //Delete all dirt objects
+  for (int i = 0; i < 30; i++) {
+    for (int j = 0; j < VIEW_HEIGHT - 4; j++) {
+      delete m_dirt[i][j];
     }
-    for (int i = 30; i < 34; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            m_dirt[i][j] = new Dirt(this, i, j);
-        }
-        for (int j = 4; j < VIEW_HEIGHT; j++)
-        {
-            m_dirt[i][j] = new Dirt(this, i , j);
-            m_dirt[i][j]->setVisible(false);
-        }
+    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++) {
+      delete m_dirt[i][j];
     }
-    for (int i = 34; i < VIEW_WIDTH; i++)
-    {
-        for (int j = 0; j < VIEW_HEIGHT - 4; j++)
-        {
-            m_dirt[i][j] = new Dirt(this, i, j);
-        }
-        for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
-        {
-            m_dirt[i][j] = new Dirt(this, i, j);
-            m_dirt[i][j]->setVisible(false);
-        }
-    }
+  }
   
-    return 0;
+  for (int i = 30; i < 34; i++) {
+    for (int j = 0; j < 4; j++) {
+      delete m_dirt[i][j];
+    }
+    for (int j = 4; j < VIEW_HEIGHT; j++) {
+      delete m_dirt[i][j];
+    }
+  }
+  for (int i = 34; i < VIEW_WIDTH; i++) {
+    for (int j = 0; j < VIEW_HEIGHT - 4; j++) {
+      delete m_dirt[i][j];
+    }
+    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++) {
+      delete m_dirt[i][j];
+    }
+  }
 }
 
-int StudentWorld::move()
-{
-    for (int i = 0; i < m_actor.size(); i++) //For each actor, have them call the doSomething function
+///////////////////////////////////////////////////////////////////////////
+///////////-----------GAMEWORLD: VIRTUAL FUNCTIONS--------------///////////
+///////////////////////////////////////////////////////////////////////////
+
+int StudentWorld::init() {
+  //Create the FrackMan object and push onto the vector container
+  FrackMan* frackMan = new FrackMan(this);
+  m_actor.push_back(frackMan);
+  
+  for (int i = 0; i < 30; i++) //Create all the dirt objects and set their visible/invisible status
+  {
+    for (int j = 0; j < VIEW_HEIGHT - 4; j++)
     {
-        m_actor.at(i)->doSomething();
+        m_dirt[i][j] = new Dirt(this, i, j);
     }
-    return GWSTATUS_CONTINUE_GAME;
+    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
+    {
+        m_dirt[i][j] = new Dirt(this, i, j);
+        m_dirt[i][j]->setVisible(false);
+    }
+  }
+  for (int i = 30; i < 34; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
+        m_dirt[i][j] = new Dirt(this, i, j);
+    }
+    for (int j = 4; j < VIEW_HEIGHT; j++)
+    {
+        m_dirt[i][j] = new Dirt(this, i , j);
+        m_dirt[i][j]->setVisible(false);
+    }
+  }
+  for (int i = 34; i < VIEW_WIDTH; i++)
+  {
+    for (int j = 0; j < VIEW_HEIGHT - 4; j++)
+    {
+      m_dirt[i][j] = new Dirt(this, i, j);
+    }
+    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
+    {
+      m_dirt[i][j] = new Dirt(this, i, j);
+      m_dirt[i][j]->setVisible(false);
+    }
+  }
+
+  return 0;
 }
 
-void StudentWorld::cleanUp()
-{
-    for (int i = 0; i < m_actor.size(); i++) //Delete the actors in the vector container
-        delete m_actor.at(i);
-    m_actor.clear();
-    
-    for (int i = 0; i < 30; i++) //Delete all the dirt objects
-    {
-        for (int j = 0; j < VIEW_HEIGHT - 4; j++)
-        {
-            delete m_dirt[i][j];
-        }
-        for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
-        {
-            delete m_dirt[i][j];
-        }
-    }
-    for (int i = 30; i < 34; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            delete m_dirt[i][j];
-        }
-        for (int j = 4; j < VIEW_HEIGHT; j++)
-        {
-            delete m_dirt[i][j];
-        }
-    }
-    for (int i = 34; i < VIEW_WIDTH; i++)
-    {
-        for (int j = 0; j < VIEW_HEIGHT - 4; j++)
-        {
-            delete m_dirt[i][j];
-        }
-        for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++)
-        {
-            delete m_dirt[i][j];
-        }
-    }
+int StudentWorld::move() {
+  //For each actor, have them call the doSomething function
+  for (int i = 0; i < m_actor.size(); i++) {
+    m_actor.at(i)->doSomething();
+  }
+  
+  return GWSTATUS_CONTINUE_GAME;
 }
 
-bool StudentWorld::isDirt(int x, int y) //Check to see if there is dirt in a given location
-{
-    if (m_dirt[x][y]->isVisible())
-        return true;
-    return false;
+void StudentWorld::cleanUp() {
+  //Delete the actors in the vector container
+  for (int i = 0; i < m_actor.size(); i++) {
+    delete m_actor.at(i);
+  }
+  
+  m_actor.clear();
+  
+  //Delete all the dirt objects
+  for (int i = 0; i < 30; i++) {
+    for (int j = 0; j < VIEW_HEIGHT - 4; j++) {
+      delete m_dirt[i][j];
+    }
+    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++) {
+      delete m_dirt[i][j];
+    }
+  }
+  for (int i = 30; i < 34; i++) {
+    for (int j = 0; j < 4; j++) {
+      delete m_dirt[i][j];
+    }
+    for (int j = 4; j < VIEW_HEIGHT; j++) {
+      delete m_dirt[i][j];
+    }
+  }
+  for (int i = 34; i < VIEW_WIDTH; i++) {
+    for (int j = 0; j < VIEW_HEIGHT - 4; j++) {
+      delete m_dirt[i][j];
+    }
+    for (int j = VIEW_HEIGHT - 4; j < VIEW_HEIGHT; j++) {
+      delete m_dirt[i][j];
+    }
+  }
+}
 
+///////////////////////////////////////////////////////////////////////////
+//////////////-----------STUDENTWORLD FUNCTIONS--------------//////////////
+///////////////////////////////////////////////////////////////////////////
+
+//Check to see if there is dirt in a given location
+bool StudentWorld::isDirt(int x, int y) {
+  if (m_dirt[x][y]->isVisible()) {
+    return true;
+  }
+  
+  return false;
 }
 
 bool StudentWorld::removeDirt(int x, int y, int direction)

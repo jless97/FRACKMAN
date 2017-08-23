@@ -518,7 +518,7 @@ FGAPI int     FGAPIENTRY glutStrokeWidth( void* font, int character );
 FGAPI GLfloat FGAPIENTRY glutStrokeWidthf( void* font, int character ); /* GLUT 3.8 */
 FGAPI int     FGAPIENTRY glutBitmapLength( void* font, const unsigned char* string );
 FGAPI int     FGAPIENTRY glutStrokeLength( void* font, const unsigned char* string );
-FGAPI GLfloat FGAPIENTRY glutStrokeLengthf( void* font, const unsigned char *string ); /* GLUT 3.8 */
+FGAPI GLfloat FGAPIENTRY glutStrokeLengthf( void* font, const unsigned char* string ); /* GLUT 3.8 */
 
 /*
  * Geometry functions, see fg_geometry.c
