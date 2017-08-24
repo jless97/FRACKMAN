@@ -193,7 +193,7 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder) co
   return false;
 }
 
-double StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const {
+int StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const {
   return sqrt(pow((x_2 - x_1), 2) + pow((y_2 - y_1), 2));
 }
 

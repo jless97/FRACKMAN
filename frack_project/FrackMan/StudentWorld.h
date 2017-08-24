@@ -52,7 +52,7 @@ public:
   bool remove_dirt(Actor* a);                                  // Remove dirt occupied by an actor
   bool is_dirt_below(Actor* a);                                // Check if there is dirt directly below an actor
   bool boulder_hit_human(Actor* a);                            // Check if there is a human (currently frackman) below a boulder
-  double radius(int x_1, int y_1, int x_2, int y_2) const;     // Returns the radius (Euclidean distance) between two objects
+  int radius(int x_1, int y_1, int x_2, int y_2) const;     // Returns the radius (Euclidean distance) between two objects
   bool radius_from_actor(int x, int y, double r, bool is_boulder) const; // Objects should not be placed within a certain distance of others
   int rand_int(int min, int max) const;                        // Generates a pseudo-random number in a given range
   void annoy_frackman(int how_much);                           // Decrease Frackman's health by a specified amount
