@@ -90,7 +90,7 @@ void Boulder::do_something(void) {
     // If hits dirt
     else if (world()->is_dirt_below(this)) { set_dead(); }
     // If hits frackman
-    else if (0) {}
+    else if (world()->boulder_hit_human(this)) { set_dead(); world()->annoy_frackman(100); }
     // If hits a protester
     else if (0) {}
     // Else move down one step

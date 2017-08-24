@@ -99,6 +99,7 @@ void StudentWorld::update_scoreboard() {
   int level = get_level();
   int lives = get_lives();
   int health = m_frackman->get_health();
+  if (health < 0) { health = 0; }
   int squirts = m_frackman->get_squirts();
   int gold = m_frackman->get_gold();
   int sonars = m_frackman->get_sonars();
@@ -146,6 +147,11 @@ bool StudentWorld::is_dirt_below(Actor* a) {
   return dirt_below;
 }
 
+bool StudentWorld::boulder_hit_human(Actor* a) {
+  if (a->get_y() <= (m_frackman->get_y() + 4)) { return true; }
+  return false;
+}
+
 bool StudentWorld::radius_from_boulder(int x, int y) const {
   int boulder_x = m_boulder->get_x();
   int boulder_y = m_boulder->get_y();
@@ -153,6 +159,8 @@ bool StudentWorld::radius_from_boulder(int x, int y) const {
   if (radius <= 3) { return true; }
   return false;
 }
+
+void StudentWorld::annoy_frackman(int how_much) { m_frackman->get_annoyed(how_much); }
 
 ///////////////////////////////////////////////////////////////////////////
 //////////-----------STUDENTWORLD PRIVATE FUNCTIONS-------------///////////

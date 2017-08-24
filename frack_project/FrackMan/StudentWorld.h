@@ -44,8 +44,9 @@ public:
   void update_scoreboard(void);                                // Update the scoreboard display
   bool remove_dirt(Actor* a);                                  // Remove dirt occupied by an actor
   bool is_dirt_below(Actor* a);                                // Check if there is dirt directly below an actor
-  Actor* get_boulder(void);
+  bool boulder_hit_human(Actor* a);                            // Check if there is a human (currently frackman) below a boulder
   bool radius_from_boulder(int x, int y) const;                // Frackman can't dig within a radius of 3 from center of the boulder
+  void annoy_frackman(int how_much);                           // Decrease Frackman's health by a specified amount
   virtual ~StudentWorld();
 
 private:

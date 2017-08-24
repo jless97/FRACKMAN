@@ -14,9 +14,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "906"
-            endingLineNumber = "906"
-            landmarkName = "Frackman::do_something()"
-            landmarkType = "7">
+            endingLineNumber = "906">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -30,9 +28,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "905"
-            endingLineNumber = "905"
-            landmarkName = "Frackman::do_something()"
-            landmarkType = "7">
+            endingLineNumber = "905">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
