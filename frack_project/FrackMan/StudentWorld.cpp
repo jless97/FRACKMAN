@@ -148,7 +148,7 @@ bool StudentWorld::is_dirt_below(Actor* a) {
 }
 
 bool StudentWorld::boulder_hit_human(Actor* a) {
-  if (a->get_y() <= (m_frackman->get_y() + 4)) { return true; }
+  if ((a->get_y() <= (m_frackman->get_y() + 4)) && (a->get_x() == m_frackman->get_x())) { return true; }
   return false;
 }
 
