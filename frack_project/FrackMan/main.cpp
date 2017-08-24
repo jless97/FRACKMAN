@@ -11,7 +11,7 @@ using namespace std;
   // e.g., "Z:/CS32/BoulderBlast/Assets" or "/Users/fred/cs32/BoulderBlast/Assets"
 
 // Note: The path of the assets directory needs to be specified to access images and sound effects
-const string asset_directory = "/Users/JasonLess/Desktop/FRACKMAN/frack_project/DerivedData/FrackMan/Build/Products/Debug/Assets";
+const string asset_directory = "/Users/JasonLess/Desktop/Frackman/frack_project/DerivedData/Frackman/Build/Products/Debug/Assets";
 
 class GameWorld;
 
@@ -37,5 +37,5 @@ int main(int argc, char* argv[])
 	srand(static_cast<unsigned int>(time(nullptr)));
 
 	GameWorld* gw = createStudentWorld(asset_directory);
-	Game().run(argc, argv, gw, "FrackMan");
+	Game().run(argc, argv, gw, "Frackman");
 }

@@ -18,7 +18,6 @@
 
 #include "GraphObject.h"
 
-
 ///////////////////////////////////////////////////////////////////////////
 /////////////////////-----------GLOBALS--------------//////////////////////
 ///////////////////////////////////////////////////////////////////////////
@@ -34,60 +33,56 @@ const int FALLING_STATE = 3;
 
 class StudentWorld;
 
-class Actor : public GraphObject //abstract base class
-{
+class Actor : public GraphObject {
 public:
-  
-  Actor(int image_id, int start_x, int start_y, Direction start_direction,
+  Actor(int image_id, int start_x, int start_y, Direction startDirection,
         float size, unsigned int depth, StudentWorld* world);
   virtual ~Actor();
-  StudentWorld* return_world() const;
+  StudentWorld* returnWorld() const;
   virtual void do_something() = 0;
   virtual void get_annoyed(int how_much) = 0;
   virtual void set_bribe() = 0;
-  virtual bool can_actors_pass_through_me() const;
+  virtual bool canActorsPassThroughMe() const;
   bool is_alive() const;
   void set_alive(bool value);
-  bool move_dir(int direction, int num_squares_to_move);
+  bool moveDir(int direction, int numSquaresToMove);
   
 private:
   StudentWorld* m_world;
   bool m_is_alive;
 };
 
-
 ///////////////////////////////////////////////////////////////////////////
 ////////////////////-----------PROTESTER--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-class Protester : public Actor //abstract base class
-{
+class Protester : public Actor {
 public:
-  Protester(int image_id, int start_x, int start_y, Direction start_direction, float size, unsigned int depth, StudentWorld* world, int health);
+  Protester(int image_id, int start_x, int start_y, Direction startDirection, float size, unsigned int depth, StudentWorld* world, int health);
   virtual ~Protester();
   virtual void do_something() = 0;
-  void does_the_something();
+  void doesTheSomething();
   virtual void get_annoyed(int how_much);
   virtual void set_bribe();
   int get_health() const;
-  bool get_leave_oil_field_state() const;
-  void set_leave_oil_field_state(bool value);
-  void dec_health(int hitpoints);  ///
-  void hit_by_boulder();
+  bool getLeaveOilFieldState() const;
+  void setLeaveOilFieldState(bool value);
+  void decHealth(int hitpoints);  ///
+  void hitByBoulder();
   void set_dead();
-  void change_direction_to_move();
-  bool can_move(int x, int y, int direction);
-  void do_move(int x, int y, int direction);
+  void changeDirectionToMove();
+  bool canMove(int x, int y, int direction);
+  void doMove(int x, int y, int direction);
   
 private:
   int m_health;
-  bool leave_field;
-  int num_moves;
-  int resting_ticks;
-  int new_resting_ticks;
-  int waiting_ticks_to_shout;
-  bool has_shouted;
-  int shout_counter;
+  bool leaveField;
+  int numMoves;
+  int restingTicks;
+  int newRestingTicks;
+  int waitingTicksToShout;
+  bool hasShouted;
+  int shoutCounter;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -95,8 +90,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_Protester
-class RegularProtester : public Protester
-{
+class RegularProtester : public Protester {
 public:
   RegularProtester(int x, int y, StudentWorld* world);
   virtual ~RegularProtester();
@@ -110,8 +104,7 @@ private: ///
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_HARD_CORE_Protester
-class HardcoreProtester : public Protester
-{
+class HardcoreProtester : public Protester {
 public:
   HardcoreProtester(int x, int y, StudentWorld* world);
   virtual ~HardcoreProtester();
@@ -126,15 +119,14 @@ private: ///
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_PLAYER
-class FrackMan : public Actor
-{
+class Frackman : public Actor {
 public:
-  FrackMan(int x, int y, StudentWorld* world);
-  virtual ~FrackMan();
+  Frackman(int x, int y, StudentWorld* world);
+  virtual ~Frackman();
   virtual void do_something();
   virtual void get_annoyed(int how_much);
-  bool valid_position(int x, int y) const;
-  int get_squirts() const;
+  bool validPosition(int x, int y) const;
+  int getSquirts() const;
   int get_sonars() const;
   int get_gold() const;
   int get_health() const;
@@ -151,19 +143,19 @@ private:
   int m_health;
 };
 
+
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////-----------DIRT--------------///////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_DIRT
-class Dirt : public Actor
-{
+class Dirt : public Actor {
 public:
   Dirt(int x, int y, StudentWorld* world);
   virtual ~Dirt();
   virtual void do_something();
   virtual void get_annoyed(int how_much);
-  virtual bool can_actors_pass_through_me() const;
+  virtual bool canActorsPassThroughMe() const;
   virtual void set_bribe();
   
 private:
@@ -174,22 +166,21 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_BOULDER
-class Boulder : public Actor
-{
+class Boulder : public Actor {
 public:
   Boulder(int x, int y, StudentWorld* world);
   virtual ~Boulder();
   virtual void do_something();
   virtual void get_annoyed(int how_much);
-  bool is_dirt_below() const;
-  int get_waiting_state_counter() const;
-  void move_boulder();
-  virtual bool can_actors_pass_through_me() const;
+  bool is_dirtBelow() const;
+  int getWaitingStateCounter() const;
+  void moveBoulder();
+  virtual bool canActorsPassThroughMe() const;
   virtual void set_bribe();
   
 private:
   int m_state;
-  int m_waiting_state_counter;
+  int m_waitingStateCounter;
   
 };
 
@@ -198,8 +189,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_BARREL
-class Barrel : public Actor
-{
+class Barrel : public Actor {
 public:
   Barrel(int x, int y, StudentWorld* world);
   virtual ~Barrel();
@@ -215,8 +205,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_GOLD
-class Gold : public Actor
-{
+class Gold : public Actor {
 public:
   Gold(int x, int y, StudentWorld* world);
   virtual ~Gold();
@@ -232,8 +221,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_GOLD
-class Bribe : public Actor
-{
+class Bribe : public Actor {
 public:
   Bribe(int x, int y, StudentWorld* world);
   virtual ~Bribe();
@@ -250,8 +238,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_SONAR
-class Sonar : public Actor
-{
+class Sonar : public Actor {
 public:
   Sonar(int x, int y, StudentWorld* world);
   virtual ~Sonar();
@@ -268,8 +255,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_WATER_SPURT
-class WaterSquirt : public Actor
-{
+class WaterSquirt : public Actor {
 public:
   WaterSquirt(int x, int y, Direction direction, StudentWorld* world);
   virtual ~WaterSquirt();
@@ -286,8 +272,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_WATER_POOL
-class WaterPool : public Actor
-{
+class WaterPool : public Actor {
 public:
   WaterPool(int x, int y, StudentWorld* world);
   virtual ~WaterPool();

@@ -83,7 +83,7 @@ class GraphObject {
       return m_visible;
     }
       // ID tag of the actor
-    unsigned int getID() const {
+    unsigned int get_id() const {
       return m_image_id;
     }
       // Brightness setting of the actor object

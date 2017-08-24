@@ -226,7 +226,7 @@ void GameController::do_something()
 			break;
 		case welcome:
 			play_sound(SOUND_THEME);
-			m_mainMessage = "Welcome to FrackMan!";
+			m_mainMessage = "Welcome to Frackman!";
 			m_secondMessage = "Press Enter to begin play...";
 			setGameState(prompt);
 			m_nextStateAfterPrompt = init;
@@ -402,7 +402,7 @@ void GameController::displayGamePlay()
 					break;
 				}
 
-				int image_id = cur->getID();
+				int image_id = cur->get_id();
 
 				// the specialized Dirt plotting is an optimization to deal with the background Dirt, which requires a lot of horsepower to plot
 				if (image_id == IID_DIRT)
