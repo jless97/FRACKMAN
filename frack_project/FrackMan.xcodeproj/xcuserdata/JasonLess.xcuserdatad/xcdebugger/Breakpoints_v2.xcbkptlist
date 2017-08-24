@@ -10,13 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FrackMan/Actor.cpp"
-            timestampString = "525242625.137679"
+            timestampString = "525266411.96826"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1583"
-            endingLineNumber = "1583"
-            landmarkName = "Dirt::set_bribe()"
-            landmarkType = "7">
+            startingLineNumber = "858"
+            endingLineNumber = "858">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -26,13 +24,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FrackMan/Actor.cpp"
-            timestampString = "525242625.137679"
+            timestampString = "525266411.96826"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1582"
-            endingLineNumber = "1582"
-            landmarkName = "Dirt::set_bribe()"
-            landmarkType = "7">
+            startingLineNumber = "857"
+            endingLineNumber = "857">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

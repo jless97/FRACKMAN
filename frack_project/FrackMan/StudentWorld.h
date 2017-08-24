@@ -24,58 +24,38 @@
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////
+//////////////////////-----------GLOBALS--------------/////////////////////
+///////////////////////////////////////////////////////////////////////////
+
+#define GRID_HEIGHT 64
+#define GRID_WIDTH 64
+
+///////////////////////////////////////////////////////////////////////////
 ///////////////////-----------STUDENTWORLD--------------///////////////////
 ///////////////////////////////////////////////////////////////////////////
 
 class StudentWorld : public GameWorld {
 public:
+  /* Standard Control Flow Functions */
   StudentWorld(std::string asset_dir);
-  ~StudentWorld();
-  virtual int init();
-  virtual int move();
-  virtual void clean_up();
-  bool is_dirt(int x, int y) const;
-  bool is_dirt(int x, int y, int direction) const;
-  bool is_boulder(int x, int y, int direction) const;
-  bool remove_dirt(int x, int y, int direction);
-  void remove_dirt(int x, int y);
-  void kill_frackman();
-  void annoy_protester(Actor* a, int how_much);
-  void annoy_frackman();
-  void set_barrel(int how_much);
-  void set_gold(int how_much);
-  void set_bribe(int how_much);
-  void add_bribe(Actor* a);
-  void add_water_squirt(Actor* a, Actor::Direction direction);
-  void set_sonars(int how_much);
-  void set_squirts(int how_much);
-  double radius(int x1, int y1, int x2, int y2) const;
-  int rand_int(int min, int max);
-  bool is_near_Frackman(Actor* a, int radius) const;
-  bool is_near_protester(Actor* a, int radius);
-  bool isNearBoulder(int x, int y, int r);
-  void is_near_actor(Actor* a, int r);
-  bool facingTowardFrackman(Actor* a) const;
-  GraphObject::Direction lineOfSightToFrackman(Actor* a) const;
-  //GraphObject::Direction DirToFrackman(Actor* a) const;
-  bool can_actor_move_to(Actor* a, int x, int y) const;
-  int getCurrentLevel() const;
-  bool noDirt(int start_x, int start_y) const;
-  bool check_radius(int x, int y);
-  
+  virtual int init();                   // Initialize the FrackMan universe (and initial actor objects)
+  virtual int move();                   // Update the actor objects in the current level
+  virtual void clean_up();              // Reset a level (due to a player death or completion of a level)
+  void update_scoreboard(void);         // Update the scoreboard display
+  bool remove_dirt(Actor* a);           // Remove dirt occupied by an actor
+  virtual ~StudentWorld();
+
 private:
-  std::vector<Actor*> m_actor;
-  Frackman* m_Frackman;
-  Dirt* m_dirt[VIEW_WIDTH][VIEW_HEIGHT];
-  void create_dirt();
-  void add_initial_actors();
-  void add_more_actors();
-  bool is_placeable(int x, int y);
-  void update_display_text();
-  int m_currentlevel;
-  int m_ticks;
-  int m_barrels;
-  int m_protesters;
+  Dirt* m_dirt[GRID_WIDTH][GRID_HEIGHT];
+  Frackman* m_frackman;
+  std::vector<Actor*> m_actors;
+  int m_nbarrels;
+  int m_nticks_since_added_protester;
+  int m_nprotesters;
+  
+  /* StudentWorld Private Functions */
+  void init_dirt(void);
+  void deinit_dirt(void);
 };
 
 #endif // STUDENTWORLD_H_

@@ -17,22 +17,18 @@ class GameWorld;
 
 GameWorld* createStudentWorld(string asset_dir = "");
 
-int main(int argc, char* argv[])
-{
-	{
+int main(int argc, char* argv[]) {
 		string path = asset_directory;
 		if (!path.empty())
 			path += '/';
 		const string someAsset = "frack1.tga";
 		ifstream ifs(path + someAsset);
-		if (!ifs)
-		{
+		if (!ifs) {
 			cout << "Cannot find " << someAsset << " in ";
 			cout << (asset_directory.empty() ? "current directory"
 											: asset_directory) << endl;
 			return 1;
 		}
-	}
 
 	srand(static_cast<unsigned int>(time(nullptr)));
 
