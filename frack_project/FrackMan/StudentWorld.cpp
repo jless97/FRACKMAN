@@ -49,9 +49,23 @@ int StudentWorld::init() {
   // Initialize frackman player
   m_frackman = new Frackman(this);
   
-  // TESTING: initialize boulder
-  m_boulder = new Boulder(35, 20, this);
+  // Initialize boulders, gold nuggets, and oil barrels
+  int B = MIN(get_level() / 2 + 2, 6);
+  int G = MAX(5 - get_level() / 2, 2);
+  int L = MIN(2 + get_level(), 20);
   
+  // Place boulders
+  for (int i = 0; i < B; i++) {
+    int x = rand_int(0, 60);
+    int y = rand_int(20, 56);
+    if (!radius_from_actor(x, y, 6, false)) {
+      // Add new boulder to the oil field
+      Boulder* new_boulder = new Boulder(x, y, this);
+      // Remove dirt surrounding new boulder
+      remove_dirt(new_boulder);
+    }
+  }
+
   /// TODO: change
   m_nbarrels = 1;
   
@@ -65,8 +79,8 @@ int StudentWorld::move() {
   // Give frackman a chance to do something
   m_frackman->do_something();
   
-  // TESTING: move boulder
-  m_boulder->do_something();
+  // Give all other actors a chance to do something
+  for (int i = 0; i < m_actors.size(); i++) { m_actors[i]->do_something(); }
   
   // If frackman died during this tick, decrement lives, play sound effect, and if out of lives (GameWorld goes to game over screen)
   if (!m_frackman->is_alive()) {
@@ -89,8 +103,20 @@ void StudentWorld::clean_up() {
   // Remove dirt
   deinit_dirt();
   
+  // Remove actors
+  for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); ) {
+    delete *it;
+    it = m_actors.erase(it);
+  }
+  
+  // Remove frackman
+  delete m_frackman;
   
   return;
+}
+
+void StudentWorld::add_actor(Actor* actor) {
+  m_actors.push_back(actor);
 }
 
 void StudentWorld::update_scoreboard() {
@@ -148,16 +174,36 @@ bool StudentWorld::is_dirt_below(Actor* a) {
 }
 
 bool StudentWorld::boulder_hit_human(Actor* a) {
-  if ((a->get_y() <= (m_frackman->get_y() + 4)) && (a->get_x() == m_frackman->get_x())) { return true; }
+  int x = a->get_x();
+  int y = a->get_y();
+  if ((y <= (m_frackman->get_y() + 4)) && (x == m_frackman->get_x()) && (y >= m_frackman->get_y())) { return true; }
   return false;
 }
 
-bool StudentWorld::radius_from_boulder(int x, int y) const {
-  int boulder_x = m_boulder->get_x();
-  int boulder_y = m_boulder->get_y();
-  double radius = sqrt(pow((boulder_x - x), 2) + pow((boulder_y - y), 2));
-  if (radius <= 3) { return true; }
+bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder) const {
+  for (int i = 0; i < m_actors.size(); i++) {
+    int actor_x = m_actors[i]->get_x();
+    int actor_y = m_actors[i]->get_y();
+    if (is_boulder) {
+      if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
+    }
+    if (radius(x, y, actor_x, actor_y) <= r) { return true; }
+  }
+  
   return false;
+}
+
+double StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const {
+  return sqrt(pow((x_2 - x_1), 2) + pow((y_2 - y_1), 2));
+}
+
+//Generate a random number (Equation used from Project 1 (no need to reinvent the wheel))
+int StudentWorld::rand_int(int min, int max) const {
+  if (max < min) { swap(max, min); }
+  std::random_device rd;
+  std::mt19937 generator(rd());
+  std::uniform_int_distribution<int> distro(min, max);
+  return distro(generator);
 }
 
 void StudentWorld::annoy_frackman(int how_much) { m_frackman->get_annoyed(how_much); }

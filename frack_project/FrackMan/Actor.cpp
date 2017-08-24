@@ -56,7 +56,7 @@ Dirt::~Dirt() { set_visible(false); }
 
 Boulder::Boulder(int start_x, int start_y, StudentWorld* world)
 : Actor(IID_BOULDER, start_x, start_y, GraphObject::down, 1.00, 1, world), m_nticks_before_fall(30), m_state(stable)
-{ set_visible(true); }
+{ set_visible(true); world->add_actor(this); }
 
 void Boulder::do_something(void) {
   // Check if Boulder is still alive
@@ -68,9 +68,6 @@ void Boulder::do_something(void) {
   
   // Get pointer to the StudentWorld
   StudentWorld* boulder_world = world();
-  
-  // Check if in dirt, if so delete the dirt
-  boulder_world->remove_dirt(this);
   
   // Check state of the boulder
     // If in stable state, if there is no dirt directly below boulder, transition to waiting state
@@ -165,7 +162,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_boulder(x - 1, y)) { move_to(x, y); }
+          if (world()->radius_from_actor(x - 1, y, 3.00, true)) { move_to(x, y); }
           else {
             move_to(x - 1, y);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -183,7 +180,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_boulder(x + 1, y)) { move_to(x, y); }
+          if (world()->radius_from_actor(x + 1, y, 3.00, true)) { move_to(x, y); }
           else {
             move_to(x + 1, y);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -201,7 +198,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_boulder(x, y - 1)) { move_to(x, y); }
+          if (world()->radius_from_actor(x, y - 1, 3.00, true)) { move_to(x, y); }
           else {
             move_to(x, y - 1);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -219,7 +216,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_boulder(x, y + 1)) { move_to(x, y); }
+          if (world()->radius_from_actor(x, y + 1, 3.00, true)) { move_to(x, y); }
           else {
             move_to(x, y + 1);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
