@@ -48,7 +48,7 @@ int StudentWorld::init() {
   
   // Initialize frackman player
   m_frackman = new Frackman(this);
-  
+
   // Initialize boulders, gold nuggets, and oil barrels
   int B = MIN(get_level() / 2 + 2, 6);
   int G = MAX(5 - get_level() / 2, 2);
@@ -56,9 +56,11 @@ int StudentWorld::init() {
   
   // Place boulders
   for (int i = 0; i < B; i++) {
-    int x = rand_int(0, 60);
-    int y = rand_int(20, 56);
-    if (!radius_from_actor(x, y, 6, false)) {
+    int x, y;
+    // Generate oil barrel coordinates
+    generate_coordinates(0, 60, 20, 56, 20, &x, &y);
+    // Make sure that there are no actors within a given radius of one another
+    if (!radius_from_actor(x, y, 6.00, false, false)) {
       // Add new boulder to the oil field
       Boulder* new_boulder = new Boulder(x, y, this);
       // Remove dirt surrounding new boulder
@@ -66,8 +68,20 @@ int StudentWorld::init() {
     }
   }
 
-  /// TODO: change
-  m_nbarrels = 1;
+  // Place oil barrels
+  for (int i = 0; i < L; i++) {
+    int x, y;
+    // Generate oil barrel coordinates
+    generate_coordinates(0, 60, 0, 56, 4, &x, &y);
+    // Make sure that there are no actors within a given radius of one another
+    if (!radius_from_actor(x, y, 6.00, false, false)) {
+      // Add new oil barrel to the oil field
+      new Barrel(x, y, this);
+    }
+  }
+  
+  // Set the number of oil barrels in the current level
+  m_nbarrels = L;
   
   return GWSTATUS_CONTINUE_GAME;
 }
@@ -145,6 +159,8 @@ void StudentWorld::update_scoreboard() {
   return;
 }
 
+void StudentWorld::dec_barrels(void) { m_nbarrels--; }
+
 bool StudentWorld::remove_dirt(Actor* a) {
   bool did_remove = false;
   for (int i = a->get_x(); i < a->get_x() + 4; i++) {
@@ -183,12 +199,16 @@ bool StudentWorld::boulder_hit_human(Actor* a) {
   return false;
 }
 
-bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder) const {
+bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman) const {
   for (int i = 0; i < m_actors.size(); i++) {
     int actor_x = m_actors[i]->get_x();
     int actor_y = m_actors[i]->get_y();
     if (is_boulder) {
       if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
+    }
+    if (is_frackman) {
+      actor_x = m_frackman->get_x();
+      actor_y = m_frackman->get_y();
     }
     if (radius(x, y, actor_x, actor_y) <= r) { return true; }
   }
@@ -207,6 +227,18 @@ int StudentWorld::rand_int(int min, int max) const {
   std::mt19937 generator(rd());
   std::uniform_int_distribution<int> distro(min, max);
   return distro(generator);
+}
+
+void StudentWorld::generate_coordinates(int x_min, int x_max, int y_min, int y_max, int shaft_y_coord, int* x_coord, int* y_coord) {
+  bool regenerate = false;
+  do {
+    // "Randomly" generate oil barrel position
+    *x_coord = rand_int(x_min, x_max);
+    *y_coord = rand_int(y_min, y_max);
+    // If a oil barrel receives coordinates within the mineshaft, then regenerate coordinates
+    if (*x_coord >= 27 && *x_coord <= 33 && *y_coord >= shaft_y_coord) { regenerate = true; }
+    else { regenerate = false; }
+  } while (regenerate);
 }
 
 void StudentWorld::annoy_frackman(int how_much) { m_frackman->get_annoyed(how_much); }

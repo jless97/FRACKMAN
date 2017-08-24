@@ -156,7 +156,15 @@ private:
 
 class Goodie : public Actor {
 public:
+  Goodie(int image_id, int start_x, int start_y, Direction start_dir, double image_size,
+         int image_depth, StudentWorld* world, int ticks);
+  virtual void do_something(void) = 0;
+  int get_remaining_ticks(void) const;    // Returns the remaining number of ticks before the goodie disappears
+  void update_ticks(void);                // Updates the ticks before the goodie disappears
+  virtual ~Goodie();
+  
 private:
+  int m_nticks_before_vanish;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -166,6 +174,10 @@ private:
 //IID_BARREL
 class Barrel : public Goodie {
 public:
+  Barrel(int start_x, int start_y, StudentWorld* world);
+  virtual void do_something(void);
+  virtual ~Barrel();
+  
 private:
 };
 

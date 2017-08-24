@@ -162,7 +162,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_actor(x - 1, y, 3.00, true)) { move_to(x, y); }
+          if (world()->radius_from_actor(x - 1, y, 3.00, true, false)) { move_to(x, y); }
           else {
             move_to(x - 1, y);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -180,7 +180,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_actor(x + 1, y, 3.00, true)) { move_to(x, y); }
+          if (world()->radius_from_actor(x + 1, y, 3.00, true, false)) { move_to(x, y); }
           else {
             move_to(x + 1, y);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -198,7 +198,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_actor(x, y - 1, 3.00, true)) { move_to(x, y); }
+          if (world()->radius_from_actor(x, y - 1, 3.00, true, false)) { move_to(x, y); }
           else {
             move_to(x, y - 1);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -216,7 +216,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_actor(x, y + 1, 3.00, true)) { move_to(x, y); }
+          if (world()->radius_from_actor(x, y + 1, 3.00, true, false)) { move_to(x, y); }
           else {
             move_to(x, y + 1);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -255,9 +255,49 @@ Frackman::~Frackman() {}
 ///////////////////////-----------GOODIE--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
+Goodie::Goodie(int image_id, int start_x, int start_y, Direction start_dir, double image_size,
+               int image_depth, StudentWorld* world, int ticks)
+: Actor(image_id, start_x, start_y, start_dir, image_size, image_depth, world), m_nticks_before_vanish(ticks) {}
+
+int Goodie::get_remaining_ticks(void) const { return m_nticks_before_vanish; }
+
+void Goodie::update_ticks(void) { m_nticks_before_vanish--; }
+
+Goodie::~Goodie() {}
+
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////-----------BARREL--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
+
+Barrel::Barrel(int start_x, int start_y, StudentWorld* world)
+: Goodie(IID_BARREL, start_x, start_y, GraphObject::right, 1, 2, world, 0) { set_visible(false); world->add_actor(this); }
+
+void Barrel::do_something(void) {
+  // Check the status of the oil barrel
+  if (!is_alive()) { return; }
+  
+  // Get current coordinates of oil barrel
+  int x = get_x();
+  int y = get_y();
+  
+  // Get pointer to StudentWorld
+  StudentWorld* barrel_world = world();
+  
+  // If currently invisible, and Frackman is nearby to oil barrel, then set visible (and immediately return)
+  if (!is_visible() && barrel_world->radius_from_actor(x, y, 4.00, false, true)) { set_visible(true); return; }
+  
+  // If currently visible, and Frackman grabs the oil barrel, then set dead, play sound, and increase score
+  if (is_visible() && barrel_world->radius_from_actor(x, y, 3.00, false, true)) {
+    set_dead();
+    barrel_world->play_sound(SOUND_FOUND_OIL);
+    barrel_world->increase_score(1000);
+    barrel_world->dec_barrels();
+  }
+  
+  return;
+}
+
+Barrel::~Barrel() { set_visible(false); }
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////-----------GOLD--------------///////////////////////
