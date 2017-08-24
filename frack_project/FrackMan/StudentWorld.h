@@ -38,16 +38,21 @@ class StudentWorld : public GameWorld {
 public:
   /* Standard Control Flow Functions */
   StudentWorld(std::string asset_dir);
-  virtual int init();                   // Initialize the FrackMan universe (and initial actor objects)
-  virtual int move();                   // Update the actor objects in the current level
-  virtual void clean_up();              // Reset a level (due to a player death or completion of a level)
-  void update_scoreboard(void);         // Update the scoreboard display
-  bool remove_dirt(Actor* a);           // Remove dirt occupied by an actor
+  virtual int init();                                          // Initialize the FrackMan universe (and initial actor objects)
+  virtual int move();                                          // Update the actor objects in the current level
+  virtual void clean_up();                                     // Reset a level (due to a player death or completion of a level)
+  void update_scoreboard(void);                                // Update the scoreboard display
+  bool remove_dirt(Actor* a);                                  // Remove dirt occupied by an actor
+  bool is_dirt_below(Actor* a);                                // Check if there is dirt directly below an actor
+  Actor* get_boulder(void);
+  bool radius_from_boulder(int x, int y) const;                // Frackman can't dig within a radius of 3 from center of the boulder
   virtual ~StudentWorld();
 
 private:
   Dirt* m_dirt[GRID_WIDTH][GRID_HEIGHT];
   Frackman* m_frackman;
+  // TESTING
+  Boulder* m_boulder;
   std::vector<Actor*> m_actors;
   int m_nbarrels;
   int m_nticks_since_added_protester;

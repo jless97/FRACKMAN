@@ -61,7 +61,18 @@ private:
 //IID_BOULDER
 class Boulder : public Actor {
 public:
+  Boulder(int start_x, int start_y, StudentWorld* world);
+  virtual void do_something();
+  virtual ~Boulder();
 private:
+  int state;
+  int m_nticks_before_fall;
+  enum {
+    stable = 0,
+    waiting = 1,
+    falling = 2
+  } BOULDER_STATE;
+  int m_state;
   
 };
 

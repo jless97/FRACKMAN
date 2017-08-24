@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <random>
 #include <cmath>
+#include "math.h"
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -48,6 +49,9 @@ int StudentWorld::init() {
   // Initialize frackman player
   m_frackman = new Frackman(this);
   
+  // TESTING: initialize boulder
+  m_boulder = new Boulder(35, 20, this);
+  
   /// TODO: change
   m_nbarrels = 1;
   
@@ -60,6 +64,9 @@ int StudentWorld::move() {
   
   // Give frackman a chance to do something
   m_frackman->do_something();
+  
+  // TESTING: move boulder
+  m_boulder->do_something();
   
   // If frackman died during this tick, decrement lives, play sound effect, and if out of lives (GameWorld goes to game over screen)
   if (!m_frackman->is_alive()) {
@@ -126,6 +133,25 @@ bool StudentWorld::remove_dirt(Actor* a) {
   }
   
   return did_remove;
+}
+
+bool StudentWorld::is_dirt_below(Actor* a) {
+  bool dirt_below = false;
+  for (int i = a->get_x(); i < a->get_x() + 4; i++) {
+    if (m_dirt[i][a->get_y() - 1] != nullptr) {
+      dirt_below = true;
+    }
+  }
+  
+  return dirt_below;
+}
+
+bool StudentWorld::radius_from_boulder(int x, int y) const {
+  int boulder_x = m_boulder->get_x();
+  int boulder_y = m_boulder->get_y();
+  double radius = sqrt(pow((boulder_x - x), 2) + pow((boulder_y - y), 2));
+  if (radius <= 3) { return true; }
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////
