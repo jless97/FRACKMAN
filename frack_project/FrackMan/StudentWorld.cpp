@@ -174,9 +174,12 @@ bool StudentWorld::is_dirt_below(Actor* a) {
 }
 
 bool StudentWorld::boulder_hit_human(Actor* a) {
+  // Get Boulder and Frackman coordinates (need to update to protesters as well)
   int x = a->get_x();
   int y = a->get_y();
-  if ((y <= (m_frackman->get_y() + 4)) && (x == m_frackman->get_x()) && (y >= m_frackman->get_y())) { return true; }
+  int frack_x = m_frackman->get_x();
+  int frack_y = m_frackman->get_y();
+  if ((frack_y + 3 == y) && (frack_x >= (x - 3) && frack_x <= (x + 3)))  { return true; }
   return false;
 }
 
