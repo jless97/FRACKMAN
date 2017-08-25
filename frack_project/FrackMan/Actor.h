@@ -141,8 +141,7 @@ public:
   Protester(StudentWorld* world, int image_id=IID_PROTESTER, int start_health=5);
   virtual void do_something(void);
   void set_squares_current_direction(int how_much);   // Resets the number of squares a protester can move in current direction
-  void set_resting_ticks(void);                       // Resets the number of resting ticks before protester can move
-  void set_resting_ticks_after_shout(void);           // Sets resting ticks after shouting to a specific value
+  void set_resting_ticks(int how_much);               // Resets the number of resting ticks before protester can move
   void set_ticks_since_shouted(void);                 // Resets the number of ticks since shouted
   void set_ticks_since_turned(void);                  // Resets the number of ticks since last turned
   void set_leave_oil_field_state(void);               // Sets the protester to a leave the oil field state

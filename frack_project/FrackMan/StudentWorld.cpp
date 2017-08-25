@@ -312,7 +312,7 @@ bool StudentWorld::is_dirt(int x, int y) const {
   return false;
 }
 
-bool StudentWorld::is_dirt_in_square(int x, int y) {
+bool StudentWorld::is_dirt_in_square(int x, int y) const {
   bool is_dirt = false;
   
   for (int i = x; i < x + 4; i++) {
@@ -340,13 +340,47 @@ bool StudentWorld::is_boulder(int x, int y) const {
   return false;
 }
 
-bool StudentWorld::boulder_hit_human(Actor* a) {
+bool StudentWorld::boulder_hit_actor(Actor* a, bool is_frackman, bool is_boulder) {
   // Get Boulder and Frackman coordinates (need to update to protesters as well)
   int x = a->get_x();
   int y = a->get_y();
-  int frack_x = m_frackman->get_x();
-  int frack_y = m_frackman->get_y();
-  if ((frack_y + 3 == y) && (frack_x >= (x - 3) && frack_x <= (x + 3)))  { return true; }
+
+  // Check if boulder hit frackman
+  if (is_frackman) {
+    int frack_x = m_frackman->get_x();
+    int frack_y = m_frackman->get_y();
+    if ((frack_y + 3 == y) && (frack_x >= (x - 3) && frack_x <= (x + 3)))  { return true; }
+  }
+  // Check if boulder hit a protester
+  else if (!is_boulder){
+    for (int i = 0; i < m_actors.size(); i++) {
+      if (m_actors[i]->get_id() == IID_PROTESTER || m_actors[i]->get_id() == IID_HARD_CORE_PROTESTER) {
+        int protester_x = m_actors[i]->get_x();
+        int protester_y = m_actors[i]->get_y();
+        // Protester gets hit by boulder, fully annoy protester, set protester to leave the oil field immediately, play sound, increase score
+        if ((protester_y + 3 == y) && (protester_x >= (x - 3) && protester_x <= (x + 3))) {
+          dynamic_cast<Protester*>(m_actors[i])->get_annoyed(100);
+          dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
+          dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
+          play_sound(SOUND_PROTESTER_GIVE_UP);
+          increase_score(500);
+          return true;
+        }
+      }
+    }
+  }
+  // Check if boulder hits another boulder
+  else {
+    for (int i = 0; i < m_actors.size(); i++) {
+      if (m_actors[i]->get_id() == IID_BOULDER) {
+        int boulder_x = m_actors[i]->get_x();
+        int boulder_y = m_actors[i]->get_y();
+        // Boulder hits another boulder, remove the top boulder only
+        if ((boulder_y + 3 == y) && (boulder_x >= (x - 3) && boulder_x <= (x + 3))) { return true; }
+      }
+    }
+  }
+  
   return false;
 }
 

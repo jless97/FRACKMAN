@@ -83,13 +83,13 @@ void Boulder::do_something(void) {
     // If hits bottom of oil field
     if (y <= 0) { set_dead(); }
     // If hits another boulder
-    else if (0) {} /// TODO: IMPLEMENT
+    else if (boulder_world->boulder_hit_actor(this, false, true)) { set_dead(); }
     // If hits dirt
-    else if (world()->is_dirt(this, GraphObject::down)) { set_dead(); }
+    else if (boulder_world->is_dirt(this, GraphObject::down)) { set_dead(); }
     // If hits frackman
-    else if (world()->boulder_hit_human(this)) { set_dead(); world()->annoy_frackman(100); }
-    // If hits a protester /// TODO: IMPLEMENT
-    else if (0) {}
+    else if (boulder_world->boulder_hit_actor(this)) { set_dead(); world()->annoy_frackman(100); }
+    // If hits a protester 
+    else if (boulder_world->boulder_hit_actor(this, false)) { set_dead(); }
     // Else move down one step
     else { move_to(x, y - 1); }
   }
@@ -354,7 +354,7 @@ Protester::Protester(StudentWorld* world, int image_id, int start_health)
   set_visible(true);
   world->add_actor(this);
   set_squares_current_direction(world->rand_int(8, 60));
-  set_resting_ticks();
+  set_resting_ticks(MAX(0, 3 - world->get_level() / 4));
   m_ticks_since_shouted = 0;
   m_ticks_since_turned = 0;
   m_leave_oil_field_state = false;
@@ -396,7 +396,7 @@ void Protester::do_something(void) {
     protester_world->annoy_frackman(2);
     // Reset protester variables
     set_ticks_since_shouted();
-    set_resting_ticks_after_shout();
+    set_resting_ticks(REST_TICKS_SHOUT);
     update_ticks_since_turned(-1);
     return;
   }
@@ -405,7 +405,7 @@ void Protester::do_something(void) {
            protester_world->can_move_to_frackman(this)) {
     cout << "yes" << endl;
     set_squares_current_direction(0);
-    set_resting_ticks();
+    set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
     update_ticks_since_shouted(-1);
     update_ticks_since_turned(-1);
     return;
@@ -507,7 +507,7 @@ void Protester::do_something(void) {
   }
   
   // Update protester tick variables
-  set_resting_ticks();
+  set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
   update_ticks_since_shouted(-1);
   update_ticks_since_turned(-1);
   
@@ -516,9 +516,7 @@ void Protester::do_something(void) {
 
 void Protester::set_squares_current_direction(int how_much) { m_steps_current_direction = how_much; }
 
-void Protester::set_resting_ticks(void) { m_restingticks = MAX(0, 3 - world()->get_level() / 4); }
-
-void Protester::set_resting_ticks_after_shout(void) { m_restingticks = REST_TICKS_SHOUT; }
+void Protester::set_resting_ticks(int how_much) { m_restingticks = how_much; }
 
 void Protester::set_ticks_since_shouted(void) { m_ticks_since_shouted = 15; }
 
@@ -591,7 +589,7 @@ void HardcoreProtester::do_something(void) {
     protester_world->annoy_frackman(2);
     // Reset protester variables
     set_ticks_since_shouted();
-    set_resting_ticks_after_shout();
+    set_resting_ticks(REST_TICKS_SHOUT);
     update_ticks_since_turned(-1);
     return;
   }
@@ -600,7 +598,7 @@ void HardcoreProtester::do_something(void) {
            protester_world->can_move_to_frackman(this)) {
     cout << "yes" << endl;
     set_squares_current_direction(0);
-    set_resting_ticks();
+    set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
     update_ticks_since_shouted(-1);
     update_ticks_since_turned(-1);
     return;
@@ -702,7 +700,7 @@ void HardcoreProtester::do_something(void) {
   }
   
   // Update protester tick variables
-  set_resting_ticks();
+  set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
   update_ticks_since_shouted(-1);
   update_ticks_since_turned(-1);
   
