@@ -27,8 +27,8 @@ using namespace std;
 ///////////////////////-----------ACTOR--------------//////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-Actor::Actor(int image_id, int start_x, int start_y, Direction start_dir, double image_size,
-             int image_depth, StudentWorld* current_world)
+Actor::Actor(int image_id, int start_x, int start_y, Direction start_dir, float image_size,
+             unsigned int image_depth, StudentWorld* current_world)
 : GraphObject(image_id, start_x, start_y, start_dir, image_size, image_depth), m_world(current_world), m_alive(true) {}
 
 bool Actor::is_alive(void) { return m_alive; }
@@ -161,8 +161,8 @@ WaterSquirt::~WaterSquirt() { set_visible(false); }
 ///////////////////////-----------HUMAN--------------//////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-Human::Human(int image_id, int start_x, int start_y, Direction start_dir, double image_size,
-             int image_depth, StudentWorld* current_world, int start_health)
+Human::Human(int image_id, int start_x, int start_y, Direction start_dir, float image_size,
+             unsigned int image_depth, StudentWorld* current_world, int start_health)
 : Actor(image_id, start_x, start_y, start_dir, image_size, image_depth, current_world), m_health(start_health) {}
 
 void Human::get_annoyed(int how_much) { m_health -= how_much; }
@@ -233,9 +233,21 @@ void Frackman::do_something() {
       // Frackman places gold nugget down as bribe to a protester
       case KEY_PRESS_TAB:
         // If Frackman has 1 or more gold nuggets, then place a bribe down, and decrement gold count
-        if (get_gold() >= 1) {
-          frack_world->set_bribe(x, y);
-          update_gold(-1);
+        if (get_gold() >= 1) { frack_world->set_bribe(x, y); update_gold(-1); }
+        break;
+      // Frackman uses sonar kit (to illuminate the region around him)
+        /*
+         ii. All hidden game objects (e.g., Gold Nuggets or Barrels of oil) that
+         are within a radius of 12 (e.g., this includes 11.99 squares away)
+         must be made visible via setVisible() and revealed to the player.
+         */
+      case KEY_PRESS_Z:
+      case KEY_PRESS_z:
+        // If Frackman has 1 or more sonar kits, illuminate contents of oil field (radius of 12), play sound, decrement count
+        if (get_sonars() >= 1) {
+          frack_world->illuminate_goodies();
+          frack_world->play_sound(SOUND_SONAR);
+          update_sonar(-1);
         }
         break;
       // Left
@@ -322,9 +334,11 @@ int Frackman::get_squirts(void) { return m_squirts; }
 
 int Frackman::get_gold(void) { return m_gold; }
 
+int Frackman::get_sonars(void) { return m_sonars; }
+
 void Frackman::update_gold(int how_much) { m_gold += how_much; }
 
-int Frackman::get_sonars(void) { return m_sonars; }
+void Frackman::update_sonar(int how_much) { m_sonars += how_much; }
 
 Frackman::~Frackman() {}
 
@@ -344,11 +358,15 @@ Frackman::~Frackman() {}
 ///////////////////////-----------GOODIE--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-Goodie::Goodie(int image_id, int start_x, int start_y, Direction start_dir, double image_size,
-               int image_depth, StudentWorld* world, int ticks)
+Goodie::Goodie(int image_id, int start_x, int start_y, Direction start_dir, float image_size,
+               unsigned int image_depth, StudentWorld* world, int ticks)
 : Actor(image_id, start_x, start_y, start_dir, image_size, image_depth, world), m_nticks_before_vanish(ticks) {}
 
 int Goodie::get_remaining_ticks(void) const { return m_nticks_before_vanish; }
+
+void Goodie::set_remaining_ticks(void) {
+  m_nticks_before_vanish = MAX(100, 300 - 10 * world()->get_level());
+}
 
 void Goodie::update_ticks(void) { m_nticks_before_vanish--; }
 
@@ -359,7 +377,7 @@ Goodie::~Goodie() {}
 ///////////////////////////////////////////////////////////////////////////
 
 Barrel::Barrel(int start_x, int start_y, StudentWorld* world)
-: Goodie(IID_BARREL, start_x, start_y, GraphObject::right, 1, 2, world, 0) { set_visible(false); world->add_actor(this); }
+: Goodie(IID_BARREL, start_x, start_y, GraphObject::right, 1.00, 2, world, 0) { set_visible(false); world->add_actor(this); }
 
 void Barrel::do_something(void) {
   // Check the status of the oil barrel
@@ -393,7 +411,7 @@ Barrel::~Barrel() { set_visible(false); }
 ///////////////////////////////////////////////////////////////////////////
 
 Gold::Gold(int start_x, int start_y, StudentWorld* world, int state, bool is_visible)
-: Goodie(IID_GOLD, start_x, start_y, GraphObject::right, 1, 2, world, 100), m_state(state)
+: Goodie(IID_GOLD, start_x, start_y, GraphObject::right, 1.00, 2, world, 100), m_state(state)
 { set_visible(is_visible); world->add_actor(this); }
 
 void Gold::do_something(void) {
@@ -448,15 +466,61 @@ void Gold::update_state(void) { m_state = !m_state; }
 Gold::~Gold() { set_visible(false); }
 
 ///////////////////////////////////////////////////////////////////////////
-////////////////////////-----------BRIBE--------------/////////////////////
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
 ////////////////////-----------SONAR KIT--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
+
+Sonar::Sonar(StudentWorld* world)
+: Goodie(IID_SONAR, 0, 60, GraphObject::right, 1.0, 2, world, 100)
+{ set_visible(true); set_remaining_ticks(); world->add_actor(this); }
+
+void Sonar::do_something(void) {
+  // Check the status of the sonar kit
+  if (!is_alive()) { return; }
+  
+  // Get current sonar kit coordinates
+  int x = get_x();
+  int y = get_y();
+  
+  // Get pointer to StudentWorld
+  StudentWorld* sonar_world = world();
+  
+  // If frackman grabs the sonar kit, set state to dead, play sound effect, increase player score, and update frackman inventory
+  if (sonar_world->radius_from_actor(x, y, 3.00, false, true)) {
+    set_dead();
+    sonar_world->play_sound(SOUND_GOT_GOODIE);
+    sonar_world->increase_score(75);
+    sonar_world->update_sonar_count();
+  }
+  
+  // Check the time before the sonar kit vanishes
+  if (get_remaining_ticks() <= 0) { set_dead(); }
+  
+  // Update time before sonar kit vanishes
+  update_ticks();
+  
+  return;
+}
+
+Sonar::~Sonar() { set_visible(false); }
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////-----------WATER POOL--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
+
+WaterPool::WaterPool(int start_x, int start_y, StudentWorld* world)
+: Goodie(IID_WATER_POOL, start_x, start_y, GraphObject::right, 1.0, 2, world, 100)
+{ set_visible(true); set_remaining_ticks(); world->add_actor(this); }
+
+void WaterPool::do_something(void) {
+  // Check the status of the water pool
+  if (!is_alive()) { return; }
+  
+  return;
+}
+
+
+
+
+
 
 

@@ -30,7 +30,7 @@ class StudentWorld;
 
 class Actor : public GraphObject {
 public:
-  Actor(int image_id, int start_x, int start_y, Direction start_dir, double image_size, int image_depth, StudentWorld* current_world);
+  Actor(int image_id, int start_x, int start_y, Direction start_dir, float image_size, unsigned int image_depth, StudentWorld* current_world);
   virtual void do_something() = 0;
   bool is_alive(void);
   void set_dead(void);
@@ -97,8 +97,8 @@ private:
 
 class Human : public Actor {
 public:
-  Human(int image_id, int start_x, int start_y, Direction start_dir, double image_size,
-        int image_depth, StudentWorld* current_world, int start_health);
+  Human(int image_id, int start_x, int start_y, Direction start_dir, float image_size,
+        unsigned int image_depth, StudentWorld* current_world, int start_health);
   virtual void do_something() = 0;
   void get_annoyed(int how_much);
   int get_health(void);
@@ -116,11 +116,13 @@ class Frackman : public Human {
 public:
   Frackman(StudentWorld* world);
   virtual void do_something();
-  int get_squirts(void);
-  int get_gold(void);
-  void update_gold(int how_much);
-  int get_sonars(void);
+  int get_squirts(void);              // Get the number of water squirts in frackman's inventory
+  int get_gold(void);                 // Get the number of gold nuggets in frackman's inventory
+  int get_sonars(void);               // Get the number of sonar kits in frackman's inventory
+  void update_gold(int how_much);     // Update frackman's gold count
+  void update_sonar(int how_much);    // Update frackman's sonar kit count
   virtual ~Frackman();
+  
 private:
   int m_squirts;
   int m_sonars;
@@ -162,11 +164,12 @@ private:
 
 class Goodie : public Actor {
 public:
-  Goodie(int image_id, int start_x, int start_y, Direction start_dir, double image_size,
-         int image_depth, StudentWorld* world, int ticks);
+  Goodie(int image_id, int start_x, int start_y, Direction start_dir, float image_size,
+         unsigned int image_depth, StudentWorld* world, int ticks);
   virtual void do_something(void) = 0;
-  int get_remaining_ticks(void) const;    // Returns the remaining number of ticks before the goodie disappears
-  void update_ticks(void);                // Updates the ticks before the goodie disappears
+  int get_remaining_ticks(void) const;          // Returns the remaining number of ticks before the goodie disappears
+  void set_remaining_ticks(void);               // Set the ticks before disappearing (for sonar kit and water pool)
+  void update_ticks(void);                      // Updates the ticks before the goodie disappears
   virtual ~Goodie();
   
 private:
@@ -211,6 +214,10 @@ private:
 //IID_SONAR
 class Sonar : public Goodie {
 public:
+  Sonar(StudentWorld* world);
+  virtual void do_something(void);
+  virtual ~Sonar();
+  
 private:
 };
 
@@ -221,6 +228,10 @@ private:
 //IID_WATER_POOL
 class WaterPool : public Goodie {
 public:
+  WaterPool(int start_x, int start_y, StudentWorld* world);
+  virtual void do_something(void);
+  virtual ~WaterPool();
+  
 private:
 };
 

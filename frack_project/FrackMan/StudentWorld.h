@@ -48,9 +48,12 @@ public:
   virtual int move();                                          // Update the actor objects in the current level
   virtual void clean_up();                                     // Reset a level (due to a player death or completion of a level)
   void add_actor(Actor* actor);                                // Add a new actor to StudentWorld
+  void add_initial_actors(void);                               // Add initial actors to the oil field (i.e. boulders, oil barrels, gold)
   void update_scoreboard(void);                                // Update the scoreboard display
   void dec_barrels(void);                                      // Decrement barrel count
   void update_gold_count(void);                                // Increment gold count of frackman
+  void update_sonar_count(void);                               // Increment sonar kit count of frackman
+  void illuminate_goodies(void);                               // If frackman uses a sonar kit, illuminate goodies within radius of 12
   void set_bribe(int x, int y);                                // Set a bribe for a protester
   void set_squirt(int x, int y, GraphObject::Direction dir);   // Set a water squirt onto the oil field
   bool remove_dirt(Actor* a);                                  // Remove dirt occupied by an actor

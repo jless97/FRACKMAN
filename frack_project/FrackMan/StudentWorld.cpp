@@ -49,51 +49,8 @@ int StudentWorld::init() {
   // Initialize frackman player
   m_frackman = new Frackman(this);
 
-  // Initialize boulders, gold nuggets, and oil barrels
-  int B = MIN(get_level() / 2 + 2, 6);
-  int G = MAX(5 - get_level() / 2, 2);
-  int L = MIN(2 + get_level(), 20);
-  
-  // Place boulders
-  for (int i = 0; i < B; i++) {
-    int x, y;
-    // Generate oil barrel coordinates
-    generate_coordinates(0, 60, 20, 56, 20, &x, &y);
-    // Make sure that there are no actors within a given radius of one another
-    if (!radius_from_actor(x, y, 6.00, false, false, false)) {
-      // Add new boulder to the oil field
-      Boulder* new_boulder = new Boulder(x, y, this);
-      // Remove dirt surrounding new boulder
-      remove_dirt(new_boulder);
-    }
-  }
-
-  // Place oil barrels
-  for (int i = 0; i < L; i++) {
-    int x, y;
-    // Generate oil barrel coordinates
-    generate_coordinates(0, 60, 0, 56, 4, &x, &y);
-    // Make sure that there are no actors within a given radius of one another
-    if (!radius_from_actor(x, y, 6.00)) {
-      // Add new oil barrel to the oil field
-      new Barrel(x, y, this);
-    }
-  }
-  
-  // Place gold nuggets
-  for (int i = 0; i < G; i++) {
-    int x, y;
-    // Generate gold nugget coordinates
-    generate_coordinates(0, 60, 0, 56, 4, &x, &y);
-    // Make sure that there are no actors within a given radius of one another
-    if (!radius_from_actor(x, y, 6.00)) {
-      // Add new gold nugget to the oil field
-      new Gold(x, y, this, 0, false);
-    }
-  }
-  
-  // Set the number of oil barrels in the current level
-  m_nbarrels = L;
+  // Add initial actors to the current level (i.e. boulders, oil barrels, and gold nuggets)
+  add_initial_actors();
   
   return GWSTATUS_CONTINUE_GAME;
 }
@@ -108,11 +65,28 @@ int StudentWorld::move() {
   // Give all other actors a chance to do something
   for (int i = 0; i < m_actors.size(); i++) { m_actors[i]->do_something(); }
   
+  // Remove newly-dead actors after each tick
+  for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); ) {
+    if (!(*it)->is_alive()) { delete *it; it = m_actors.erase(it); }
+    else { it++; }
+  }
+  
   // If frackman died during this tick, decrement lives, play sound effect, and if out of lives (GameWorld goes to game over screen)
   if (!m_frackman->is_alive()) {
     play_sound(SOUND_PLAYER_GIVE_UP);
     dec_lives();
     return GWSTATUS_PLAYER_DIED;
+  }
+  
+  // Add additional actors to the current oil field (i.e. sonar kits, water pools, and protesters)
+  int G = get_level() * 25 + 300;
+  // There is a 1 in G chance that a new sonar kit or water pool will be added to the oil field
+  if (rand_int(1, G) == 1) {
+    // Sonar kit: 1/5 chance, Water pool: 4/5 chance
+    if (rand_int(1, 5) == 1) { new Sonar(this); }
+    else { /// TODO: add new water pool to a random dirt-less spot in the oil field
+      cout << "no" << endl;
+    }
   }
   
   // If the player collected all of the barrels, advance to the next level (and play level completion sound effect)
@@ -141,8 +115,56 @@ void StudentWorld::clean_up() {
   return;
 }
 
-void StudentWorld::add_actor(Actor* actor) {
-  m_actors.push_back(actor);
+void StudentWorld::add_actor(Actor* actor) { m_actors.push_back(actor); }
+
+void StudentWorld::add_initial_actors(void) {
+  // Initialize boulders, gold nuggets, and oil barrels
+  int B = MIN(get_level() / 2 + 2, 6);
+  int G = MAX(5 - get_level() / 2, 2);
+  int L = MIN(2 + get_level(), 20);
+  
+  // Place boulders
+  for (int i = 0; i < B; i++) {
+    int x, y;
+    // Generate oil barrel coordinates
+    generate_coordinates(0, 60, 20, 56, 20, &x, &y);
+    // Make sure that there are no actors within a given radius of one another
+    if (!radius_from_actor(x, y, 6.00)) {
+      // Add new boulder to the oil field
+      Boulder* new_boulder = new Boulder(x, y, this);
+      // Remove dirt surrounding new boulder
+      remove_dirt(new_boulder);
+    }
+  }
+  
+  // Place oil barrels
+  for (int i = 0; i < L; i++) {
+    int x, y;
+    // Generate oil barrel coordinates
+    generate_coordinates(0, 60, 0, 56, 4, &x, &y);
+    // Make sure that there are no actors within a given radius of one another
+    if (!radius_from_actor(x, y, 6.00)) {
+      // Add new oil barrel to the oil field
+      new Barrel(x, y, this);
+    }
+  }
+  
+  // Place gold nuggets
+  for (int i = 0; i < G; i++) {
+    int x, y;
+    // Generate gold nugget coordinates
+    generate_coordinates(0, 60, 0, 56, 4, &x, &y);
+    // Make sure that there are no actors within a given radius of one another
+    if (!radius_from_actor(x, y, 6.00)) {
+      // Add new gold nugget to the oil field
+      new Gold(x, y, this, 0, false);
+    }
+  }
+  
+  // Set the number of oil barrels in the current level
+  m_nbarrels = L;
+  
+  return;
 }
 
 void StudentWorld::update_scoreboard() {
@@ -174,6 +196,17 @@ void StudentWorld::update_scoreboard() {
 void StudentWorld::dec_barrels(void) { m_nbarrels--; }
 
 void StudentWorld::update_gold_count(void) { m_frackman->update_gold(1); }
+
+void StudentWorld::update_sonar_count(void) { m_frackman->update_sonar(1); }
+
+void StudentWorld::illuminate_goodies(void) {
+  for (int i = 0; i < m_actors.size(); i++) {
+    if ((m_actors[i]->get_id() == IID_GOLD || m_actors[i]->get_id() == IID_BARREL) &&
+        (radius_from_actor(m_actors[i]->get_x(), m_actors[i]->get_y(), 12.00, false, true))) { m_actors[i]->set_visible(true); }
+  }
+  
+  return;
+}
 
 void StudentWorld::set_bribe(int x, int y) { new Gold(x, y, this, 1, true); }
 

@@ -42,6 +42,8 @@ const int KEY_PRESS_DOWN  = 1003;
 const int KEY_PRESS_SPACE = ' ';
 const int KEY_PRESS_ESCAPE = '\x1b';
 const int KEY_PRESS_TAB	  = '\t';
+const int KEY_PRESS_Z     = 'Z';
+const int KEY_PRESS_z     = 'z';
 
 // board and sprite dimensions
 
