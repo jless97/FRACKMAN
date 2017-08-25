@@ -574,28 +574,28 @@ bool StudentWorld::can_move_in_new_direction(Protester* protester, GraphObject::
   switch(dir) {
     case GraphObject::up:
       if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
-      if (is_boulder(protester_x, protester_y + 4)) { return false; }
+      if (radius_from_actor(protester_x, protester_y + 1, 3.00, true)) { return false; }
       for (int i = 0; i < 4; i++) {
         if (is_dirt(protester_x + i, protester_y + 4)) { return false; }
       }
       break;
     case GraphObject::down:
       if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
-      if (is_boulder(protester_x, protester_y - 4)) { return false; }
+      if (radius_from_actor(protester_x, protester_y - 1, 3.00, true)) { return false; }
       for (int i = 0; i < 4; i++) {
         if (is_dirt(protester_x + i, protester_y - 1)) { return false; }
       }
       break;
     case GraphObject::left:
       if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
-      if (is_boulder(protester_x - 4, protester_y)) { return false; }
+      if (radius_from_actor(protester_x - 1, protester_y, 3.00, true)) { return false; }
       for (int i = 0; i < 4; i++) {
         if (is_dirt(protester_x - 1, protester_y + i)) { return false; }
       }
       break;
     case GraphObject::right:
       if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
-      if (is_boulder(protester_x + 4, protester_y)) { return false; }
+      if (radius_from_actor(protester_x + 1, protester_y, 3.00, true)) { return false; }
       for (int i = 0; i < 4; i++) {
         if (is_dirt(protester_x + 4, protester_y + i)) { return false; }
       }
