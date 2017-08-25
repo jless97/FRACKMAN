@@ -116,9 +116,9 @@ class Frackman : public Human {
 public:
   Frackman(StudentWorld* world);
   virtual void do_something();
-  int get_squirts(void);              // Get the number of water squirts in frackman's inventory
-  int get_gold(void);                 // Get the number of gold nuggets in frackman's inventory
-  int get_sonars(void);               // Get the number of sonar kits in frackman's inventory
+  int get_squirts(void) const;        // Get the number of water squirts in frackman's inventory
+  int get_gold(void) const;           // Get the number of gold nuggets in frackman's inventory
+  int get_sonars(void) const;         // Get the number of sonar kits in frackman's inventory
   void update_gold(int how_much);     // Update frackman's gold count
   void update_sonar(int how_much);    // Update frackman's sonar kit count
   void update_water(int how_much);    // Update frackman's water count
@@ -136,17 +136,23 @@ private:
 
 class Protester : public Human {
 public:
+  Protester(StudentWorld* world, int image_id=IID_PROTESTER, int start_health=5);
+  virtual void do_something(void);
+  void set_squares_current_direction(void);           // Resets the number of squares a protester can move in a given direction
+  void set_resting_ticks(void);                       // Resets the number of resting ticks before protester can move
+  int get_squares_current_direction(void) const;      // Get number of squares a protester can move in a given direction
+  int get_resting_ticks(void) const;                  // Get number of resting ticks
+  int get_nonresting_ticks(void) const;               // Get number of nonresting ticks
+  int get_nticks_since_shouted(void) const;           // Get number of ticks since protester shouted last
+  bool is_leave_oil_field(void) const;                // Get the leave oil field state
+  virtual ~Protester();
+  
 private:
-};
-
-///////////////////////////////////////////////////////////////////////////
-////////////////-----------REGULAR PROTESTER--------------/////////////////
-///////////////////////////////////////////////////////////////////////////
-
-//IID_Protester
-class RegularProtester : public Protester {
-public:
-private:
+  int m_steps_current_direction;
+  int m_restingticks;
+  int m_nonresting_ticks;
+  int m_ticks_since_shouted;
+  bool m_leave_oil_field_state;
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -156,6 +162,10 @@ private:
 //IID_HARD_CORE_Protester
 class HardcoreProtester : public Protester {
 public:
+  HardcoreProtester(StudentWorld* world);
+  virtual void do_something(void);
+  virtual ~HardcoreProtester();
+  
 private:
 };
 

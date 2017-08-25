@@ -73,6 +73,10 @@ public:
   // Generates the coordinates of the actor to be inserted into the oil field
   void generate_coordinates(int x_min, int x_max, int y_min, int y_max, int shaft_y_coord, int* x_coord, int* y_coord, bool is_water=false);
   void annoy_frackman(int how_much);                           // Decrease Frackman's health by a specified amount
+  bool is_facing_frackman(Protester* protester) const;         // Returns true if a protester is facing frackman
+  bool is_in_line_of_sight(Protester* protester) const;        // Returns true if a protester is in direct line of sight to FrackMan
+  // Returns true if protester can continue moving in current direction to reach FrackMan; makes protester face FrackMan if it returns true
+  bool can_move_to_frackman(Protester* protester);
   virtual ~StudentWorld();
 
 private:

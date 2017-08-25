@@ -330,11 +330,11 @@ void Frackman::do_something() {
   return;
 }
 
-int Frackman::get_squirts(void) { return m_squirts; }
+int Frackman::get_squirts(void) const { return m_squirts; }
 
-int Frackman::get_gold(void) { return m_gold; }
+int Frackman::get_gold (void) const { return m_gold; }
 
-int Frackman::get_sonars(void) { return m_sonars; }
+int Frackman::get_sonars(void) const { return m_sonars; }
 
 void Frackman::update_gold(int how_much) { m_gold += how_much; }
 
@@ -348,13 +348,70 @@ Frackman::~Frackman() {}
 ////////////////////-----------PROTESTER--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////
-////////////////-----------REGULAR PROTESTER--------------/////////////////
-///////////////////////////////////////////////////////////////////////////
+Protester::Protester(StudentWorld* world, int image_id, int start_health)
+: Human(image_id, 60, 60, GraphObject::left, 1.0, 0, world, start_health)
+{ set_visible(true); world->add_actor(this); set_resting_ticks(); m_leave_oil_field_state = false; }
+
+void Protester::do_something(void) {
+  // Check the status of the regular protester
+  if (!is_alive()) { return; }
+  
+  // Check if regular protester can move this clock tick
+  if (m_restingticks > 0) { m_restingticks--; return; }
+  
+  // Get current coordinates of regular protester
+  int x = get_x();
+  int y = get_y();
+  
+  // Get pointer to the StudentWorld
+  StudentWorld* regular_world = world();
+  
+  // Check the leave the oil field state
+  if (m_leave_oil_field_state) {
+    // If already at the exit location for regular protester
+    if (x == 60 && y == 60) { set_dead(); }
+    // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
+    else {
+      // TODO: Implement algorithm to find the exit
+    }
+  }
+  
+  // Check if within striking distance of frackman
+  
+  // Update protester tick variables
+  
+  return;
+}
+
+void Protester::set_squares_current_direction(void) { m_steps_current_direction = (world()->rand_int(8, 60)); }
+
+void Protester::set_resting_ticks(void) { m_restingticks = MAX(0, 3 - world()->get_level() / 4); }
+
+int Protester::get_squares_current_direction(void) const { return m_steps_current_direction; }
+
+int Protester::get_resting_ticks(void) const { return m_restingticks; }
+
+int Protester::get_nonresting_ticks(void) const { return m_nonresting_ticks; }
+
+int Protester::get_nticks_since_shouted(void) const { return m_ticks_since_shouted; }
+
+bool Protester::is_leave_oil_field(void) const { return m_leave_oil_field_state; }
+
+Protester::~Protester() { set_visible(false); }
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////-----------HARDCORE PROTESTER--------------/////////////////
 ///////////////////////////////////////////////////////////////////////////
+
+HardcoreProtester::HardcoreProtester(StudentWorld* world)
+: Protester(world, IID_HARD_CORE_PROTESTER, 10) {}
+
+void HardcoreProtester::do_something(void) {
+  
+  return;
+}
+
+HardcoreProtester::~HardcoreProtester() { set_visible(false); }
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////-----------GOODIE--------------/////////////////////

@@ -198,8 +198,8 @@ void StudentWorld::add_additional_actors(void) {
     // Update protester counter
     m_nprotesters++;
     // Add new protester at x = 60, y = 60
-    if (rand_int(1, probability_of_hardcore) == 1) { /* TODO: add hardcore protester */ }
-    else { /* TODO: add regular protester */ }
+    if (rand_int(1, probability_of_hardcore) == 1) { new HardcoreProtester(this); }
+    else { new Protester(this); }
   }
   
   return;
@@ -376,6 +376,19 @@ void StudentWorld::generate_coordinates(int x_min, int x_max, int y_min, int y_m
 }
 
 void StudentWorld::annoy_frackman(int how_much) { m_frackman->get_annoyed(how_much); }
+
+bool StudentWorld::is_facing_frackman(Protester* protester) const {
+  // Get protester's coordinates
+  int x = protester->get_x();
+  int y = protester->get_y();
+  
+  return true;
+}
+
+bool StudentWorld::is_in_line_of_sight(Protester* protester) const {
+  if (m_frackman->get_x() == protester->get_x() || m_frackman->get_y() == protester->get_y()) { return true; }
+  return false;
+}
 
 ///////////////////////////////////////////////////////////////////////////
 //////////-----------STUDENTWORLD PRIVATE FUNCTIONS-------------///////////
