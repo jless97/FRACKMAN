@@ -138,12 +138,12 @@ class Protester : public Human {
 public:
   Protester(StudentWorld* world, int image_id=IID_PROTESTER, int start_health=5);
   virtual void do_something(void);
-  void set_squares_current_direction(void);           // Resets the number of squares a protester can move in a given direction
+  void set_squares_current_direction(int how_much);   // Resets the number of squares a protester can move in a given direction
   void set_resting_ticks(void);                       // Resets the number of resting ticks before protester can move
   int get_squares_current_direction(void) const;      // Get number of squares a protester can move in a given direction
   int get_resting_ticks(void) const;                  // Get number of resting ticks
   int get_nonresting_ticks(void) const;               // Get number of nonresting ticks
-  int get_nticks_since_shouted(void) const;           // Get number of ticks since protester shouted last
+  int get_ticks_since_shouted(void) const;           // Get number of ticks since protester shouted last
   bool is_leave_oil_field(void) const;                // Get the leave oil field state
   virtual ~Protester();
   

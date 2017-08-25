@@ -118,6 +118,10 @@ void StudentWorld::clean_up() {
   return;
 }
 
+///////////////////////////////////////////////////////////////////////////
+//////////////-----------ADDING ACTORS FUNCTIONS-------------//////////////
+///////////////////////////////////////////////////////////////////////////
+
 void StudentWorld::add_actor(Actor* actor) { m_actors.push_back(actor); }
 
 void StudentWorld::add_initial_actors(void) {
@@ -205,6 +209,9 @@ void StudentWorld::add_additional_actors(void) {
   return;
 }
 
+///////////////////////////////////////////////////////////////////////////
+////////////-----------SCOREBOARD/GOODIES FUNCTIONS-------------///////////
+///////////////////////////////////////////////////////////////////////////
 void StudentWorld::update_scoreboard() {
   // Update scoreboard parameters
   int score = get_score();
@@ -252,6 +259,10 @@ void StudentWorld::set_bribe(int x, int y) { new Gold(x, y, this, 1, true); }
 
 void StudentWorld::set_squirt(int x, int y, GraphObject::Direction dir) { new WaterSquirt(x, y, this, dir); }
 
+///////////////////////////////////////////////////////////////////////////
+////////////-----------STUDENTWORLD DIRT FUNCTIONS-------------////////////
+///////////////////////////////////////////////////////////////////////////
+
 bool StudentWorld::remove_dirt(Actor* a) {
   bool did_remove = false;
   for (int i = a->get_x(); i < a->get_x() + 4; i++) {
@@ -296,6 +307,11 @@ bool StudentWorld::is_dirt(Actor* a, GraphObject::Direction start_dir) {
   return is_dirt;
 }
 
+bool StudentWorld::is_dirt(int x, int y) const {
+  if (m_dirt[x][y] != nullptr) { return true; }
+  return false;
+}
+
 bool StudentWorld::is_dirt_in_square(int x, int y) {
   bool is_dirt = false;
   
@@ -306,6 +322,22 @@ bool StudentWorld::is_dirt_in_square(int x, int y) {
   }
   
   return is_dirt;
+}
+
+///////////////////////////////////////////////////////////////////////////
+//////////-----------STUDENTWORLD BOULDER FUNCTIONS-------------///////////
+///////////////////////////////////////////////////////////////////////////
+
+bool StudentWorld::is_boulder(int x, int y) const {
+  for (int i = 0; i < m_actors.size(); i++) {
+    if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
+    for (int j = 0; j < 4; j++) {
+      for (int k = 0; k < 4; k++) {
+        if ((x == m_actors[i]->get_x() + j) && (y == m_actors[i]->get_y() + k)) { return true; }
+      }
+    }
+  }
+  return false;
 }
 
 bool StudentWorld::boulder_hit_human(Actor* a) {
@@ -377,16 +409,110 @@ void StudentWorld::generate_coordinates(int x_min, int x_max, int y_min, int y_m
 
 void StudentWorld::annoy_frackman(int how_much) { m_frackman->get_annoyed(how_much); }
 
+///////////////////////////////////////////////////////////////////////////
+////////-----------STUDENTWORLD PROTESTER FUNCTIONS-------------///////////
+///////////////////////////////////////////////////////////////////////////
+
 bool StudentWorld::is_facing_frackman(Protester* protester) const {
-  // Get protester's coordinates
-  int x = protester->get_x();
-  int y = protester->get_y();
+  // Get protester's information
+  int protester_x = protester->get_x();
+  int protester_y = protester->get_y();
+  GraphObject::Direction protester_direction = protester->get_direction();
+  // Get frackman's coordinates
+  int frackman_x = m_frackman->get_x();
+  int frackman_y = m_frackman->get_y();
   
-  return true;
+  // Take the protester's location as the origin of a coordinate system
+  // Check each of the four quadrants for frackman
+  if ((frackman_x >= protester_x) && (frackman_y >= protester_y)) {
+    if ((protester_direction == GraphObject::right) || (protester_direction == GraphObject::up)) { return true; }
+  }
+  if ((frackman_x <= protester_x) && (frackman_y >= protester_y)) {
+    if ((protester_direction == GraphObject::left) || (protester_direction == GraphObject::up)) { return true; }
+  }
+  if ((frackman_x <= protester_x) && (frackman_y <= protester_y)) {
+    if ((protester_direction == GraphObject::left) || (protester_direction == GraphObject::down)) { return true; }
+  }
+  if ((frackman_x >= protester_x) && (frackman_y <= protester_y)) {
+    if ((protester_direction == GraphObject::right) || (protester_direction == GraphObject::down)) { return true; }
+  }
+  
+  return false;
 }
 
 bool StudentWorld::is_in_line_of_sight(Protester* protester) const {
   if (m_frackman->get_x() == protester->get_x() || m_frackman->get_y() == protester->get_y()) { return true; }
+  return false;
+}
+
+
+bool StudentWorld::can_move_to_frackman(Protester* protester) {
+  // Get protester's information
+  int protester_x = protester->get_x();
+  int protester_y = protester->get_y();
+  // Get frackman's coordinates
+  int frackman_x = m_frackman->get_x();
+  int frackman_y = m_frackman->get_y();
+
+  // Can potentially move up or down to frackman
+  if (protester_x == frackman_x) {
+    // Check if can move up to frackman
+    if (protester_y < frackman_y) {
+      for (int i = protester_x; i < protester_x + 4; i++) {
+        for (int j = protester_y; j < frackman_y; j++) {
+          if (is_dirt(i, j) || is_boulder(i, j)) {
+            return false;
+          }
+        }
+      }
+      protester->set_direction(GraphObject::up);
+      protester->move_to(protester_x, protester_y + 1);
+      return true;
+    }
+    // Check if can move down to frackman
+    if (protester_y > frackman_y) {
+      for (int i = protester_x; i < protester_x + 4; i++) {
+        for (int j = frackman_y; j < protester_y; j++) {
+          if (is_dirt(i, j) || is_boulder(i, j)) {
+            return false;
+          }
+        }
+      }
+      protester->set_direction(GraphObject::down);
+      protester->move_to(protester_x, protester_y - 1);
+      return true;
+    }
+  }
+  // Can potentially move left or right to frackman
+  if (protester_y == frackman_y) {
+    // Check if can move left to frackman
+    if (protester_x > frackman_x) {
+      for (int i = protester_y; i < protester_y + 4; i++) {
+        for (int j = frackman_x; j < protester_x; j++) {
+          if (is_dirt(j, i) || is_boulder(j, i)) {
+            return false;
+          }
+        }
+      }
+      protester->set_direction(GraphObject::left);
+      protester->move_to(protester_x - 1, protester_y);
+      return true;
+    }
+    // Check if can move right to frackman
+    if (protester_x < frackman_x) {
+      for (int i = protester_y; i < protester_y + 4; i++) {
+        for (int j = protester_x; j < frackman_x; j++) {
+          if (is_dirt(j, i) || is_boulder(j, i)) {
+            return false;
+          }
+        }
+      }
+      protester->set_direction(GraphObject::right);
+      protester->move_to(protester_x + 1, protester_y);
+      return true;
+    }
+  }
+  
   return false;
 }
 
@@ -417,9 +543,3 @@ void StudentWorld::deinit_dirt(void) {
     }
   }
 }
-
-
-
-
-
-

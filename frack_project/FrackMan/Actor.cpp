@@ -350,7 +350,14 @@ Frackman::~Frackman() {}
 
 Protester::Protester(StudentWorld* world, int image_id, int start_health)
 : Human(image_id, 60, 60, GraphObject::left, 1.0, 0, world, start_health)
-{ set_visible(true); world->add_actor(this); set_resting_ticks(); m_leave_oil_field_state = false; }
+{
+  set_visible(true);
+  world->add_actor(this);
+  set_squares_current_direction(world->rand_int(8, 60));
+  set_resting_ticks();
+  m_ticks_since_shouted = 0;
+  m_leave_oil_field_state = false;
+}
 
 void Protester::do_something(void) {
   // Check the status of the regular protester
@@ -364,7 +371,7 @@ void Protester::do_something(void) {
   int y = get_y();
   
   // Get pointer to the StudentWorld
-  StudentWorld* regular_world = world();
+  StudentWorld* protester_world = world();
   
   // Check the leave the oil field state
   if (m_leave_oil_field_state) {
@@ -375,15 +382,35 @@ void Protester::do_something(void) {
       // TODO: Implement algorithm to find the exit
     }
   }
-  
-  // Check if within striking distance of frackman
+  // Check if within striking distance of frackman, and facing frackman, and can shout again
+  else if (protester_world->radius_from_actor(x, y, 4.00, false, true) && protester_world->is_facing_frackman(this) &&
+           m_ticks_since_shouted <= 0) {
+    // Reset protester shout variables
+    m_ticks_since_shouted = 15;
+    // Play protester shout sound effect
+    protester_world->play_sound(SOUND_PROTESTER_YELL);
+    // Inflict 2 points of damage on the frackman
+    protester_world->annoy_frackman(2);
+    set_resting_ticks();
+    return;
+  }
+  // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
+  else if (protester_world->is_in_line_of_sight(this) && !protester_world->radius_from_actor(x, y, 4.00, false, true) &&
+           protester_world->can_move_to_frackman(this)) {
+    set_squares_current_direction(0);
+    set_resting_ticks();
+    m_ticks_since_shouted--;
+    return;
+  }
   
   // Update protester tick variables
+  set_resting_ticks();
+  m_ticks_since_shouted--;
   
   return;
 }
 
-void Protester::set_squares_current_direction(void) { m_steps_current_direction = (world()->rand_int(8, 60)); }
+void Protester::set_squares_current_direction(int how_much) { m_steps_current_direction = how_much; }
 
 void Protester::set_resting_ticks(void) { m_restingticks = MAX(0, 3 - world()->get_level() / 4); }
 
@@ -393,7 +420,7 @@ int Protester::get_resting_ticks(void) const { return m_restingticks; }
 
 int Protester::get_nonresting_ticks(void) const { return m_nonresting_ticks; }
 
-int Protester::get_nticks_since_shouted(void) const { return m_ticks_since_shouted; }
+int Protester::get_ticks_since_shouted(void) const { return m_ticks_since_shouted; }
 
 bool Protester::is_leave_oil_field(void) const { return m_leave_oil_field_state; }
 
