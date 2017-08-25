@@ -28,8 +28,12 @@ using namespace std;
 //////////////////////-----------GLOBALS--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
+// Oil field grid dimensions
 #define GRID_HEIGHT 64
 #define GRID_WIDTH 64
+
+// Extra live point value
+#define EXTRA_LIVE 50000
 
 //returns the lesser of two numbers
 #define MIN(a, b) (a < b) ? (a) : (b)

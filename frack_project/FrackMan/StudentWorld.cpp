@@ -59,6 +59,10 @@ int StudentWorld::move() {
   // Update scoreboard
   update_scoreboard();
   
+  // Simple new feature (if player score is a multiple of 50,000, add an extra live)
+  static int multiple = 1;
+  if (get_score() >= (EXTRA_LIVE * multiple)) { inc_lives(); multiple++; }
+  
   // Give frackman a chance to do something
   m_frackman->do_something();
   
