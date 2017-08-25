@@ -340,6 +340,8 @@ void Frackman::update_gold(int how_much) { m_gold += how_much; }
 
 void Frackman::update_sonar(int how_much) { m_sonars += how_much; }
 
+void Frackman::update_water(int how_much) { m_squirts += how_much; }
+
 Frackman::~Frackman() {}
 
 ///////////////////////////////////////////////////////////////////////////
@@ -515,12 +517,30 @@ void WaterPool::do_something(void) {
   // Check the status of the water pool
   if (!is_alive()) { return; }
   
+  // Get current water pool coordinates
+  int x = get_x();
+  int y = get_y();
+  
+  // Get pointer to StudentWorld
+  StudentWorld* sonar_world = world();
+  
+  // If frackman grabs the water pool, set state to dead, play sound effect, increase player score, and update frackman inventory (by 5)
+  if (sonar_world->radius_from_actor(x, y, 3.00, false, true)) {
+    set_dead();
+    sonar_world->play_sound(SOUND_GOT_GOODIE);
+    sonar_world->increase_score(100);
+    sonar_world->update_water_count();
+  }
+  
+  // Check the time before the water pool vanishes
+  if (get_remaining_ticks() <= 0) { set_dead(); }
+  
+  // Update time before sonar kit vanishes
+  update_ticks();
+  
   return;
 }
 
+WaterPool::~WaterPool() { set_visible(false); }
 
-
-
-
-
-
+/* End of Actors */

@@ -79,15 +79,7 @@ int StudentWorld::move() {
   }
   
   // Add additional actors to the current oil field (i.e. sonar kits, water pools, and protesters)
-  int G = get_level() * 25 + 300;
-  // There is a 1 in G chance that a new sonar kit or water pool will be added to the oil field
-  if (rand_int(1, G) == 1) {
-    // Sonar kit: 1/5 chance, Water pool: 4/5 chance
-    if (rand_int(1, 5) == 1) { new Sonar(this); }
-    else { /// TODO: add new water pool to a random dirt-less spot in the oil field
-      cout << "no" << endl;
-    }
-  }
+  add_additional_actors();
   
   // If the player collected all of the barrels, advance to the next level (and play level completion sound effect)
   if (m_nbarrels == 0) {
@@ -126,7 +118,6 @@ void StudentWorld::add_initial_actors(void) {
   // Place boulders
   for (int i = 0; i < B; i++) {
     int x, y;
-    // Generate oil barrel coordinates
     generate_coordinates(0, 60, 20, 56, 20, &x, &y);
     // Make sure that there are no actors within a given radius of one another
     if (!radius_from_actor(x, y, 6.00)) {
@@ -140,13 +131,18 @@ void StudentWorld::add_initial_actors(void) {
   // Place oil barrels
   for (int i = 0; i < L; i++) {
     int x, y;
+    bool regenerate = false;
     // Generate oil barrel coordinates
-    generate_coordinates(0, 60, 0, 56, 4, &x, &y);
-    // Make sure that there are no actors within a given radius of one another
-    if (!radius_from_actor(x, y, 6.00)) {
-      // Add new oil barrel to the oil field
-      new Barrel(x, y, this);
-    }
+    do {
+      generate_coordinates(0, 60, 0, 56, 4, &x, &y);
+      // Make sure that there are no actors within a given radius of one another
+      if (!radius_from_actor(x, y, 6.00)) {
+        // Add new oil barrel to the oil field
+        new Barrel(x, y, this);
+        regenerate = false;
+      }
+      else { regenerate = true; }
+    } while (regenerate);
   }
   
   // Place gold nuggets
@@ -163,6 +159,22 @@ void StudentWorld::add_initial_actors(void) {
   
   // Set the number of oil barrels in the current level
   m_nbarrels = L;
+  
+  return;
+}
+
+void StudentWorld::add_additional_actors(void) {
+  int G = get_level() * 25 + 300;
+  // There is a 1 in G chance that a new sonar kit or water pool will be added to the oil field
+  if (rand_int(1, G) == 1) {
+    // Sonar kit: 1/5 chance, Water pool: 4/5 chance
+    if (rand_int(1, 5) == 1) { new Sonar(this); }
+    else {
+      int x, y;
+      generate_coordinates(0, 60, 0, 56, 0, &x, &y, true);
+      new WaterPool(x, y, this);
+    }
+  }
   
   return;
 }
@@ -198,6 +210,8 @@ void StudentWorld::dec_barrels(void) { m_nbarrels--; }
 void StudentWorld::update_gold_count(void) { m_frackman->update_gold(1); }
 
 void StudentWorld::update_sonar_count(void) { m_frackman->update_sonar(1); }
+
+void StudentWorld::update_water_count(void) { m_frackman->update_water(5); }
 
 void StudentWorld::illuminate_goodies(void) {
   for (int i = 0; i < m_actors.size(); i++) {
@@ -256,6 +270,18 @@ bool StudentWorld::is_dirt(Actor* a, GraphObject::Direction start_dir) {
   return is_dirt;
 }
 
+bool StudentWorld::is_dirt_in_square(int x, int y) {
+  bool is_dirt = false;
+  
+  for (int i = x; i < x + 4; i++) {
+    for (int j = y; j < y + 4; j++) {
+      if (m_dirt[i][j] != nullptr) { is_dirt = true; }
+    }
+  }
+  
+  return is_dirt;
+}
+
 bool StudentWorld::boulder_hit_human(Actor* a) {
   // Get Boulder and Frackman coordinates (need to update to protesters as well)
   int x = a->get_x();
@@ -302,15 +328,24 @@ int StudentWorld::rand_int(int min, int max) const {
   return distro(generator);
 }
 
-void StudentWorld::generate_coordinates(int x_min, int x_max, int y_min, int y_max, int shaft_y_coord, int* x_coord, int* y_coord) {
+void StudentWorld::generate_coordinates(int x_min, int x_max, int y_min, int y_max, int shaft_y_coord,
+                                        int* x_coord, int* y_coord, bool is_water) {
   bool regenerate = false;
   do {
     // "Randomly" generate oil barrel position
     *x_coord = rand_int(x_min, x_max);
     *y_coord = rand_int(y_min, y_max);
-    // If a oil barrel receives coordinates within the mineshaft, then regenerate coordinates
-    if (*x_coord >= 27 && *x_coord <= 33 && *y_coord >= shaft_y_coord) { regenerate = true; }
-    else { regenerate = false; }
+    // Generating coordinates for a water pool, find a dirt-less location
+    if (is_water) {
+      if (is_dirt_in_square(*x_coord, *y_coord)) { regenerate = true; }
+      else { regenerate = false; }
+    }
+    // Generating coordinates for an oil barrel, boulder, or gold nugget
+    else {
+      // If a oil barrel receives coordinates within the mineshaft, then regenerate coordinates
+      if (*x_coord >= 27 && *x_coord <= 33 && *y_coord >= shaft_y_coord) { regenerate = true; }
+      else { regenerate = false; }
+    }
   } while (regenerate);
 }
 

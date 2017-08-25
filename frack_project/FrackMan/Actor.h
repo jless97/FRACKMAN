@@ -121,6 +121,7 @@ public:
   int get_sonars(void);               // Get the number of sonar kits in frackman's inventory
   void update_gold(int how_much);     // Update frackman's gold count
   void update_sonar(int how_much);    // Update frackman's sonar kit count
+  void update_water(int how_much);    // Update frackman's water count
   virtual ~Frackman();
   
 private:
