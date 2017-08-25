@@ -52,6 +52,10 @@ int StudentWorld::init() {
   // Add initial actors to the current level (i.e. boulders, oil barrels, and gold nuggets)
   add_initial_actors();
   
+  // Initialize protester variables
+  m_nprotesters = 0;
+  m_nticks_since_added_protester = MAX(25, (200 - get_level()));
+
   return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -84,6 +88,9 @@ int StudentWorld::move() {
   
   // Add additional actors to the current oil field (i.e. sonar kits, water pools, and protesters)
   add_additional_actors();
+  
+  // Update ticks before adding another protester
+  m_nticks_since_added_protester++;
   
   // If the player collected all of the barrels, advance to the next level (and play level completion sound effect)
   if (m_nbarrels == 0) {
@@ -168,8 +175,9 @@ void StudentWorld::add_initial_actors(void) {
 }
 
 void StudentWorld::add_additional_actors(void) {
-  int G = get_level() * 25 + 300;
+  /* Add sonar kits and water pools */
   // There is a 1 in G chance that a new sonar kit or water pool will be added to the oil field
+  int G = get_level() * 25 + 300;
   if (rand_int(1, G) == 1) {
     // Sonar kit: 1/5 chance, Water pool: 4/5 chance
     if (rand_int(1, 5) == 1) { new Sonar(this); }
@@ -178,6 +186,18 @@ void StudentWorld::add_additional_actors(void) {
       generate_coordinates(0, 60, 0, 56, 0, &x, &y, true);
       new WaterPool(x, y, this);
     }
+  }
+  
+  /* Add protesters */
+  int T = MAX(25, (200 - get_level()));
+  int P = MIN(15, 2 + get_level() * 1.5);
+  int probability_of_hardcore = MIN(90, get_level() * 10 + 30);
+  if ((m_nprotesters < P) && (m_nticks_since_added_protester >= T)) {
+    // Reset protester timer
+    m_nticks_since_added_protester = -1;
+    // Add new protester at x = 60, y = 60
+    if (rand_int(1, probability_of_hardcore) == 1) { /* TODO: add hardcore protester */ }
+    else { /* TODO: add regular protester */ }
   }
   
   return;
