@@ -64,7 +64,7 @@ int StudentWorld::move() {
   update_scoreboard();
   
   // Simple new feature (if player score is a multiple of 50,000, add an extra live)
-  static int multiple = 1;
+  static unsigned int multiple = 1;
   if (get_score() >= (EXTRA_LIVE * multiple)) { inc_lives(); multiple++; }
   
   // Give frackman a chance to do something
@@ -350,6 +350,12 @@ bool StudentWorld::boulder_hit_human(Actor* a) {
   return false;
 }
 
+///////////////////////////////////////////////////////////////////////////
+/////////////-----------MATH/MATH HELPER FUNCTIONS-------------////////////
+///////////////////////////////////////////////////////////////////////////
+
+int StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const { return sqrt(pow((x_2 - x_1), 2) + pow((y_2 - y_1), 2)); }
+
 bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester) const {
   for (int i = 0; i < m_actors.size(); i++) {
     int actor_x = m_actors[i]->get_x();
@@ -373,8 +379,25 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
   return false;
 }
 
-int StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const {
-  return sqrt(pow((x_2 - x_1), 2) + pow((y_2 - y_1), 2));
+bool StudentWorld::is_out_of_bounds(int x, int y, GraphObject::Direction dir) const {
+  switch(dir) {
+    case GraphObject::up:
+      if (y + 1 > 60) { return true; }
+      break;
+    case GraphObject::down:
+      if (y - 1 < 0) { return true; }
+      break;
+    case GraphObject::left:
+        if (x - 1 < 0) { return true; }
+      break;
+    case GraphObject::right:
+      if (x + 1 > 60) { return true; }
+      break;
+    case GraphObject::none:
+      break;
+  }
+  
+  return false;
 }
 
 //Generate a random number (Equation used from Project 1 (no need to reinvent the wheel))
@@ -514,6 +537,74 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
   }
   
   return false;
+}
+
+GraphObject::Direction StudentWorld::generate_new_direction(Protester* protester) {
+  GraphObject::Direction new_dir = GraphObject::none;
+  
+  int temp_dir = rand_int(0, 3);
+  switch (temp_dir) {
+    case 0:
+      new_dir = GraphObject::up;
+      break;
+    case 1:
+      new_dir = GraphObject::down;
+      break;
+    case 2:
+      new_dir = GraphObject::left;
+      break;
+    case 3:
+      new_dir = GraphObject::right;
+      break;
+    default:
+      new_dir = GraphObject::none;
+      break;
+  }
+  
+  return new_dir;
+}
+
+bool StudentWorld::can_move_in_new_direction(Protester* protester, GraphObject::Direction dir) const {
+  // Get protester information
+  int protester_x = protester->get_x();
+  int protester_y = protester->get_y();  
+  
+  
+  // Check if there is dirt, boulder, or out of bounds
+  switch(dir) {
+    case GraphObject::up:
+      if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
+      if (is_boulder(protester_x, protester_y + 4)) { return false; }
+      for (int i = 0; i < 4; i++) {
+        if (is_dirt(protester_x + i, protester_y + 4)) { return false; }
+      }
+      break;
+    case GraphObject::down:
+      if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
+      if (is_boulder(protester_x, protester_y - 4)) { return false; }
+      for (int i = 0; i < 4; i++) {
+        if (is_dirt(protester_x + i, protester_y - 1)) { return false; }
+      }
+      break;
+    case GraphObject::left:
+      if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
+      if (is_boulder(protester_x - 4, protester_y)) { return false; }
+      for (int i = 0; i < 4; i++) {
+        if (is_dirt(protester_x - 1, protester_y + i)) { return false; }
+      }
+      break;
+    case GraphObject::right:
+      if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
+      if (is_boulder(protester_x + 4, protester_y)) { return false; }
+      for (int i = 0; i < 4; i++) {
+        if (is_dirt(protester_x + 4, protester_y + i)) { return false; }
+      }
+      break;
+    case GraphObject::none:
+      break;
+  }
+  
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////

@@ -71,6 +71,7 @@ public:
   int radius(int x_1, int y_1, int x_2, int y_2) const;        // Returns the radius (Euclidean distance) between two objects
   // Objects should not be placed within a certain distance of others
   bool radius_from_actor(int x, int y, double r, bool is_boulder = false, bool is_frackman = false, bool is_protester = false) const;
+  bool is_out_of_bounds(int x, int y, GraphObject::Direction dir) const; // Check if a move in the current direction will be out of bounds
   int rand_int(int min, int max) const;                        // Generates a pseudo-random number in a given range
   // Generates the coordinates of the actor to be inserted into the oil field
   void generate_coordinates(int x_min, int x_max, int y_min, int y_max, int shaft_y_coord, int* x_coord, int* y_coord, bool is_water=false);
@@ -79,6 +80,9 @@ public:
   bool is_in_line_of_sight(Protester* protester) const;        // Returns true if a protester is in direct line of sight to FrackMan
   // Returns true if protester can continue moving in current direction to reach FrackMan; makes protester face FrackMan if it returns true
   bool can_move_to_frackman(Protester* protester);
+  GraphObject::Direction generate_new_direction(Protester* protester); // Generate a new random direction for the protester to walk in
+  // Returns true if protester can take a step in its new direction
+  bool can_move_in_new_direction(Protester* protester, GraphObject::Direction dir) const;
   virtual ~StudentWorld();
 
 private:
