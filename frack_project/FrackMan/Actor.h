@@ -113,6 +113,7 @@ public:
   virtual void do_something();
   int get_squirts(void);
   int get_gold(void);
+  void update_gold(int how_much);
   int get_sonars(void);
   virtual ~Frackman();
 private:
@@ -188,17 +189,14 @@ private:
 //IID_GOLD
 class Gold : public Goodie {
 public:
+  Gold(int start_x, int start_y, StudentWorld* world, int state, bool is_visible);
+  virtual void do_something(void);
+  bool is_permanent_state(void);       // Return the state of the gold object
+  void update_state(void);             // Update the state of the gold object (i.e. player places it down, switch to temporary)
+  virtual ~Gold();
+  
 private:
-};
-
-///////////////////////////////////////////////////////////////////////////
-////////////////////////-----------BRIBE--------------/////////////////////
-///////////////////////////////////////////////////////////////////////////
-
-//IID_GOLD
-class Bribe : public Goodie {
-public:
-private:
+  int m_state;
 };
 
 ///////////////////////////////////////////////////////////////////////////

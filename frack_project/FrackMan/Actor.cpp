@@ -151,6 +151,14 @@ void Frackman::do_something() {
       case KEY_PRESS_SPACE:
         /// TODO: Implement
         break;
+      // Frackman places gold nugget down as bribe to a protester
+      case KEY_PRESS_TAB:
+        // If Frackman has 1 or more gold nuggets, then place a bribe down, and decrement gold count
+        if (get_gold() >= 1) {
+          frack_world->set_bribe(x, y);
+          update_gold(-1);
+        }
+        break;
       // Left
       case KEY_PRESS_LEFT:
         // If not currently facing in the direction of key press
@@ -162,7 +170,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_actor(x - 1, y, 3.00, true, false)) { move_to(x, y); }
+          if (world()->radius_from_actor(x - 1, y, 3.00, true, false, false)) { move_to(x, y); }
           else {
             move_to(x - 1, y);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -180,7 +188,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_actor(x + 1, y, 3.00, true, false)) { move_to(x, y); }
+          if (world()->radius_from_actor(x + 1, y, 3.00, true, false, false)) { move_to(x, y); }
           else {
             move_to(x + 1, y);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -198,7 +206,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_actor(x, y - 1, 3.00, true, false)) { move_to(x, y); }
+          if (world()->radius_from_actor(x, y - 1, 3.00, true, false, false)) { move_to(x, y); }
           else {
             move_to(x, y - 1);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -216,7 +224,7 @@ void Frackman::do_something() {
         }
         else {
           // Check if there is a boulder blocking the way
-          if (world()->radius_from_actor(x, y + 1, 3.00, true, false)) { move_to(x, y); }
+          if (world()->radius_from_actor(x, y + 1, 3.00, true, false, false)) { move_to(x, y); }
           else {
             move_to(x, y + 1);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
@@ -234,6 +242,8 @@ void Frackman::do_something() {
 int Frackman::get_squirts(void) { return m_squirts; }
 
 int Frackman::get_gold(void) { return m_gold; }
+
+void Frackman::update_gold(int how_much) { m_gold += how_much; }
 
 int Frackman::get_sonars(void) { return m_sonars; }
 
@@ -284,10 +294,10 @@ void Barrel::do_something(void) {
   StudentWorld* barrel_world = world();
   
   // If currently invisible, and Frackman is nearby to oil barrel, then set visible (and immediately return)
-  if (!is_visible() && barrel_world->radius_from_actor(x, y, 4.00, false, true)) { set_visible(true); return; }
+  if (!is_visible() && barrel_world->radius_from_actor(x, y, 4.00, false, true, false)) { set_visible(true); return; }
   
   // If currently visible, and Frackman grabs the oil barrel, then set dead, play sound, and increase score
-  if (is_visible() && barrel_world->radius_from_actor(x, y, 3.00, false, true)) {
+  if (is_visible() && barrel_world->radius_from_actor(x, y, 3.00, false, true, false)) {
     set_dead();
     barrel_world->play_sound(SOUND_FOUND_OIL);
     barrel_world->increase_score(1000);
@@ -302,6 +312,61 @@ Barrel::~Barrel() { set_visible(false); }
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////-----------GOLD--------------///////////////////////
 ///////////////////////////////////////////////////////////////////////////
+
+Gold::Gold(int start_x, int start_y, StudentWorld* world, int state, bool is_visible)
+: Goodie(IID_GOLD, start_x, start_y, GraphObject::right, 1, 2, world, 100), m_state(state)
+{ set_visible(is_visible); world->add_actor(this); }
+
+void Gold::do_something(void) {
+  // Check the status of the gold object
+  if (!is_alive()) { return; }
+  
+  // Get current coordinates of gold object
+  int x = get_x();
+  int y = get_y();
+  
+  // Get pointer to StudentWorld
+  StudentWorld* gold_world = world();
+  
+  // If in permanent state (i.e. can be picked up by frackman)
+  if (is_permanent_state()) {
+    // If currently invisible, and Frackman is nearby to gold, then set visible (and immediately return)
+    if (!is_visible() && gold_world->radius_from_actor(x, y, 4.00, false, true, false)) { set_visible(true); return; }
+    
+    // If currently visible, and Frackman grabs the gold object, then set dead, play sound, and increase score
+    if (is_visible() && gold_world->radius_from_actor(x, y, 3.00, false, true, false)) {
+      set_dead();
+      gold_world->play_sound(SOUND_GOT_GOODIE);
+      gold_world->increase_score(10);
+      gold_world->update_gold_count();
+    }
+  }
+  // If in temporary state (i.e. can be picked up by protesters)
+  else {
+    // Check the time before the bribe vanishes
+    if (get_remaining_ticks() <= 0) { set_dead(); }
+    
+    // Update time before bribe vanishes
+    update_ticks();
+    
+    // If protester grabs the bribe, then set dead, play sound, and increase score
+    if (gold_world->radius_from_actor(x, y, 3.00, false, false, true)) {
+      set_dead();
+      gold_world->play_sound(SOUND_PROTESTER_FOUND_GOLD);
+      gold_world->increase_score(25);
+      /// TODO: IMPLEMENT: TELL PROTESTER HE JUST PICKED UP GOLD
+    }
+
+  }
+  
+  return;
+}
+
+bool Gold::is_permanent_state(void) { return (m_state == 0); }
+
+void Gold::update_state(void) { m_state = !m_state; }
+
+Gold::~Gold() { set_visible(false); }
 
 ///////////////////////////////////////////////////////////////////////////
 ////////////////////////-----------BRIBE--------------/////////////////////

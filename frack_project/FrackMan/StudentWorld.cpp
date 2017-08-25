@@ -60,7 +60,7 @@ int StudentWorld::init() {
     // Generate oil barrel coordinates
     generate_coordinates(0, 60, 20, 56, 20, &x, &y);
     // Make sure that there are no actors within a given radius of one another
-    if (!radius_from_actor(x, y, 6.00, false, false)) {
+    if (!radius_from_actor(x, y, 6.00, false, false, false)) {
       // Add new boulder to the oil field
       Boulder* new_boulder = new Boulder(x, y, this);
       // Remove dirt surrounding new boulder
@@ -74,9 +74,21 @@ int StudentWorld::init() {
     // Generate oil barrel coordinates
     generate_coordinates(0, 60, 0, 56, 4, &x, &y);
     // Make sure that there are no actors within a given radius of one another
-    if (!radius_from_actor(x, y, 6.00, false, false)) {
+    if (!radius_from_actor(x, y, 6.00)) {
       // Add new oil barrel to the oil field
       new Barrel(x, y, this);
+    }
+  }
+  
+  // Place gold nuggets
+  for (int i = 0; i < G; i++) {
+    int x, y;
+    // Generate gold nugget coordinates
+    generate_coordinates(0, 60, 0, 56, 4, &x, &y);
+    // Make sure that there are no actors within a given radius of one another
+    if (!radius_from_actor(x, y, 6.00)) {
+      // Add new gold nugget to the oil field
+      new Gold(x, y, this, 0, false);
     }
   }
   
@@ -161,6 +173,10 @@ void StudentWorld::update_scoreboard() {
 
 void StudentWorld::dec_barrels(void) { m_nbarrels--; }
 
+void StudentWorld::update_gold_count(void) { m_frackman->update_gold(1); }
+
+void StudentWorld::set_bribe(int x, int y) { new Gold(x, y, this, 1, true); }
+
 bool StudentWorld::remove_dirt(Actor* a) {
   bool did_remove = false;
   for (int i = a->get_x(); i < a->get_x() + 4; i++) {
@@ -199,16 +215,22 @@ bool StudentWorld::boulder_hit_human(Actor* a) {
   return false;
 }
 
-bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman) const {
+bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester) const {
   for (int i = 0; i < m_actors.size(); i++) {
     int actor_x = m_actors[i]->get_x();
     int actor_y = m_actors[i]->get_y();
+    // Checking radius with a boulder object
     if (is_boulder) {
       if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
     }
+    // Checking radius with the frackman player
     if (is_frackman) {
       actor_x = m_frackman->get_x();
       actor_y = m_frackman->get_y();
+    }
+    // Checking radius with a protester
+    if (is_protester) {
+      if (m_actors[i]->get_id() != IID_PROTESTER || m_actors[i]->get_id() != IID_HARD_CORE_PROTESTER ) { continue; }
     }
     if (radius(x, y, actor_x, actor_y) <= r) { return true; }
   }

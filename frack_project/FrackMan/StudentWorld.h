@@ -50,11 +50,14 @@ public:
   void add_actor(Actor* actor);                                // Add a new actor to StudentWorld
   void update_scoreboard(void);                                // Update the scoreboard display
   void dec_barrels(void);                                      // Decrement barrel count
+  void update_gold_count(void);                                // Increment gold count of frackman
+  void set_bribe(int x, int y);                                // Set a bribe for a protester
   bool remove_dirt(Actor* a);                                  // Remove dirt occupied by an actor
   bool is_dirt_below(Actor* a);                                // Check if there is dirt directly below an actor
   bool boulder_hit_human(Actor* a);                            // Check if there is a human (currently frackman) below a boulder
   int radius(int x_1, int y_1, int x_2, int y_2) const;     // Returns the radius (Euclidean distance) between two objects
-  bool radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman) const; // Objects should not be placed within a certain distance of others
+  // Objects should not be placed within a certain distance of others
+  bool radius_from_actor(int x, int y, double r, bool is_boulder = false, bool is_frackman = false, bool is_protester = false) const;
   int rand_int(int min, int max) const;                        // Generates a pseudo-random number in a given range
   void generate_coordinates(int x_min, int x_max, int y_min, int y_max, int shaft_y_coord, int* x_coord, int* y_coord); // Generates the coordinates of the actor to be inserted into the oil field
   void annoy_frackman(int how_much);                           // Decrease Frackman's health by a specified amount
