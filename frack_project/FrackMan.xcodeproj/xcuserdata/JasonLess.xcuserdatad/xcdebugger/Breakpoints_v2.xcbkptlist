@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FrackMan/Actor.cpp"
-            timestampString = "525391715.899335"
+            timestampString = "525395602.656169"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1444"
-            endingLineNumber = "1444">
+            startingLineNumber = "1527"
+            endingLineNumber = "1527">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -24,11 +24,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FrackMan/Actor.cpp"
-            timestampString = "525391715.899335"
+            timestampString = "525395602.656169"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1443"
-            endingLineNumber = "1443">
+            startingLineNumber = "1526"
+            endingLineNumber = "1526">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

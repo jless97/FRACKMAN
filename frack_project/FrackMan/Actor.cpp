@@ -437,7 +437,46 @@ void Protester::do_something(void) {
       // If protester hasn't turned for the specified duration, check if it is at an intersection
       if (get_ticks_since_turned() <= 0) {
         // If at an intersection, and can take one step in a given path, choose a path
+        bool turn = false, can_move_up = false, can_move_down = false, can_move_left = false, can_move_right = false;
+        int temp_dir = -1;
+        switch(get_direction()) {
+          case GraphObject::up:
+          case GraphObject::down:
+            // Check if can make perpendicular move in left or right direction, or continue moving up
+            if (protester_world->can_move_in_new_direction(this, GraphObject::left)) { can_move_left = true; }
+            if (protester_world->can_move_in_new_direction(this, GraphObject::left)) { can_move_right = true; }
+            if (!can_move_left && !can_move_right) { /* Keep moving in current direction */ }
+            else if (can_move_left && !can_move_right) { set_direction(GraphObject::left); turn = true; }
+            else if (!can_move_left && can_move_right) { set_direction(GraphObject::right); turn = true; }
+            else if (can_move_left && can_move_right) {
+              temp_dir = protester_world->rand_int(0, 1);
+              if (temp_dir == 0) { set_direction(GraphObject::left); turn = true; }
+              if (temp_dir == 1) { set_direction(GraphObject::right); turn = true; }
+            }
+            break;
+          case GraphObject::left:
+          case GraphObject::right:
+            // Check if can make perpendicular move in up or down direction, or continue moving left
+            if (protester_world->can_move_in_new_direction(this, GraphObject::down)) { can_move_down = true; }
+            if (protester_world->can_move_in_new_direction(this, GraphObject::up)) { can_move_up = true; }
+            if (!can_move_down && !can_move_up) { /* Keep moving in current direction */ }
+            else if (can_move_down && !can_move_up) { set_direction(GraphObject::down); turn = true; }
+            else if (!can_move_down && can_move_up) { set_direction(GraphObject::up); turn = true; }
+            else if (can_move_down && can_move_up) {
+              temp_dir = protester_world->rand_int(0, 1);
+              if (temp_dir == 0) { set_direction(GraphObject::down); turn = true; }
+              if (temp_dir == 1) { set_direction(GraphObject::up); turn = true; }
+            }
+            break;
+            case GraphObject::none:
+              break;
+        }
         
+        // If protester did turn, then update protester variables
+        if (turn) {
+          set_ticks_since_turned();
+          set_squares_current_direction(protester_world->rand_int(8, 60));
+        }
       }
       
       // If protester can move, then do the move
@@ -462,6 +501,7 @@ void Protester::do_something(void) {
       // Else set the steps to move in current direction to 0, so protester can choose a new direction
       else {
         set_squares_current_direction(0);
+        update_ticks_since_turned(-1);
       }
     }
   }
@@ -469,6 +509,7 @@ void Protester::do_something(void) {
   // Update protester tick variables
   set_resting_ticks();
   update_ticks_since_shouted(-1);
+  update_ticks_since_turned(-1);
   
   return;
 }
@@ -550,7 +591,7 @@ void HardcoreProtester::do_something(void) {
     protester_world->annoy_frackman(2);
     // Reset protester variables
     set_ticks_since_shouted();
-    set_resting_ticks();
+    set_resting_ticks_after_shout();
     update_ticks_since_turned(-1);
     return;
   }
@@ -590,7 +631,47 @@ void HardcoreProtester::do_something(void) {
     else {
       // If protester hasn't turned for the specified duration, check if it is at an intersection
       if (get_ticks_since_turned() <= 0) {
+        // If at an intersection, and can take one step in a given path, choose a path
+        bool turn = false, can_move_up = false, can_move_down = false, can_move_left = false, can_move_right = false;
+        int temp_dir = -1;
+        switch(get_direction()) {
+          case GraphObject::up:
+          case GraphObject::down:
+            // Check if can make perpendicular move in left or right direction, or continue moving up
+            if (protester_world->can_move_in_new_direction(this, GraphObject::left)) { can_move_left = true; }
+            if (protester_world->can_move_in_new_direction(this, GraphObject::left)) { can_move_right = true; }
+            if (!can_move_left && !can_move_right) { /* Keep moving in current direction */ }
+            else if (can_move_left && !can_move_right) { set_direction(GraphObject::left); turn = true; }
+            else if (!can_move_left && can_move_right) { set_direction(GraphObject::right); turn = true; }
+            else if (can_move_left && can_move_right) {
+              temp_dir = protester_world->rand_int(0, 1);
+              if (temp_dir == 0) { set_direction(GraphObject::left); turn = true; }
+              if (temp_dir == 1) { set_direction(GraphObject::right); turn = true; }
+            }
+            break;
+          case GraphObject::left:
+          case GraphObject::right:
+            // Check if can make perpendicular move in up or down direction, or continue moving left
+            if (protester_world->can_move_in_new_direction(this, GraphObject::down)) { can_move_down = true; }
+            if (protester_world->can_move_in_new_direction(this, GraphObject::up)) { can_move_up = true; }
+            if (!can_move_down && !can_move_up) { /* Keep moving in current direction */ }
+            else if (can_move_down && !can_move_up) { set_direction(GraphObject::down); turn = true; }
+            else if (!can_move_down && can_move_up) { set_direction(GraphObject::up); turn = true; }
+            else if (can_move_down && can_move_up) {
+              temp_dir = protester_world->rand_int(0, 1);
+              if (temp_dir == 0) { set_direction(GraphObject::down); turn = true; }
+              if (temp_dir == 1) { set_direction(GraphObject::up); turn = true; }
+            }
+            break;
+          case GraphObject::none:
+            break;
+        }
         
+        // If protester did turn, then update protester variables
+        if (turn) {
+          set_ticks_since_turned();
+          set_squares_current_direction(protester_world->rand_int(8, 60));
+        }
       }
       
       // If protester can move, then do the move
@@ -615,6 +696,7 @@ void HardcoreProtester::do_something(void) {
       // Else set the steps to move in current direction to 0, so protester can choose a new direction
       else {
         set_squares_current_direction(0);
+        update_ticks_since_turned(-1);
       }
     }
   }
@@ -622,6 +704,7 @@ void HardcoreProtester::do_something(void) {
   // Update protester tick variables
   set_resting_ticks();
   update_ticks_since_shouted(-1);
+  update_ticks_since_turned(-1);
   
   return;
 }
