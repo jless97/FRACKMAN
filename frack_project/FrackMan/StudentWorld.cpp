@@ -149,7 +149,7 @@ void StudentWorld::add_initial_actors(void) {
     bool regenerate = false;
     // Generate oil barrel coordinates
     do {
-      generate_coordinates(0, 60, 0, 56, 4, &x, &y);
+      generate_coordinates(0, 60, 0, 56, 0, &x, &y);
       // Make sure that there are no actors within a given radius of one another
       if (!radius_from_actor(x, y, 6.00)) {
         // Add new oil barrel to the oil field
