@@ -195,6 +195,8 @@ void StudentWorld::add_additional_actors(void) {
   if ((m_nprotesters < P) && (m_nticks_since_added_protester >= T)) {
     // Reset protester timer
     m_nticks_since_added_protester = -1;
+    // Update protester counter
+    m_nprotesters++;
     // Add new protester at x = 60, y = 60
     if (rand_int(1, probability_of_hardcore) == 1) { /* TODO: add hardcore protester */ }
     else { /* TODO: add regular protester */ }
