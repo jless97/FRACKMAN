@@ -52,8 +52,9 @@ public:
   void dec_barrels(void);                                      // Decrement barrel count
   void update_gold_count(void);                                // Increment gold count of frackman
   void set_bribe(int x, int y);                                // Set a bribe for a protester
+  void set_squirt(int x, int y, GraphObject::Direction dir);   // Set a water squirt onto the oil field
   bool remove_dirt(Actor* a);                                  // Remove dirt occupied by an actor
-  bool is_dirt_below(Actor* a);                                // Check if there is dirt directly below an actor
+  bool is_dirt(Actor* a, GraphObject::Direction start_dir);    // Check if there is dirt directly next to an actor in a specified direction
   bool boulder_hit_human(Actor* a);                            // Check if there is a human (currently frackman) below a boulder
   int radius(int x_1, int y_1, int x_2, int y_2) const;     // Returns the radius (Euclidean distance) between two objects
   // Objects should not be placed within a certain distance of others

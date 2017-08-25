@@ -177,6 +177,8 @@ void StudentWorld::update_gold_count(void) { m_frackman->update_gold(1); }
 
 void StudentWorld::set_bribe(int x, int y) { new Gold(x, y, this, 1, true); }
 
+void StudentWorld::set_squirt(int x, int y, GraphObject::Direction dir) { new WaterSquirt(x, y, this, dir); }
+
 bool StudentWorld::remove_dirt(Actor* a) {
   bool did_remove = false;
   for (int i = a->get_x(); i < a->get_x() + 4; i++) {
@@ -194,15 +196,31 @@ bool StudentWorld::remove_dirt(Actor* a) {
   return did_remove;
 }
 
-bool StudentWorld::is_dirt_below(Actor* a) {
-  bool dirt_below = false;
-  for (int i = a->get_x(); i < a->get_x() + 4; i++) {
-    if (m_dirt[i][a->get_y() - 1] != nullptr) {
-      dirt_below = true;
-    }
+bool StudentWorld::is_dirt(Actor* a, GraphObject::Direction start_dir) {
+  // Get actor's coordinates
+  int x = a->get_x();
+  int y = a->get_y();
+  
+  int dir = start_dir;
+  bool is_dirt = false;
+  switch (dir) {
+    case GraphObject::left:
+      for (int i = y; i < y + 4; i++) { if (m_dirt[x - 1][i] != nullptr) { is_dirt = true; } }
+      break;
+    case GraphObject::right:
+      for (int i = y; i < y + 4; i++) { if (m_dirt[x + 4][i] != nullptr) { is_dirt = true; } }
+      break;
+    case GraphObject::down:
+      for (int i = x; i < x + 4; i++) { if (m_dirt[i][y - 1] != nullptr) { is_dirt = true; } }
+      break;
+    case GraphObject::up:
+      for (int i = x; i < x + 4; i++) { if (m_dirt[i][y + 4] != nullptr) { is_dirt = true; } }
+      break;
+    default:
+      break;
   }
   
-  return dirt_below;
+  return is_dirt;
 }
 
 bool StudentWorld::boulder_hit_human(Actor* a) {

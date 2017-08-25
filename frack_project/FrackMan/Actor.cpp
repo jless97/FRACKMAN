@@ -72,7 +72,7 @@ void Boulder::do_something(void) {
   // Check state of the boulder
     // If in stable state, if there is no dirt directly below boulder, transition to waiting state
   if (m_state == 0) {
-    if (!boulder_world->is_dirt_below(this)) { m_state = 1; }
+    if (!boulder_world->is_dirt(this, GraphObject::down)) { m_state = 1; }
   }
     // If in waiting state, if 30 ticks have elapsed, transition to falling state (and play sound effect for falling boulder)
   else if (m_state == 1) {
@@ -85,10 +85,10 @@ void Boulder::do_something(void) {
     // If hits another boulder
     else if (0) {} /// TODO: IMPLEMENT
     // If hits dirt
-    else if (world()->is_dirt_below(this)) { set_dead(); }
+    else if (world()->is_dirt(this, GraphObject::down)) { set_dead(); }
     // If hits frackman
     else if (world()->boulder_hit_human(this)) { set_dead(); world()->annoy_frackman(100); }
-    // If hits a protester
+    // If hits a protester /// TODO: IMPLEMENT
     else if (0) {}
     // Else move down one step
     else { move_to(x, y - 1); }
@@ -102,6 +102,60 @@ Boulder::~Boulder() { set_visible(false); }
 ///////////////////////////////////////////////////////////////////////////
 //////////////////-----------WATER SQUIRT--------------////////////////////
 ///////////////////////////////////////////////////////////////////////////
+
+WaterSquirt::WaterSquirt(int start_x, int start_y, StudentWorld* world, Direction start_dir)
+: Actor(IID_WATER_SPURT, start_x, start_y, start_dir, 1.00, 1, world), m_nticks_before_vanish(4)
+{ set_visible(true); world->add_actor(this); }
+
+void WaterSquirt::do_something(void) {
+  // Get current water squirt coordinates
+  int x = get_x();
+  int y = get_y();
+  
+  // Get pointer to StudentWorld
+  StudentWorld* watersquirt_world = world();
+  
+  // Check if the water squirt has hit a protester
+  /// TODO: IF WATER SQUIRT IS WITHIN RADIUS OF 3 OF A PROTESTER, THEN DEAL 2 POINTS OF ANNOYANCE, AND SET STATE TO DEAD
+  
+  // Check if the water squirt has traveled its complete distance
+  if (m_nticks_before_vanish <= 0) { set_dead(); }
+  
+  // Check if the water squirt can move in the specified direction (i.e. no dirt, no boulders, no out of bounds)
+    // If boulder blocks path
+  if (watersquirt_world->radius_from_actor(x, y, 3.00, true)) { set_dead(); }
+    // If out of bounds or dirt blocks path (///TODO: IMPLEMENT DIRT)
+  int direction = get_direction();
+  switch(direction) {
+    case GraphObject::left:
+      if (x <= 0 || watersquirt_world->is_dirt(this, GraphObject::left)) { set_dead(); }
+      else { move_to(x - 1, y); }
+      break;
+    case GraphObject::right:
+      if (x >= 60 || watersquirt_world->is_dirt(this, GraphObject::right)) { set_dead(); }
+      else { move_to(x + 1, y); }
+      break;
+    case GraphObject::down:
+      if (y <= 0 || watersquirt_world->is_dirt(this, GraphObject::down)) { set_dead(); }
+      else { move_to(x, y - 1); }
+      break;
+    case GraphObject::up:
+      if (y >= 60 || watersquirt_world->is_dirt(this, GraphObject::up)) { set_dead(); }
+      else { move_to(x, y + 1); }
+      break;
+    default:
+      break;
+  }
+    // If nothing blocking path
+  
+  
+  // Update ticks before water squirt vanishes
+  m_nticks_before_vanish--;
+  
+  return;
+}
+
+WaterSquirt::~WaterSquirt() { set_visible(false); }
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////-----------HUMAN--------------//////////////////////
@@ -149,7 +203,32 @@ void Frackman::do_something() {
         break;
       // Frackman fires a water squirt from squirt gun
       case KEY_PRESS_SPACE:
-        /// TODO: Implement
+        if (get_squirts() >= 1) {
+          // Decrement water squirts
+          m_squirts--;
+          // Play sound effect
+          frack_world->play_sound(SOUND_FINISHED_LEVEL);
+          // Get direction that frackman is facing
+          Direction dir = get_direction();
+          int x_coord = x, y_coord = y;
+          switch(dir) {
+            case GraphObject::left:
+              x_coord -= 3;
+              break;
+            case GraphObject::right:
+              x_coord += 3;
+              break;
+            case GraphObject::down:
+              y_coord -= 3;
+              break;
+            case GraphObject::up:
+              y_coord += 3;
+              break;
+            default:
+              break;
+          }
+          frack_world->set_squirt(x_coord, y_coord, dir);
+        }
         break;
       // Frackman places gold nugget down as bribe to a protester
       case KEY_PRESS_TAB:

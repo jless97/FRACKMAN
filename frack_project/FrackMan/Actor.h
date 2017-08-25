@@ -83,7 +83,12 @@ private:
 //IID_WATER_SPURT
 class WaterSquirt : public Actor {
 public:
+  WaterSquirt(int x, int y, StudentWorld* world, Direction dir);
+  virtual void do_something(void);
+  virtual ~WaterSquirt();
+  
 private:
+  int m_nticks_before_vanish;
 };
 
 ///////////////////////////////////////////////////////////////////////////
