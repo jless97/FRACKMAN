@@ -356,6 +356,7 @@ Protester::Protester(StudentWorld* world, int image_id, int start_health)
   set_squares_current_direction(world->rand_int(8, 60));
   set_resting_ticks();
   m_ticks_since_shouted = 0;
+  m_ticks_since_turned = 0;
   m_leave_oil_field_state = false;
 }
 
@@ -367,7 +368,7 @@ void Protester::do_something(void) {
   if (!is_alive()) { return; }
   
   // Check if regular protester can move this clock tick
-  if (m_restingticks > 0) { update_resting_ticks(-1); return; }
+  if (get_resting_ticks() > 0) { update_resting_ticks(-1); return; }
   
   // Get current coordinates of regular protester
   int x = get_x();
@@ -377,7 +378,7 @@ void Protester::do_something(void) {
   StudentWorld* protester_world = world();
   
   // Check the leave the oil field state
-  if (m_leave_oil_field_state) {
+  if (get_leave_oil_field()) {
     // If already at the exit location for regular protester
     if (x == 60 && y == 60) { set_dead(); }
     // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
@@ -387,15 +388,16 @@ void Protester::do_something(void) {
   }
   // Check if within striking distance of frackman, and facing frackman, and can shout again
   else if (protester_world->radius_from_actor(x, y, 4.00, false, true) && protester_world->is_facing_frackman(this) &&
-           m_ticks_since_shouted <= 0) {
+           get_ticks_since_shouted() <= 0) {
     cout << "no" << endl;
-    // Reset protester shout variables
-    m_ticks_since_shouted = 15;
     // Play protester shout sound effect
     protester_world->play_sound(SOUND_PROTESTER_YELL);
     // Inflict 2 points of damage on the frackman
     protester_world->annoy_frackman(2);
-    set_resting_ticks();
+    // Reset protester variables
+    set_ticks_since_shouted();
+    set_resting_ticks_after_shout();
+    update_ticks_since_turned(-1);
     return;
   }
   // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
@@ -405,6 +407,7 @@ void Protester::do_something(void) {
     set_squares_current_direction(0);
     set_resting_ticks();
     update_ticks_since_shouted(-1);
+    update_ticks_since_turned(-1);
     return;
   }
   // Else if protester doesn't have direct line of sight of frackman
@@ -412,6 +415,7 @@ void Protester::do_something(void) {
     cout << count++ << endl;
     // Update squares to move in current direction
     update_squares_current_direction(-1);
+    
     // If number of squares to move in current direction is <= 0, then pick new direction to walk in
     if (get_squares_current_direction() <= 0) {
       bool invalid_direction = false;
@@ -426,9 +430,16 @@ void Protester::do_something(void) {
       } while (invalid_direction);
       // Pick new number for squares to walk in new direction
       set_squares_current_direction(protester_world->rand_int(8, 60));
+      update_ticks_since_turned(-1);
     }
     // If can still move in the current direction, check to see if protester can move (i.e. check if there is dirt or boulder blocking it)
     else {
+      // If protester hasn't turned for the specified duration, check if it is at an intersection
+      if (get_ticks_since_turned() <= 0) {
+        // If at an intersection, and can take one step in a given path, choose a path
+        
+      }
+      
       // If protester can move, then do the move
       if (protester_world->can_move_in_new_direction(this, get_direction())) {
         switch (get_direction()) {
@@ -466,13 +477,21 @@ void Protester::set_squares_current_direction(int how_much) { m_steps_current_di
 
 void Protester::set_resting_ticks(void) { m_restingticks = MAX(0, 3 - world()->get_level() / 4); }
 
+void Protester::set_resting_ticks_after_shout(void) { m_restingticks = REST_TICKS_SHOUT; }
+
 void Protester::set_ticks_since_shouted(void) { m_ticks_since_shouted = 15; }
+
+void Protester::set_ticks_since_turned(void) { m_ticks_since_turned = 200; }
+
+void Protester::set_leave_oil_field_state(void) { m_leave_oil_field_state = true; }
 
 void Protester::update_squares_current_direction(int how_much) { m_steps_current_direction += how_much; }
 
 void Protester::update_resting_ticks(int how_much) { m_restingticks += how_much; }
 
 void Protester::update_ticks_since_shouted(int how_much) { m_ticks_since_shouted += how_much; }
+
+void Protester::update_ticks_since_turned(int how_much) { m_ticks_since_turned += how_much; }
 
 int Protester::get_squares_current_direction(void) const { return m_steps_current_direction; }
 
@@ -482,7 +501,9 @@ int Protester::get_nonresting_ticks(void) const { return m_nonresting_ticks; }
 
 int Protester::get_ticks_since_shouted(void) const { return m_ticks_since_shouted; }
 
-bool Protester::is_leave_oil_field(void) const { return m_leave_oil_field_state; }
+int Protester::get_ticks_since_turned(void) const { return m_ticks_since_turned; }
+
+bool Protester::get_leave_oil_field(void) const { return m_leave_oil_field_state; }
 
 Protester::~Protester() { set_visible(false); }
 
@@ -511,7 +532,7 @@ void HardcoreProtester::do_something(void) {
   StudentWorld* protester_world = world();
   
   // Check the leave the oil field state
-  if (is_leave_oil_field()) {
+  if (get_leave_oil_field()) {
     // If already at the exit location for regular protester
     if (x == 60 && y == 60) { set_dead(); }
     // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
@@ -523,13 +544,14 @@ void HardcoreProtester::do_something(void) {
   else if (protester_world->radius_from_actor(x, y, 4.00, false, true) && protester_world->is_facing_frackman(this) &&
            get_ticks_since_shouted() <= 0) {
     cout << "no" << endl;
-    // Reset protester shout variables
-    set_ticks_since_shouted();
     // Play protester shout sound effect
     protester_world->play_sound(SOUND_PROTESTER_YELL);
     // Inflict 2 points of damage on the frackman
     protester_world->annoy_frackman(2);
+    // Reset protester variables
+    set_ticks_since_shouted();
     set_resting_ticks();
+    update_ticks_since_turned(-1);
     return;
   }
   // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
@@ -539,6 +561,7 @@ void HardcoreProtester::do_something(void) {
     set_squares_current_direction(0);
     set_resting_ticks();
     update_ticks_since_shouted(-1);
+    update_ticks_since_turned(-1);
     return;
   }
   // Else if protester doesn't have direct line of sight of frackman
@@ -561,9 +584,15 @@ void HardcoreProtester::do_something(void) {
       } while (invalid_direction);
       // Pick new number for squares to walk in new direction
       set_squares_current_direction(protester_world->rand_int(8, 60));
+      update_ticks_since_turned(-1);
     }
     // If can still move in the current direction, check to see if protester can move (i.e. check if there is dirt or boulder blocking it)
     else {
+      // If protester hasn't turned for the specified duration, check if it is at an intersection
+      if (get_ticks_since_turned() <= 0) {
+        
+      }
+      
       // If protester can move, then do the move
       if (protester_world->can_move_in_new_direction(this, get_direction())) {
         switch (get_direction()) {
