@@ -86,10 +86,11 @@ public:
   GraphObject::Direction generate_new_direction(Protester* protester); // Generate a new random direction for the protester to walk in
   // Based off of the current status of the oil field, this function returns the four directions with a level of priority to find target
   void generate_optimal_direction(Protester* protester, GraphObject::Direction& first, GraphObject::Direction& second,
-                                  GraphObject::Direction& third, GraphObject::Direction& fourth);
+       GraphObject::Direction& third, GraphObject::Direction& fourth, bool is_exit_maze);
   bool can_move_in_new_direction(int x, int y, GraphObject::Direction dir); // Returns true if protester can take a step in its new direction
+  int getSquaresFromFrackMan(HardcoreProtester* protester);
   virtual ~StudentWorld();
-
+  
 private:
   Dirt* m_dirt[GRID_WIDTH][GRID_HEIGHT];
   Frackman* m_frackman;
@@ -111,12 +112,14 @@ private:
     int m_col;
   };
   int m_oilfield[GRID_WIDTH][GRID_HEIGHT];
+  int m_find_frackman[GRID_WIDTH][GRID_HEIGHT];
   
   /* StudentWorld Private Functions */
   void init_dirt(void);
   void deinit_dirt(void);
   void update_protester_exit_maze(void);
   void update_protester_frackman_maze(void);
+  void update_maze(int x, int y, int a[][GRID_HEIGHT]);
 };
 
 #endif // STUDENTWORLD_H_

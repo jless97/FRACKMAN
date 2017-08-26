@@ -385,7 +385,7 @@ void Protester::do_something(void) {
       Direction first = GraphObject::none, second = GraphObject::none, third = GraphObject::none, fourth = GraphObject::none;
       Direction new_dir[4] = {first, second, third, fourth};
       // Generates the priority level for each of the four directions
-      protester_world->generate_optimal_direction(this, new_dir[0], new_dir[1], new_dir[2], new_dir[3]);
+      protester_world->generate_optimal_direction(this, new_dir[0], new_dir[1], new_dir[2], new_dir[3], true);
       for (int i = 0; i < 4; i++) {
         // If the protester can move in a given direction, then set direction, and move one step in that direction
         if (protester_world->can_move_in_new_direction(x, y, new_dir[i]))
@@ -419,6 +419,12 @@ void Protester::do_something(void) {
     set_ticks_since_shouted();
     set_resting_ticks(REST_TICKS_SHOUT);
     update_ticks_since_turned(-1);
+    return;
+  }
+  // If a hardcore protester, then implement tracking of frackman
+  else if (track_frackman()) {
+    set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
+    update_ticks_since_shouted(-1);
     return;
   }
   // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
@@ -563,6 +569,8 @@ int Protester::get_ticks_since_turned(void) const { return m_ticks_since_turned;
 
 bool Protester::get_leave_oil_field_state(void) const { return m_leave_oil_field_state; }
 
+bool Protester::track_frackman(void) { return false; }
+
 Protester::~Protester() { set_visible(false); }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -572,33 +580,24 @@ Protester::~Protester() { set_visible(false); }
 HardcoreProtester::HardcoreProtester(StudentWorld* world)
 : Protester(world, IID_HARD_CORE_PROTESTER, 20) {}
 
-void HardcoreProtester::do_something(void) {
-  // Check the status of the regular protester
-  if (!is_alive()) { return; }
-  
-  // Check if regular protester can move this clock tick
-  if (get_resting_ticks() > 0) { update_resting_ticks(-1); return; }
-  
-  // Get current coordinates of regular protester
+bool HardcoreProtester::track_frackman(void) {
+  // Get current coordinates of hardcore protester
   int x = get_x();
   int y = get_y();
   
-  // Get pointer to StudentWorld
-  StudentWorld* protester_world = world();
+  // Get poitner to StudentWorld
+  StudentWorld* hardcore_world = world();
   
-  // Check the leave the oil field state
-  if (get_leave_oil_field_state()) {
-    // If already at the exit location for regular protester
-    if (x == 60 && y == 60) { set_dead(); }
-    // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
-    else {
+  if (!(hardcore_world->radius_from_actor(x, y, 4.00, false, true))) {
+    int M = 16 + hardcore_world->get_level() * 2;
+    if (hardcore_world->getSquaresFromFrackMan(this) < M) {
       Direction first = GraphObject::none, second = GraphObject::none, third = GraphObject::none, fourth = GraphObject::none;
       Direction new_dir[4] = {first, second, third, fourth};
       // Generates the priority level for each of the four directions
-      protester_world->generate_optimal_direction(this, new_dir[0], new_dir[1], new_dir[2], new_dir[3]);
+      hardcore_world->generate_optimal_direction(this, new_dir[0], new_dir[1], new_dir[2], new_dir[3], false);
       for (int i = 0; i < 4; i++) {
         // If the protester can move in a given direction, then set direction, and move one step in that direction
-        if (protester_world->can_move_in_new_direction(x, y, new_dir[i]))
+        if (hardcore_world->can_move_in_new_direction(x, y, new_dir[i]))
         {
           set_direction(new_dir[i]);
           switch(new_dir[i]) {
@@ -613,134 +612,13 @@ void HardcoreProtester::do_something(void) {
             case GraphObject::none:
               break;
           }
-          break;
+          return true;
         }
-      }
-    }
-  }
-  // Check if within striking distance of frackman, and facing frackman, and can shout again
-  else if (protester_world->radius_from_actor(x, y, 4.00, false, true) && protester_world->is_facing_frackman(this) &&
-           get_ticks_since_shouted() <= 0) {
-    // Play protester shout sound effect
-    protester_world->play_sound(SOUND_PROTESTER_YELL);
-    // Inflict 2 points of damage on the frackman
-    protester_world->annoy_frackman(2);
-    // Reset protester variables
-    set_ticks_since_shouted();
-    set_resting_ticks(REST_TICKS_SHOUT);
-    update_ticks_since_turned(-1);
-    return;
-  }
-  // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
-  else if (protester_world->is_in_line_of_sight(this) && !protester_world->radius_from_actor(x, y, 4.00, false, true) &&
-           protester_world->can_move_to_frackman(this)) {
-    set_squares_current_direction(0);
-    set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
-    update_ticks_since_shouted(-1);
-    update_ticks_since_turned(-1);
-    return;
-  }
-  // Else if protester doesn't have direct line of sight of frackman
-  else {
-    // Update squares to move in current direction
-    update_squares_current_direction(-1);
-    
-    // If number of squares to move in current direction is <= 0, then pick new direction to walk in
-    if (get_squares_current_direction() <= 0) {
-      bool invalid_direction = false;
-      do {
-        GraphObject::Direction temp_dir = protester_world->generate_new_direction(this);
-        // If protester can't take a single step in the new direction, then pick new direction and recheck
-        if (protester_world->can_move_in_new_direction(x, y, temp_dir)) {
-          invalid_direction = false;
-          set_direction(temp_dir);
-        }
-        else { invalid_direction = true; }
-      } while (invalid_direction);
-      // Pick new number for squares to walk in new direction
-      set_squares_current_direction(protester_world->rand_int(8, 60));
-      update_ticks_since_turned(-1);
-    }
-    // If can still move in the current direction, check to see if protester can move (i.e. check if there is dirt or boulder blocking it)
-    else {
-      // If protester hasn't turned for the specified duration, check if it is at an intersection
-      if (get_ticks_since_turned() <= 0) {
-        // If at an intersection, and can take one step in a given path, choose a path
-        bool turn = false, can_move_up = false, can_move_down = false, can_move_left = false, can_move_right = false;
-        int temp_dir = -1;
-        switch(get_direction()) {
-          case GraphObject::up:
-          case GraphObject::down:
-            // Check if can make perpendicular move in left or right direction, or continue moving up
-            if (protester_world->can_move_in_new_direction(x, y, GraphObject::left)) { can_move_left = true; }
-            if (protester_world->can_move_in_new_direction(x, y, GraphObject::left)) { can_move_right = true; }
-            if (!can_move_left && !can_move_right) { /* Keep moving in current direction */ }
-            else if (can_move_left && !can_move_right) { set_direction(GraphObject::left); turn = true; }
-            else if (!can_move_left && can_move_right) { set_direction(GraphObject::right); turn = true; }
-            else if (can_move_left && can_move_right) {
-              temp_dir = protester_world->rand_int(0, 1);
-              if (temp_dir == 0) { set_direction(GraphObject::left); turn = true; }
-              if (temp_dir == 1) { set_direction(GraphObject::right); turn = true; }
-            }
-            break;
-          case GraphObject::left:
-          case GraphObject::right:
-            // Check if can make perpendicular move in up or down direction, or continue moving left
-            if (protester_world->can_move_in_new_direction(x, y, GraphObject::down)) { can_move_down = true; }
-            if (protester_world->can_move_in_new_direction(x, y, GraphObject::up)) { can_move_up = true; }
-            if (!can_move_down && !can_move_up) { /* Keep moving in current direction */ }
-            else if (can_move_down && !can_move_up) { set_direction(GraphObject::down); turn = true; }
-            else if (!can_move_down && can_move_up) { set_direction(GraphObject::up); turn = true; }
-            else if (can_move_down && can_move_up) {
-              temp_dir = protester_world->rand_int(0, 1);
-              if (temp_dir == 0) { set_direction(GraphObject::down); turn = true; }
-              if (temp_dir == 1) { set_direction(GraphObject::up); turn = true; }
-            }
-            break;
-          case GraphObject::none:
-            break;
-        }
-        
-        // If protester did turn, then update protester variables
-        if (turn) {
-          set_ticks_since_turned();
-          set_squares_current_direction(protester_world->rand_int(8, 60));
-        }
-      }
-      
-      // If protester can move, then do the move
-      if (protester_world->can_move_in_new_direction(x, y, get_direction())) {
-        switch (get_direction()) {
-          case GraphObject::up:
-            move_to(x, y + 1);
-            break;
-          case GraphObject::down:
-            move_to(x, y - 1);
-            break;
-          case GraphObject::left:
-            move_to(x - 1, y);
-            break;
-          case GraphObject::right:
-            move_to(x + 1, y);
-            break;
-          case GraphObject::none:
-            break;
-        }
-      }
-      // Else set the steps to move in current direction to 0, so protester can choose a new direction
-      else {
-        set_squares_current_direction(0);
-        update_ticks_since_turned(-1);
       }
     }
   }
   
-  // Update protester tick variables
-  set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
-  update_ticks_since_shouted(-1);
-  update_ticks_since_turned(-1);
-  
-  return;
+  return false;
 }
 
 HardcoreProtester::~HardcoreProtester() { set_visible(false); }

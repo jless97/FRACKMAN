@@ -70,8 +70,9 @@ int StudentWorld::move() {
   // Give frackman a chance to do something
   m_frackman->do_something();
   
-  // Update the queue-based maze that protesters use to find the exit
-  update_protester_exit_maze();
+  // Update the queue-based maze that protesters use to find the exit (and for the hardcore protester to find frackman)
+  update_maze(60, 60, m_oilfield);
+  update_maze(m_frackman->get_x(), m_frackman->get_y(), m_find_frackman);
   
   // Give all other actors a chance to do something
   for (int i = 0; i < m_actors.size(); i++) { m_actors[i]->do_something(); }
@@ -152,7 +153,7 @@ void StudentWorld::add_initial_actors(void) {
     bool regenerate = false;
     // Generate oil barrel coordinates
     do {
-      generate_coordinates(0, 60, 0, 56, 4, &x, &y);
+      generate_coordinates(0, 60, 0, 56, 0, &x, &y);
       // Make sure that there are no actors within a given radius of one another
       if (!radius_from_actor(x, y, 6.00)) {
         // Add new oil barrel to the oil field
@@ -699,23 +700,34 @@ void StudentWorld::deinit_dirt(void) {
 ///////-----------QUEUE-BASED MAZE-SEARCHING FUNCTIONS-------------////////
 ///////////////////////////////////////////////////////////////////////////
 
-void StudentWorld::generate_optimal_direction(Protester* protester, GraphObject::Direction& first, GraphObject::Direction& second,
-                                        GraphObject::Direction& third, GraphObject::Direction& fourth) {
+void StudentWorld::generate_optimal_direction(Protester* protester, GraphObject::Direction& first, GraphObject::Direction& second, GraphObject::Direction& third, GraphObject::Direction& fourth, bool is_exit_maze) {
   // Get the current coordinates of the protester
   int x = protester->get_x();
   int y = protester->get_y();
   
   // Load in the current status of the oil field in the four cardinal directions around the protester (i.e. up, down, left, right)
-  int surrouding_oilfield[4] = {m_oilfield[x][y + 1], m_oilfield[x][y - 1], m_oilfield[x - 1][y], m_oilfield[x + 1][y]};
+  int surrounding_oilfield[4];
+  if (is_exit_maze) {
+    surrounding_oilfield[0] = m_oilfield[x][y + 1];
+    surrounding_oilfield[1] = m_oilfield[x][y - 1];
+    surrounding_oilfield[2] = m_oilfield[x - 1][y];
+    surrounding_oilfield[3] = m_oilfield[x + 1][y];
+  }
+  else {
+    surrounding_oilfield[0] = m_find_frackman[x][y + 1];
+    surrounding_oilfield[1] = m_find_frackman[x][y - 1];
+    surrounding_oilfield[2] = m_find_frackman[x - 1][y];
+    surrounding_oilfield[3] = m_find_frackman[x + 1][y];
+  }
   int surrounding_status = 0;
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      if (surrouding_oilfield[j] < surrouding_oilfield[surrounding_status])
+      if (surrounding_oilfield[j] < surrounding_oilfield[surrounding_status])
         surrounding_status = j;
     }
     
     // When looking for the next optimal direction to take, the previous priority level direction should not be compared with again
-    surrouding_oilfield[surrounding_status] = 1000;
+    surrounding_oilfield[surrounding_status] = 1000;
     
     // Set the priority of the optimal direction to take
     switch (i) {
@@ -755,54 +767,59 @@ void StudentWorld::generate_optimal_direction(Protester* protester, GraphObject:
   }
 }
 
-void StudentWorld::update_protester_exit_maze(void) {
+void StudentWorld::update_maze(int x, int y, int a[][GRID_HEIGHT]) {
   queue<Coord> coordQueue;
   
   // Re-initialize the maze each time this function is called (to get most updated version of oil field)
   for (int i = 0; i < GRID_WIDTH; i++) {
     for (int j = 0; j < GRID_HEIGHT; j++) {
-      m_oilfield[i][j] = -1;
+      a[i][j] = -1;
     }
   }
   
   // Set the target location for protesters (i.e. the exit at x = 60, y = 60)
-  coordQueue.push(Coord(60, 60));
-  m_oilfield[60][60] = 0;
+  coordQueue.push(Coord(x, y));
+  a[x][y] = 0;
   
   // While the queue isn't empty, keep checking for path to the exit
   while (!coordQueue.empty()) {
     Coord start = coordQueue.front();
     int r = start.row(), c = start.col();
     coordQueue.pop();
-
+    
     // Check if protester can move in the four cardinal directions (i.e. up, down, left, or right)
-      // Direction: up
+    // Direction: up
     if ((r >= 0 && r <= 60) && (c + 1 >= 0 && c + 1 <= 60)) {
-      if (can_move_in_new_direction(r, c, GraphObject::up) && m_oilfield[r][c + 1] == -1) {
-        m_oilfield[r][c + 1] = m_oilfield[r][c] + 1;
+      if (can_move_in_new_direction(r, c, GraphObject::up) && a[r][c + 1] == -1) {
+        a[r][c + 1] = a[r][c] + 1;
         coordQueue.push(Coord(r, c + 1));
       }
     }
-      // Direction: down
+    // Direction: down
     if ((r >= 0 && r <= 60) && (c - 1 >= 0 && c - 1 <= 60)) {
-      if (can_move_in_new_direction(r, c, GraphObject::down) && m_oilfield[r][c - 1] == -1) {
-        m_oilfield[r][c - 1] = m_oilfield[r][c] + 1;
+      if (can_move_in_new_direction(r, c, GraphObject::down) && a[r][c - 1] == -1) {
+        a[r][c - 1] = a[r][c] + 1;
         coordQueue.push(Coord(r, c - 1));
       }
     }
-      // Direction: left
+    // Direction: left
     if ((r - 1 >= 0 && r - 1 <= 60) &&  (c >= 0 && c <= 60)) {
-      if (can_move_in_new_direction(r, c, GraphObject::left) && m_oilfield[r - 1][c] == -1) {
-        m_oilfield[r - 1][c] = m_oilfield[r][c] + 1;
+      if (can_move_in_new_direction(r, c, GraphObject::left) && a[r - 1][c] == -1) {
+        a[r - 1][c] = a[r][c] + 1;
         coordQueue.push(Coord(r - 1, c));
       }
     }
-      // Direction: right
+    // Direction: right
     if ((r + 1 >= 0 && r + 1 <= 60) && (c >= 0 && c <= 60)) {
-      if (can_move_in_new_direction(r, c, GraphObject::right) && m_oilfield[r + 1][c] == -1) {
-        m_oilfield[r + 1][c] = m_oilfield[r][c] + 1;
+      if (can_move_in_new_direction(r, c, GraphObject::right) && a[r + 1][c] == -1) {
+        a[r + 1][c] = a[r][c] + 1;
         coordQueue.push(Coord(r + 1, c));
       }
     }
   }
+}
+
+int StudentWorld::getSquaresFromFrackMan(HardcoreProtester* protester)
+{
+  return m_find_frackman[protester->get_x()][protester->get_y()];
 }

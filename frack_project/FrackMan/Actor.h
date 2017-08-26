@@ -154,7 +154,8 @@ public:
   int get_nonresting_ticks(void) const;               // Get number of nonresting ticks
   int get_ticks_since_shouted(void) const;            // Get number of ticks since protester shouted last
   int get_ticks_since_turned(void) const;             // Get number of ticks since protester last turned
-  bool get_leave_oil_field_state(void) const;                // Get the leave oil field state
+  bool get_leave_oil_field_state(void) const;         // Get the leave oil field state
+  virtual bool track_frackman(void);                  // If within a given radius of frackman, use the BFS to hone-in on his location
   virtual ~Protester();
   
 private:
@@ -174,7 +175,7 @@ private:
 class HardcoreProtester : public Protester {
 public:
   HardcoreProtester(StudentWorld* world);
-  virtual void do_something(void);
+  virtual bool track_frackman(void);
   virtual ~HardcoreProtester();
   
 private:
