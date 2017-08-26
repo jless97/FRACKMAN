@@ -392,20 +392,18 @@ int StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const { return sqrt
 
 bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester) const {
   for (int i = 0; i < m_actors.size(); i++) {
-    int actor_x = m_actors[i]->get_x();
-    int actor_y = m_actors[i]->get_y();
+    int actor_x = 0, actor_y = 0;
     // Checking radius with a boulder object
     if (is_boulder) {
       if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
+      else { actor_x = m_actors[i]->get_x(); actor_y = m_actors[i]->get_y(); }
     }
     // Checking radius with the frackman player
-    if (is_frackman) {
-      actor_x = m_frackman->get_x();
-      actor_y = m_frackman->get_y();
-    }
+    if (is_frackman) { actor_x = m_frackman->get_x(); actor_y = m_frackman->get_y(); }
     // Checking radius with a protester
     if (is_protester) {
-      if (m_actors[i]->get_id() != IID_PROTESTER || m_actors[i]->get_id() != IID_HARD_CORE_PROTESTER ) { continue; }
+      if (m_actors[i]->get_id() != IID_PROTESTER && m_actors[i]->get_id() != IID_HARD_CORE_PROTESTER ) { continue; }
+      else { actor_x = m_actors[i]->get_x(); actor_y = m_actors[i]->get_y(); }
     }
     if (radius(x, y, actor_x, actor_y) <= r) { return true; }
   }
@@ -517,9 +515,7 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     if (protester_y < frackman_y) {
       for (int i = protester_x; i < protester_x + 4; i++) {
         for (int j = protester_y; j < frackman_y; j++) {
-          if (is_dirt(i, j) || is_boulder(i, j)) {
-            return false;
-          }
+          if (is_dirt(i, j) || is_boulder(i, j)) { return false; }
         }
       }
       protester->set_direction(GraphObject::up);
@@ -530,9 +526,7 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     if (protester_y > frackman_y) {
       for (int i = protester_x; i < protester_x + 4; i++) {
         for (int j = frackman_y; j < protester_y; j++) {
-          if (is_dirt(i, j) || is_boulder(i, j)) {
-            return false;
-          }
+          if (is_dirt(i, j) || is_boulder(i, j)) { return false; }
         }
       }
       protester->set_direction(GraphObject::down);
@@ -546,9 +540,7 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     if (protester_x > frackman_x) {
       for (int i = protester_y; i < protester_y + 4; i++) {
         for (int j = frackman_x; j < protester_x; j++) {
-          if (is_dirt(j, i) || is_boulder(j, i)) {
-            return false;
-          }
+          if (is_dirt(j, i) || is_boulder(j, i)) { return false; }
         }
       }
       protester->set_direction(GraphObject::left);
@@ -559,9 +551,7 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     if (protester_x < frackman_x) {
       for (int i = protester_y; i < protester_y + 4; i++) {
         for (int j = protester_x; j < frackman_x; j++) {
-          if (is_dirt(j, i) || is_boulder(j, i)) {
-            return false;
-          }
+          if (is_dirt(j, i) || is_boulder(j, i)) { return false; }
         }
       }
       protester->set_direction(GraphObject::right);
