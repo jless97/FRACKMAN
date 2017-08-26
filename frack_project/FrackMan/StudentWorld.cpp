@@ -137,14 +137,20 @@ void StudentWorld::add_initial_actors(void) {
   // Place boulders
   for (int i = 0; i < B; i++) {
     int x, y;
-    generate_coordinates(0, 60, 20, 56, 20, &x, &y);
-    // Make sure that there are no actors within a given radius of one another
-    if (!radius_from_actor(x, y, 6.00)) {
-      // Add new boulder to the oil field
-      Boulder* new_boulder = new Boulder(x, y, this);
-      // Remove dirt surrounding new boulder
-      remove_dirt(new_boulder);
-    }
+    bool regenerate = false;
+    // Generate boulder coordinates
+    do {
+      generate_coordinates(0, 60, 20, 56, 20, &x, &y);
+      // Make sure that there are no actors within a given radius of one another
+      if (!radius_from_actor(x, y, 6.00)) {
+        // Add new boulder to the oil field
+        Boulder* new_boulder = new Boulder(x, y, this);
+        // Remove dirt surrounding new boulder
+        remove_dirt(new_boulder);
+        regenerate = false;
+      }
+      else { regenerate = true; }
+    } while (regenerate);
   }
   
   // Place oil barrels
@@ -167,13 +173,18 @@ void StudentWorld::add_initial_actors(void) {
   // Place gold nuggets
   for (int i = 0; i < G; i++) {
     int x, y;
+    bool regenerate = false;
     // Generate gold nugget coordinates
-    generate_coordinates(0, 60, 0, 56, 4, &x, &y);
-    // Make sure that there are no actors within a given radius of one another
-    if (!radius_from_actor(x, y, 6.00)) {
-      // Add new gold nugget to the oil field
-      new Gold(x, y, this, 0, false);
-    }
+    do {
+      generate_coordinates(0, 60, 0, 56, 4, &x, &y);
+      // Make sure that there are no actors within a given radius of one another
+      if (!radius_from_actor(x, y, 6.00)) {
+        // Add new gold nugget to the oil field
+        new Gold(x, y, this, 0, false);
+        regenerate = false;
+      }
+      else { regenerate = true; }
+    } while (regenerate);
   }
   
   // Set the number of oil barrels in the current level
