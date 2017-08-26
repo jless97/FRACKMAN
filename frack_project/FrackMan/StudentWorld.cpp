@@ -414,10 +414,18 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
         
         // If protester picks up bribe, then set protester to leave the oil field immediately, play sound effect, and increase player score
         if (is_bribe) {
-          dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
-          dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
+          // If regular protester
+          if (m_actors[i]->get_id() == IID_PROTESTER) {
+            dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
+            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
+            increase_score(25);
+          }
+          // If hardcore protester
+          else {
+            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(MAX(50, 100 - get_level() * 10));
+            increase_score(50);
+          }
           play_sound(SOUND_PROTESTER_FOUND_GOLD);
-          increase_score(25);
         }
         // If protester gets hit by a water squirt, then play sound effect, inflict damage on protester, and stun protester
         else {
@@ -429,7 +437,8 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
           if (dynamic_cast<Protester*>(m_actors[i])->get_health() <= 0) {
             dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
             dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
-            increase_score(100);
+            if (m_actors[i]->get_id() == IID_PROTESTER) { increase_score(100); }
+            else { increase_score(250); }
             play_sound(SOUND_PROTESTER_GIVE_UP);
           }
         }

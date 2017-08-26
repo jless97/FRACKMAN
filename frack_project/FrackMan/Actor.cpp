@@ -549,7 +549,7 @@ Protester::~Protester() { set_visible(false); }
 ///////////////////////////////////////////////////////////////////////////
 
 HardcoreProtester::HardcoreProtester(StudentWorld* world)
-: Protester(world, IID_HARD_CORE_PROTESTER, 10) {}
+: Protester(world, IID_HARD_CORE_PROTESTER, 20) {}
 
 void HardcoreProtester::do_something(void) {
   // Check the status of the regular protester
