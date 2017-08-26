@@ -103,7 +103,7 @@ Boulder::~Boulder() { set_visible(false); }
 ///////////////////////////////////////////////////////////////////////////
 
 WaterSquirt::WaterSquirt(int start_x, int start_y, StudentWorld* world, Direction start_dir)
-: Actor(IID_WATER_SPURT, start_x, start_y, start_dir, 1.00, 1, world), m_nticks_before_vanish(4)
+: Actor(IID_WATER_SPURT, start_x, start_y, start_dir, 1.00, 1, world), m_nticks_before_vanish(6)
 { set_visible(true); world->add_actor(this); }
 
 void WaterSquirt::do_something(void) {
@@ -505,7 +505,7 @@ void Protester::set_squares_current_direction(int how_much) { m_steps_current_di
 
 void Protester::set_resting_ticks(int how_much) { m_restingticks = how_much; }
 
-void Protester::set_ticks_since_shouted(void) { m_ticks_since_shouted = 15; }
+void Protester::set_ticks_since_shouted(void) { m_ticks_since_shouted = 30; }
 
 void Protester::set_ticks_since_turned(void) { m_ticks_since_turned = 65; }
 
