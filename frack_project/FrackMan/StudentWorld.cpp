@@ -423,7 +423,19 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
         // If protester gets hit by a water squirt, then play sound effect, inflict damage on protester, and stun protester
         else {
           dynamic_cast<Protester*>(m_actors[i])->get_annoyed(2);
-          dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(MAX(50, 100 - get_level() * 10));
+          // The resting ticks after a protester takes water squirt damage is dependent on the current level
+          if (get_level() <= 10) {
+            // Max resting ticks in this period is 50 ticks (for level 10)
+            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(30 + get_level() * 2);
+          }
+            // Max resting ticks in this period is 100 ticks (for level 20)
+          else if (get_level() > 10 && get_level() <= 20) {
+            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(60 + get_level() * 2);
+          }
+            // Max resting ticks in this period is 200 ticks (for level 30)
+          else if (get_level() > 20 && get_level() <= 30) {
+            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(140 + get_level() * 2);
+          }
           play_sound(SOUND_PROTESTER_ANNOYED);
           
           // If protester killed by squirt gun, then set protester to leave the oil field, increment player's score, and play sound effect
