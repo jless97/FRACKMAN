@@ -70,6 +70,9 @@ int StudentWorld::move() {
   // Give frackman a chance to do something
   m_frackman->do_something();
   
+  // Update the queue-based maze that protesters use to find the exit
+  update_protester_exit_maze();
+  
   // Give all other actors a chance to do something
   for (int i = 0; i < m_actors.size(); i++) { m_actors[i]->do_something(); }
   
@@ -626,40 +629,35 @@ GraphObject::Direction StudentWorld::generate_new_direction(Protester* protester
   return new_dir;
 }
 
-bool StudentWorld::can_move_in_new_direction(Protester* protester, GraphObject::Direction dir) {
-  // Get protester information
-  int protester_x = protester->get_x();
-  int protester_y = protester->get_y();  
-  
-  
+bool StudentWorld::can_move_in_new_direction(int x, int y, GraphObject::Direction dir) {
   // Check if there is dirt, boulder, or out of bounds
   switch(dir) {
     case GraphObject::up:
-      if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
-      if (radius_from_actor(protester_x, protester_y + 1, 3.00, true)) { return false; }
+      if (is_out_of_bounds(x, y, dir)) { return false; }
+      if (radius_from_actor(x, y + 1, 3.00, true)) { return false; }
       for (int i = 0; i < 4; i++) {
-        if (is_dirt(protester_x + i, protester_y + 4)) { return false; }
+        if (is_dirt(x + i, y + 4)) { return false; }
       }
       break;
     case GraphObject::down:
-      if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
-      if (radius_from_actor(protester_x, protester_y - 1, 3.00, true)) { return false; }
+      if (is_out_of_bounds(x, y, dir)) { return false; }
+      if (radius_from_actor(x, y - 1, 3.00, true)) { return false; }
       for (int i = 0; i < 4; i++) {
-        if (is_dirt(protester_x + i, protester_y - 1)) { return false; }
+        if (is_dirt(x + i, y - 1)) { return false; }
       }
       break;
     case GraphObject::left:
-      if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
-      if (radius_from_actor(protester_x - 1, protester_y, 3.00, true)) { return false; }
+      if (is_out_of_bounds(x, y, dir)) { return false; }
+      if (radius_from_actor(x - 1, y, 3.00, true)) { return false; }
       for (int i = 0; i < 4; i++) {
-        if (is_dirt(protester_x - 1, protester_y + i)) { return false; }
+        if (is_dirt(x - 1, y + i)) { return false; }
       }
       break;
     case GraphObject::right:
-      if (is_out_of_bounds(protester_x, protester_y, dir)) { return false; }
-      if (radius_from_actor(protester_x + 1, protester_y, 3.00, true)) { return false; }
+      if (is_out_of_bounds(x, y, dir)) { return false; }
+      if (radius_from_actor(x + 1, y, 3.00, true)) { return false; }
       for (int i = 0; i < 4; i++) {
-        if (is_dirt(protester_x + 4, protester_y + i)) { return false; }
+        if (is_dirt(x + 4, y + i)) { return false; }
       }
       break;
     case GraphObject::none:
@@ -693,6 +691,118 @@ void StudentWorld::deinit_dirt(void) {
     for (int j = 0; j < GRID_HEIGHT; j++) {
       delete m_dirt[i][j];
       m_dirt[i][j] = nullptr;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////
+///////-----------QUEUE-BASED MAZE-SEARCHING FUNCTIONS-------------////////
+///////////////////////////////////////////////////////////////////////////
+
+void StudentWorld::generate_optimal_direction(Protester* protester, GraphObject::Direction& first, GraphObject::Direction& second,
+                                        GraphObject::Direction& third, GraphObject::Direction& fourth) {
+  // Get the current coordinates of the protester
+  int x = protester->get_x();
+  int y = protester->get_y();
+  
+  // Load in the current status of the oil field in the four cardinal directions around the protester (i.e. up, down, left, right)
+  int surrouding_oilfield[4] = {m_oilfield[x][y + 1], m_oilfield[x][y - 1], m_oilfield[x - 1][y], m_oilfield[x + 1][y]};
+  int surrounding_status = 0;
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      if (surrouding_oilfield[j] < surrouding_oilfield[surrounding_status])
+        surrounding_status = j;
+    }
+    
+    // When looking for the next optimal direction to take, the previous priority level direction should not be compared with again
+    surrouding_oilfield[surrounding_status] = 1000;
+    
+    // Set the priority of the optimal direction to take
+    switch (i) {
+      case 0:
+        switch (surrounding_status) {
+        case 0: first = GraphObject::up; break;
+        case 1: first = GraphObject::down; break;
+        case 2: first = GraphObject::left; break;
+        case 3: first = GraphObject::right; break;
+        }
+        break;
+      case 1:
+        switch (surrounding_status) {
+        case 0: second = GraphObject::up; break;
+        case 1: second = GraphObject::down; break;
+        case 2: second = GraphObject::left; break;
+        case 3: second = GraphObject::right; break;
+        }
+        break;
+      case 2:
+        switch (surrounding_status) {
+        case 0: third = GraphObject::up; break;
+        case 1: third = GraphObject::down; break;
+        case 2: third = GraphObject::left; break;
+        case 3: third = GraphObject::right; break;
+        }
+        break;
+      case 3:
+        switch (surrounding_status) {
+        case 0: fourth = GraphObject::up; break;
+        case 1: fourth = GraphObject::down; break;
+        case 2: fourth = GraphObject::left; break;
+        case 3: fourth = GraphObject::right; break;
+        }
+        break;
+    }
+  }
+}
+
+void StudentWorld::update_protester_exit_maze(void) {
+  queue<Coord> coordQueue;
+  
+  // Re-initialize the maze each time this function is called (to get most updated version of oil field)
+  for (int i = 0; i < GRID_WIDTH; i++) {
+    for (int j = 0; j < GRID_HEIGHT; j++) {
+      m_oilfield[i][j] = -1;
+    }
+  }
+  
+  // Set the target location for protesters (i.e. the exit at x = 60, y = 60)
+  coordQueue.push(Coord(60, 60));
+  m_oilfield[60][60] = 0;
+  
+  // While the queue isn't empty, keep checking for path to the exit
+  while (!coordQueue.empty()) {
+    Coord start = coordQueue.front();
+    int r = start.row(), c = start.col();
+    coordQueue.pop();
+
+    // Check if protester can move in the four cardinal directions (i.e. up, down, left, or right)
+      // Direction: up
+    if ((r >= 0 && r <= 60) && (c + 1 >= 0 && c + 1 <= 60)) {
+      if (can_move_in_new_direction(r, c, GraphObject::up) && m_oilfield[r][c + 1] == -1) {
+        m_oilfield[r][c + 1] = m_oilfield[r][c] + 1;
+        coordQueue.push(Coord(r, c + 1));
+      }
+    }
+      // Direction: down
+    if ((r >= 0 && r <= 60) && (c - 1 >= 0 && c - 1 <= 60)) {
+      if (can_move_in_new_direction(r, c, GraphObject::down) && m_oilfield[r][c - 1] == -1) {
+        m_oilfield[r][c - 1] = m_oilfield[r][c] + 1;
+        coordQueue.push(Coord(r, c - 1));
+      }
+    }
+      // Direction: left
+    if ((r - 1 >= 0 && r - 1 <= 60) &&  (c >= 0 && c <= 60)) {
+      if (can_move_in_new_direction(r, c, GraphObject::left) && m_oilfield[r - 1][c] == -1) {
+        m_oilfield[r - 1][c] = m_oilfield[r][c] + 1;
+        coordQueue.push(Coord(r - 1, c));
+      }
+    }
+      // Direction: right
+    if ((r + 1 >= 0 && r + 1 <= 60) && (c >= 0 && c <= 60)) {
+      if (can_move_in_new_direction(r, c, GraphObject::right) && m_oilfield[r + 1][c] == -1) {
+        m_oilfield[r + 1][c] = m_oilfield[r][c] + 1;
+        coordQueue.push(Coord(r + 1, c));
+      }
     }
   }
 }

@@ -382,9 +382,30 @@ void Protester::do_something(void) {
     if (x == 60 && y == 60) { set_dead(); }
     // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
     else {
-      // TODO: Implement algorithm to find the exit
-      /// TESTING
-      set_direction(up);
+      Direction first = GraphObject::none, second = GraphObject::none, third = GraphObject::none, fourth = GraphObject::none;
+      Direction new_dir[4] = {first, second, third, fourth};
+      // Generates the priority level for each of the four directions
+      protester_world->generate_optimal_direction(this, new_dir[0], new_dir[1], new_dir[2], new_dir[3]);
+      for (int i = 0; i < 4; i++) {
+        // If the protester can move in a given direction, then set direction, and move one step in that direction
+        if (protester_world->can_move_in_new_direction(x, y, new_dir[i]))
+        {
+          set_direction(new_dir[i]);
+          switch(new_dir[i]) {
+            case GraphObject::up:
+              move_to(x, y + 1); break;
+            case GraphObject::down:
+              move_to(x, y - 1); break;
+            case GraphObject::left:
+              move_to(x - 1, y); break;
+            case GraphObject::right:
+              move_to(x + 1, y); break;
+            case GraphObject::none:
+              break;
+          }
+          break;
+        }
+      }
     }
   }
   // Check if within striking distance of frackman, and facing frackman, and can shout again
@@ -420,7 +441,7 @@ void Protester::do_something(void) {
       do {
         GraphObject::Direction temp_dir = protester_world->generate_new_direction(this);
         // If protester can't take a single step in the new direction, then pick new direction and recheck
-        if (protester_world->can_move_in_new_direction(this, temp_dir)) {
+        if (protester_world->can_move_in_new_direction(x, y, temp_dir)) {
           invalid_direction = false;
           set_direction(temp_dir);
         }
@@ -441,8 +462,8 @@ void Protester::do_something(void) {
           case GraphObject::up:
           case GraphObject::down:
             // Check if can make perpendicular move in left or right direction, or continue moving up
-            if (protester_world->can_move_in_new_direction(this, GraphObject::left)) { can_move_left = true; }
-            if (protester_world->can_move_in_new_direction(this, GraphObject::left)) { can_move_right = true; }
+            if (protester_world->can_move_in_new_direction(x, y, GraphObject::left)) { can_move_left = true; }
+            if (protester_world->can_move_in_new_direction(x, y, GraphObject::left)) { can_move_right = true; }
             if (!can_move_left && !can_move_right) { /* Keep moving in current direction */ }
             else if (can_move_left && !can_move_right) { set_direction(GraphObject::left); turn = true; }
             else if (!can_move_left && can_move_right) { set_direction(GraphObject::right); turn = true; }
@@ -455,8 +476,8 @@ void Protester::do_something(void) {
           case GraphObject::left:
           case GraphObject::right:
             // Check if can make perpendicular move in up or down direction, or continue moving left
-            if (protester_world->can_move_in_new_direction(this, GraphObject::down)) { can_move_down = true; }
-            if (protester_world->can_move_in_new_direction(this, GraphObject::up)) { can_move_up = true; }
+            if (protester_world->can_move_in_new_direction(x, y, GraphObject::down)) { can_move_down = true; }
+            if (protester_world->can_move_in_new_direction(x, y, GraphObject::up)) { can_move_up = true; }
             if (!can_move_down && !can_move_up) { /* Keep moving in current direction */ }
             else if (can_move_down && !can_move_up) { set_direction(GraphObject::down); turn = true; }
             else if (!can_move_down && can_move_up) { set_direction(GraphObject::up); turn = true; }
@@ -478,7 +499,7 @@ void Protester::do_something(void) {
       }
       
       // If protester can move, then do the move
-      if (protester_world->can_move_in_new_direction(this, get_direction())) {
+      if (protester_world->can_move_in_new_direction(x, y, get_direction())) {
         switch (get_direction()) {
           case GraphObject::up:
             move_to(x, y + 1);
@@ -571,9 +592,30 @@ void HardcoreProtester::do_something(void) {
     if (x == 60 && y == 60) { set_dead(); }
     // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
     else {
-      // TODO: Implement algorithm to find the exit
-      /// TESTING
-      set_direction(up);
+      Direction first = GraphObject::none, second = GraphObject::none, third = GraphObject::none, fourth = GraphObject::none;
+      Direction new_dir[4] = {first, second, third, fourth};
+      // Generates the priority level for each of the four directions
+      protester_world->generate_optimal_direction(this, new_dir[0], new_dir[1], new_dir[2], new_dir[3]);
+      for (int i = 0; i < 4; i++) {
+        // If the protester can move in a given direction, then set direction, and move one step in that direction
+        if (protester_world->can_move_in_new_direction(x, y, new_dir[i]))
+        {
+          set_direction(new_dir[i]);
+          switch(new_dir[i]) {
+            case GraphObject::up:
+              move_to(x, y + 1); break;
+            case GraphObject::down:
+              move_to(x, y - 1); break;
+            case GraphObject::left:
+              move_to(x - 1, y); break;
+            case GraphObject::right:
+              move_to(x + 1, y); break;
+            case GraphObject::none:
+              break;
+          }
+          break;
+        }
+      }
     }
   }
   // Check if within striking distance of frackman, and facing frackman, and can shout again
@@ -609,7 +651,7 @@ void HardcoreProtester::do_something(void) {
       do {
         GraphObject::Direction temp_dir = protester_world->generate_new_direction(this);
         // If protester can't take a single step in the new direction, then pick new direction and recheck
-        if (protester_world->can_move_in_new_direction(this, temp_dir)) {
+        if (protester_world->can_move_in_new_direction(x, y, temp_dir)) {
           invalid_direction = false;
           set_direction(temp_dir);
         }
@@ -630,8 +672,8 @@ void HardcoreProtester::do_something(void) {
           case GraphObject::up:
           case GraphObject::down:
             // Check if can make perpendicular move in left or right direction, or continue moving up
-            if (protester_world->can_move_in_new_direction(this, GraphObject::left)) { can_move_left = true; }
-            if (protester_world->can_move_in_new_direction(this, GraphObject::left)) { can_move_right = true; }
+            if (protester_world->can_move_in_new_direction(x, y, GraphObject::left)) { can_move_left = true; }
+            if (protester_world->can_move_in_new_direction(x, y, GraphObject::left)) { can_move_right = true; }
             if (!can_move_left && !can_move_right) { /* Keep moving in current direction */ }
             else if (can_move_left && !can_move_right) { set_direction(GraphObject::left); turn = true; }
             else if (!can_move_left && can_move_right) { set_direction(GraphObject::right); turn = true; }
@@ -644,8 +686,8 @@ void HardcoreProtester::do_something(void) {
           case GraphObject::left:
           case GraphObject::right:
             // Check if can make perpendicular move in up or down direction, or continue moving left
-            if (protester_world->can_move_in_new_direction(this, GraphObject::down)) { can_move_down = true; }
-            if (protester_world->can_move_in_new_direction(this, GraphObject::up)) { can_move_up = true; }
+            if (protester_world->can_move_in_new_direction(x, y, GraphObject::down)) { can_move_down = true; }
+            if (protester_world->can_move_in_new_direction(x, y, GraphObject::up)) { can_move_up = true; }
             if (!can_move_down && !can_move_up) { /* Keep moving in current direction */ }
             else if (can_move_down && !can_move_up) { set_direction(GraphObject::down); turn = true; }
             else if (!can_move_down && can_move_up) { set_direction(GraphObject::up); turn = true; }
@@ -667,7 +709,7 @@ void HardcoreProtester::do_something(void) {
       }
       
       // If protester can move, then do the move
-      if (protester_world->can_move_in_new_direction(this, get_direction())) {
+      if (protester_world->can_move_in_new_direction(x, y, get_direction())) {
         switch (get_direction()) {
           case GraphObject::up:
             move_to(x, y + 1);

@@ -21,6 +21,7 @@
 #include "Actor.h"
 #include <string>
 #include <vector>
+#include <queue>
 #include <iostream> /// DEBUGGING PURPOSES
 using namespace std;
 
@@ -83,22 +84,39 @@ public:
   // Returns true if protester can continue moving in current direction to reach FrackMan; makes protester face FrackMan if it returns true
   bool can_move_to_frackman(Protester* protester);
   GraphObject::Direction generate_new_direction(Protester* protester); // Generate a new random direction for the protester to walk in
-  // Returns true if protester can take a step in its new direction
-  bool can_move_in_new_direction(Protester* protester, GraphObject::Direction dir);
+  // Based off of the current status of the oil field, this function returns the four directions with a level of priority to find target
+  void generate_optimal_direction(Protester* protester, GraphObject::Direction& first, GraphObject::Direction& second,
+                                  GraphObject::Direction& third, GraphObject::Direction& fourth);
+  bool can_move_in_new_direction(int x, int y, GraphObject::Direction dir); // Returns true if protester can take a step in its new direction
   virtual ~StudentWorld();
 
 private:
   Dirt* m_dirt[GRID_WIDTH][GRID_HEIGHT];
   Frackman* m_frackman;
-  // TESTING
   std::vector<Actor*> m_actors;
   int m_nbarrels;
   int m_nticks_since_added_protester;
   int m_nprotesters;
   
+  // Queue-Based Maze-Searching Algorithm Container (for protesters exiting oil field, and hardcore protesters honing in on frackman)
+  // Note: This algorithm was adapted from a previous project from UCLA's CS32 course
+  class Coord {
+  public:
+    Coord(int row, int col) :m_row(row), m_col(col) {}
+    int row() const { return m_row; }
+    int col() const { return m_col; }
+    
+  private:
+    int m_row;
+    int m_col;
+  };
+  int m_oilfield[GRID_WIDTH][GRID_HEIGHT];
+  
   /* StudentWorld Private Functions */
   void init_dirt(void);
   void deinit_dirt(void);
+  void update_protester_exit_maze(void);
+  void update_protester_frackman_maze(void);
 };
 
 #endif // STUDENTWORLD_H_
