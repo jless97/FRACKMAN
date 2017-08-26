@@ -545,7 +545,7 @@ void Protester::set_resting_ticks(int how_much) { m_restingticks = how_much; }
 
 void Protester::set_ticks_since_shouted(void) { m_ticks_since_shouted = 15; }
 
-void Protester::set_ticks_since_turned(void) { m_ticks_since_turned = 200; }
+void Protester::set_ticks_since_turned(void) { m_ticks_since_turned = 75; }
 
 void Protester::set_leave_oil_field_state(void) { m_leave_oil_field_state = true; }
 
@@ -585,7 +585,7 @@ bool HardcoreProtester::track_frackman(void) {
   int x = get_x();
   int y = get_y();
   
-  // Get poitner to StudentWorld
+  // Get pointer to StudentWorld
   StudentWorld* hardcore_world = world();
   
   if (!(hardcore_world->radius_from_actor(x, y, 4.00, false, true))) {

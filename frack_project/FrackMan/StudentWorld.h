@@ -34,7 +34,7 @@ using namespace std;
 #define GRID_WIDTH 64
 
 // Extra live point value
-#define EXTRA_LIVE 50000
+#define EXTRA_LIVE 100000
 
 //returns the lesser of two numbers
 #define MIN(a, b) (a < b) ? (a) : (b)
@@ -67,9 +67,8 @@ public:
   bool is_dirt(Actor* a, GraphObject::Direction start_dir);    // Check if there is dirt directly next to an actor in a specified direction
   bool is_dirt(int x, int y) const;                            // Check if there is dirt directly next to given coordinates
   bool is_dirt_in_square(int x, int y) const;                  // Check if there is dirt in a 4x4 square (for placement of water pool)
-  bool is_boulder(int x, int y) const;                         // Check if there is a boulder in a given location
-  // Check if there is a human (currently frackman) below a boulder
-  bool boulder_hit_actor(Actor* a, bool is_frackman=true, bool is_boulder=false);
+  bool is_boulder_or_waterpool(int x, int y, bool is_boulder=true) const; // Check if there is a boulder in a given location
+  bool boulder_hit_actor(Actor* a, bool is_frackman=true, bool is_boulder=false);   // Check if there is a human below a boulder
   int radius(int x_1, int y_1, int x_2, int y_2) const;        // Returns the radius (Euclidean distance) between two objects
   // Objects should not be placed within a certain distance of others
   bool radius_from_actor(int x, int y, double r, bool is_boulder = false, bool is_frackman = false,
