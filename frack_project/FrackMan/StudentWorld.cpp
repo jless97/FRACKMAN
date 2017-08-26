@@ -149,7 +149,7 @@ void StudentWorld::add_initial_actors(void) {
     bool regenerate = false;
     // Generate oil barrel coordinates
     do {
-      generate_coordinates(0, 60, 0, 56, 0, &x, &y);
+      generate_coordinates(0, 60, 0, 56, 4, &x, &y);
       // Make sure that there are no actors within a given radius of one another
       if (!radius_from_actor(x, y, 6.00)) {
         // Add new oil barrel to the oil field
@@ -390,9 +390,11 @@ bool StudentWorld::boulder_hit_actor(Actor* a, bool is_frackman, bool is_boulder
 
 int StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const { return sqrt(pow((x_2 - x_1), 2) + pow((y_2 - y_1), 2)); }
 
-bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester) {
+bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester, bool is_bribe) {
   for (int i = 0; i < m_actors.size(); i++) {
-    int actor_x = 0, actor_y = 0;
+    // Grabbing coordinates for initial placement of boulders, barrels, and gold nuggets (if no other condition met)
+    int actor_x = m_actors[i]->get_x();
+    int actor_y = m_actors[i]->get_y();
     // Checking radius with a boulder object
     if (is_boulder) {
       if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
@@ -406,12 +408,31 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
       else { actor_x = m_actors[i]->get_x(); actor_y = m_actors[i]->get_y(); }
     }
     if (radius(x, y, actor_x, actor_y) <= r) {
-      // If protester picks up bribe, then set protester to leave the oil field immediately, play sound effect, and increase player score
       if (is_protester) {
-        dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
-        dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
-        play_sound(SOUND_PROTESTER_FOUND_GOLD);
-        increase_score(25);
+        // If a protester is in a leave the oil field state, don't let him pick up bribes or get shot by the water gun
+        if (dynamic_cast<Protester*>(m_actors[i])->get_leave_oil_field_state()) { continue; }
+        
+        // If protester picks up bribe, then set protester to leave the oil field immediately, play sound effect, and increase player score
+        if (is_bribe) {
+          dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
+          dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
+          play_sound(SOUND_PROTESTER_FOUND_GOLD);
+          increase_score(25);
+        }
+        // If protester gets hit by a water squirt, then play sound effect, inflict damage on protester, and stun protester
+        else {
+          dynamic_cast<Protester*>(m_actors[i])->get_annoyed(2);
+          dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(MAX(50, 100 - get_level() * 10));
+          play_sound(SOUND_PROTESTER_ANNOYED);
+          
+          // If protester killed by squirt gun, then set protester to leave the oil field, increment player's score, and play sound effect
+          if (dynamic_cast<Protester*>(m_actors[i])->get_health() <= 0) {
+            dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
+            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
+            increase_score(100);
+            play_sound(SOUND_PROTESTER_GIVE_UP);
+          }
+        }
       }
       return true;
     }

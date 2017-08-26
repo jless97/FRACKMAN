@@ -154,7 +154,7 @@ public:
   int get_nonresting_ticks(void) const;               // Get number of nonresting ticks
   int get_ticks_since_shouted(void) const;            // Get number of ticks since protester shouted last
   int get_ticks_since_turned(void) const;             // Get number of ticks since protester last turned
-  bool get_leave_oil_field(void) const;                // Get the leave oil field state
+  bool get_leave_oil_field_state(void) const;                // Get the leave oil field state
   virtual ~Protester();
   
 private:

@@ -121,33 +121,35 @@ void WaterSquirt::do_something(void) {
   // Check if the water squirt has traveled its complete distance
   if (m_nticks_before_vanish <= 0) { set_dead(); }
   
-  // Check if the water squirt can move in the specified direction (i.e. no dirt, no boulders, no out of bounds)
+  // Check if the water squirt can move in the specified direction (i.e. no dirt, no boulders, no out of bounds, no protester)
     // If boulder blocks path
   if (watersquirt_world->radius_from_actor(x, y, 3.00, true)) { set_dead(); }
-    // If out of bounds or dirt blocks path (///TODO: IMPLEMENT DIRT)
+    // If out of bounds or dirt blocks path (or protester blocks path)
   int direction = get_direction();
   switch(direction) {
     case GraphObject::left:
       if (x <= 0 || watersquirt_world->is_dirt(this, GraphObject::left)) { set_dead(); }
+      else if (watersquirt_world->radius_from_actor(x, y, 3.00, false, false, true, false)) { set_dead(); }
       else { move_to(x - 1, y); }
       break;
     case GraphObject::right:
       if (x >= 60 || watersquirt_world->is_dirt(this, GraphObject::right)) { set_dead(); }
+      else if (watersquirt_world->radius_from_actor(x, y, 3.00, false, false, true, false)) { set_dead(); }
       else { move_to(x + 1, y); }
       break;
     case GraphObject::down:
       if (y <= 0 || watersquirt_world->is_dirt(this, GraphObject::down)) { set_dead(); }
+      else if (watersquirt_world->radius_from_actor(x, y, 3.00, false, false, true, false)) { set_dead(); }
       else { move_to(x, y - 1); }
       break;
     case GraphObject::up:
       if (y >= 60 || watersquirt_world->is_dirt(this, GraphObject::up)) { set_dead(); }
+      else if (watersquirt_world->radius_from_actor(x, y, 3.00, false, false, true, false)) { set_dead(); }
       else { move_to(x, y + 1); }
       break;
     default:
       break;
-  }
-    // If nothing blocking path
-  
+  }  
   
   // Update ticks before water squirt vanishes
   m_nticks_before_vanish--;
@@ -371,16 +373,18 @@ void Protester::do_something(void) {
   int x = get_x();
   int y = get_y();
   
-  // Get pointer to the StudentWorld
+  // Get pointer to StudentWorld
   StudentWorld* protester_world = world();
   
   // Check the leave the oil field state
-  if (get_leave_oil_field()) {
+  if (get_leave_oil_field_state()) {
     // If already at the exit location for regular protester
     if (x == 60 && y == 60) { set_dead(); }
     // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
     else {
       // TODO: Implement algorithm to find the exit
+      /// TESTING
+      set_direction(up);
     }
   }
   // Check if within striking distance of frackman, and facing frackman, and can shout again
@@ -536,7 +540,7 @@ int Protester::get_ticks_since_shouted(void) const { return m_ticks_since_shoute
 
 int Protester::get_ticks_since_turned(void) const { return m_ticks_since_turned; }
 
-bool Protester::get_leave_oil_field(void) const { return m_leave_oil_field_state; }
+bool Protester::get_leave_oil_field_state(void) const { return m_leave_oil_field_state; }
 
 Protester::~Protester() { set_visible(false); }
 
@@ -558,17 +562,18 @@ void HardcoreProtester::do_something(void) {
   int x = get_x();
   int y = get_y();
   
-  // Get pointer to the StudentWorld
+  // Get pointer to StudentWorld
   StudentWorld* protester_world = world();
   
   // Check the leave the oil field state
-  if (get_leave_oil_field()) {
-    cout << "Leave" << endl;
+  if (get_leave_oil_field_state()) {
     // If already at the exit location for regular protester
     if (x == 60 && y == 60) { set_dead(); }
     // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
     else {
       // TODO: Implement algorithm to find the exit
+      /// TESTING
+      set_direction(up);
     }
   }
   // Check if within striking distance of frackman, and facing frackman, and can shout again
@@ -791,7 +796,7 @@ void Gold::do_something(void) {
     update_ticks();
     
     // If protester grabs the bribe, then set dead, play sound, and increase score (handled on StudentWorld side)
-    if (gold_world->radius_from_actor(x, y, 3.00, false, false, true)) { set_dead(); }
+    if (gold_world->radius_from_actor(x, y, 3.00, false, false, true, true)) { set_dead(); }
 
   }
   
