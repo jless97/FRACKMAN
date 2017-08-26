@@ -431,7 +431,7 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
           }
           // If hardcore protester
           else {
-            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(max(50, 100 - get_level() * 10));
+            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(max(65, 100 - get_level() * 10));
             increase_score(50);
           }
           play_sound(SOUND_PROTESTER_FOUND_GOLD);
