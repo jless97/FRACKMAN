@@ -63,8 +63,7 @@ void Boulder::do_something(void) {
   if (!is_alive()) { set_dead(); }
   
   // Get current boulder coordinates
-  int x = get_x();
-  int y = get_y();
+  int x = get_x(), y = get_y();
   
   // Get pointer to the StudentWorld
   StudentWorld* boulder_world = world();
@@ -109,8 +108,7 @@ WaterSquirt::WaterSquirt(int start_x, int start_y, StudentWorld* world, Directio
 
 void WaterSquirt::do_something(void) {
   // Get current water squirt coordinates
-  int x = get_x();
-  int y = get_y();
+  int x = get_x(), y = get_y();
   
   // Get pointer to StudentWorld
   StudentWorld* watersquirt_world = world();
@@ -186,8 +184,7 @@ void Frackman::do_something() {
   if (get_health() <= 0) { set_dead(); }
   
   // Get frackman's coordinates
-  int x = get_x();
-  int y = get_y();
+  int x = get_x(), y = get_y();
   
   // Get pointer to the StudentWorld
   StudentWorld* frack_world = world();
@@ -214,20 +211,11 @@ void Frackman::do_something() {
           Direction dir = get_direction();
           int x_coord = x, y_coord = y;
           switch(dir) {
-            case GraphObject::left:
-              x_coord -= 3;
-              break;
-            case GraphObject::right:
-              x_coord += 3;
-              break;
-            case GraphObject::down:
-              y_coord -= 3;
-              break;
-            case GraphObject::up:
-              y_coord += 3;
-              break;
-            default:
-              break;
+            case GraphObject::left: x_coord -= 3; break;
+            case GraphObject::right: x_coord += 3; break;
+            case GraphObject::down: y_coord -= 3; break;
+            case GraphObject::up: y_coord += 3; break;
+            default: break;
           }
           frack_world->set_squirt(x_coord, y_coord, dir);
         }
@@ -324,8 +312,7 @@ void Frackman::do_something() {
           }
         }
         break;
-      default:
-        break;
+      default: break;
     }
   }
   
@@ -370,8 +357,7 @@ void Protester::do_something(void) {
   if (get_resting_ticks() > 0) { update_resting_ticks(-1); return; }
   
   // Get current coordinates of regular protester
-  int x = get_x();
-  int y = get_y();
+  int x = get_x(), y = get_y();
   
   // Get pointer to StudentWorld
   StudentWorld* protester_world = world();
@@ -392,16 +378,11 @@ void Protester::do_something(void) {
         {
           set_direction(new_dir[i]);
           switch(new_dir[i]) {
-            case GraphObject::up:
-              move_to(x, y + 1); break;
-            case GraphObject::down:
-              move_to(x, y - 1); break;
-            case GraphObject::left:
-              move_to(x - 1, y); break;
-            case GraphObject::right:
-              move_to(x + 1, y); break;
-            case GraphObject::none:
-              break;
+            case GraphObject::up: move_to(x, y + 1); break;
+            case GraphObject::down: move_to(x, y - 1); break;
+            case GraphObject::left: move_to(x - 1, y); break;
+            case GraphObject::right: move_to(x + 1, y); break;
+            case GraphObject::none: break;
           }
           break;
         }
@@ -422,11 +403,7 @@ void Protester::do_something(void) {
     return;
   }
   // If a hardcore protester, then implement tracking of frackman
-  else if (track_frackman()) {
-    set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
-    update_ticks_since_shouted(-1);
-    return;
-  }
+  else if (track_frackman()) { set_resting_ticks(MAX(0, 3 - world()->get_level() / 4)); update_ticks_since_shouted(-1); return; }
   // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
   else if (protester_world->is_in_line_of_sight(this) && !protester_world->radius_from_actor(x, y, 4.00, false, true) &&
            protester_world->can_move_to_frackman(this)) {
@@ -498,36 +475,21 @@ void Protester::do_something(void) {
         }
         
         // If protester did turn, then update protester variables
-        if (turn) {
-          set_ticks_since_turned();
-          set_squares_current_direction(protester_world->rand_int(8, 60));
-        }
+        if (turn) { set_ticks_since_turned(); set_squares_current_direction(protester_world->rand_int(8, 60)); }
       }
       
       // If protester can move, then do the move
       if (protester_world->can_move_in_new_direction(x, y, get_direction())) {
         switch (get_direction()) {
-          case GraphObject::up:
-            move_to(x, y + 1);
-            break;
-          case GraphObject::down:
-            move_to(x, y - 1);
-            break;
-          case GraphObject::left:
-            move_to(x - 1, y);
-            break;
-          case GraphObject::right:
-            move_to(x + 1, y);
-            break;
-          case GraphObject::none:
-            break;
+          case GraphObject::up: move_to(x, y + 1); break;
+          case GraphObject::down: move_to(x, y - 1); break;
+          case GraphObject::left: move_to(x - 1, y); break;
+          case GraphObject::right: move_to(x + 1, y); break;
+          case GraphObject::none: break;
         }
       }
       // Else set the steps to move in current direction to 0, so protester can choose a new direction
-      else {
-        set_squares_current_direction(0);
-        update_ticks_since_turned(-1);
-      }
+      else { set_squares_current_direction(0); update_ticks_since_turned(-1); }
     }
   }
   
@@ -601,16 +563,11 @@ bool HardcoreProtester::track_frackman(void) {
         {
           set_direction(new_dir[i]);
           switch(new_dir[i]) {
-            case GraphObject::up:
-              move_to(x, y + 1); break;
-            case GraphObject::down:
-              move_to(x, y - 1); break;
-            case GraphObject::left:
-              move_to(x - 1, y); break;
-            case GraphObject::right:
-              move_to(x + 1, y); break;
-            case GraphObject::none:
-              break;
+            case GraphObject::up: move_to(x, y + 1); break;
+            case GraphObject::down: move_to(x, y - 1); break;
+            case GraphObject::left: move_to(x - 1, y); break;
+            case GraphObject::right: move_to(x + 1, y); break;
+            case GraphObject::none: break;
           }
           return true;
         }
@@ -633,9 +590,7 @@ Goodie::Goodie(int image_id, int start_x, int start_y, Direction start_dir, floa
 
 int Goodie::get_remaining_ticks(void) const { return m_nticks_before_vanish; }
 
-void Goodie::set_remaining_ticks(void) {
-  m_nticks_before_vanish = MAX(100, 300 - 10 * world()->get_level());
-}
+void Goodie::set_remaining_ticks(void) { m_nticks_before_vanish = MAX(100, 300 - 10 * world()->get_level()); }
 
 void Goodie::update_ticks(void) { m_nticks_before_vanish--; }
 
@@ -653,8 +608,7 @@ void Barrel::do_something(void) {
   if (!is_alive()) { return; }
   
   // Get current coordinates of oil barrel
-  int x = get_x();
-  int y = get_y();
+  int x = get_x(), y = get_y();
   
   // Get pointer to StudentWorld
   StudentWorld* barrel_world = world();
@@ -688,8 +642,7 @@ void Gold::do_something(void) {
   if (!is_alive()) { return; }
   
   // Get current coordinates of gold object
-  int x = get_x();
-  int y = get_y();
+  int x = get_x(), y = get_y();
   
   // Get pointer to StudentWorld
   StudentWorld* gold_world = world();
@@ -742,8 +695,7 @@ void Sonar::do_something(void) {
   if (!is_alive()) { return; }
   
   // Get current sonar kit coordinates
-  int x = get_x();
-  int y = get_y();
+  int x = get_x(), y = get_y();
   
   // Get pointer to StudentWorld
   StudentWorld* sonar_world = world();
@@ -780,8 +732,7 @@ void WaterPool::do_something(void) {
   if (!is_alive()) { return; }
   
   // Get current water pool coordinates
-  int x = get_x();
-  int y = get_y();
+  int x = get_x(), y = get_y();
   
   // Get pointer to StudentWorld
   StudentWorld* sonar_world = world();
