@@ -545,7 +545,7 @@ void Protester::set_resting_ticks(int how_much) { m_restingticks = how_much; }
 
 void Protester::set_ticks_since_shouted(void) { m_ticks_since_shouted = 15; }
 
-void Protester::set_ticks_since_turned(void) { m_ticks_since_turned = 75; }
+void Protester::set_ticks_since_turned(void) { m_ticks_since_turned = 65; }
 
 void Protester::set_leave_oil_field_state(void) { m_leave_oil_field_state = true; }
 
@@ -646,7 +646,7 @@ Goodie::~Goodie() {}
 ///////////////////////////////////////////////////////////////////////////
 
 Barrel::Barrel(int start_x, int start_y, StudentWorld* world)
-: Goodie(IID_BARREL, start_x, start_y, GraphObject::right, 1.00, 2, world, 0) { set_visible(true); world->add_actor(this); }
+: Goodie(IID_BARREL, start_x, start_y, GraphObject::right, 1.00, 2, world, 0) { set_visible(false); world->add_actor(this); }
 
 void Barrel::do_something(void) {
   // Check the status of the oil barrel

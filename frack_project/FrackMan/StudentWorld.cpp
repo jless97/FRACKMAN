@@ -208,7 +208,7 @@ void StudentWorld::add_additional_actors(void) {
     // Update protester counter
     m_nprotesters++;
     // Add new protester at x = 60, y = 60
-    if ((rand_int(1, probability_of_hardcore) % 3) == 1) { new HardcoreProtester(this); }
+    if ((rand_int(1, probability_of_hardcore) % 5) == 1) { new HardcoreProtester(this); }
     else { new Protester(this); }
   }
   
