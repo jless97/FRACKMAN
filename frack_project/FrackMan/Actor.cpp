@@ -361,9 +361,6 @@ Protester::Protester(StudentWorld* world, int image_id, int start_health)
 }
 
 void Protester::do_something(void) {
-  // Debugging
-  static int count = 0;
-
   // Check the status of the regular protester
   if (!is_alive()) { return; }
   
@@ -389,7 +386,6 @@ void Protester::do_something(void) {
   // Check if within striking distance of frackman, and facing frackman, and can shout again
   else if (protester_world->radius_from_actor(x, y, 4.00, false, true) && protester_world->is_facing_frackman(this) &&
            get_ticks_since_shouted() <= 0) {
-    cout << "no" << endl;
     // Play protester shout sound effect
     protester_world->play_sound(SOUND_PROTESTER_YELL);
     // Inflict 2 points of damage on the frackman
@@ -403,7 +399,6 @@ void Protester::do_something(void) {
   // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
   else if (protester_world->is_in_line_of_sight(this) && !protester_world->radius_from_actor(x, y, 4.00, false, true) &&
            protester_world->can_move_to_frackman(this)) {
-    cout << "yes" << endl;
     set_squares_current_direction(0);
     set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
     update_ticks_since_shouted(-1);
@@ -412,7 +407,6 @@ void Protester::do_something(void) {
   }
   // Else if protester doesn't have direct line of sight of frackman
   else {
-    cout << count++ << endl;
     // Update squares to move in current direction
     update_squares_current_direction(-1);
     
@@ -554,9 +548,6 @@ HardcoreProtester::HardcoreProtester(StudentWorld* world)
 : Protester(world, IID_HARD_CORE_PROTESTER, 10) {}
 
 void HardcoreProtester::do_something(void) {
-  // Debugging
-  static int count = 0;
-  
   // Check the status of the regular protester
   if (!is_alive()) { return; }
   
@@ -572,6 +563,7 @@ void HardcoreProtester::do_something(void) {
   
   // Check the leave the oil field state
   if (get_leave_oil_field()) {
+    cout << "Leave" << endl;
     // If already at the exit location for regular protester
     if (x == 60 && y == 60) { set_dead(); }
     // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
@@ -582,7 +574,6 @@ void HardcoreProtester::do_something(void) {
   // Check if within striking distance of frackman, and facing frackman, and can shout again
   else if (protester_world->radius_from_actor(x, y, 4.00, false, true) && protester_world->is_facing_frackman(this) &&
            get_ticks_since_shouted() <= 0) {
-    cout << "no" << endl;
     // Play protester shout sound effect
     protester_world->play_sound(SOUND_PROTESTER_YELL);
     // Inflict 2 points of damage on the frackman
@@ -596,7 +587,6 @@ void HardcoreProtester::do_something(void) {
   // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
   else if (protester_world->is_in_line_of_sight(this) && !protester_world->radius_from_actor(x, y, 4.00, false, true) &&
            protester_world->can_move_to_frackman(this)) {
-    cout << "yes" << endl;
     set_squares_current_direction(0);
     set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
     update_ticks_since_shouted(-1);
@@ -605,7 +595,6 @@ void HardcoreProtester::do_something(void) {
   }
   // Else if protester doesn't have direct line of sight of frackman
   else {
-    cout << count++ << endl;
     // Update squares to move in current direction
     update_squares_current_direction(-1);
     
@@ -801,13 +790,8 @@ void Gold::do_something(void) {
     // Update time before bribe vanishes
     update_ticks();
     
-    // If protester grabs the bribe, then set dead, play sound, and increase score
-    if (gold_world->radius_from_actor(x, y, 3.00, false, false, true)) {
-      set_dead();
-      gold_world->play_sound(SOUND_PROTESTER_FOUND_GOLD);
-      gold_world->increase_score(25);
-      /// TODO: IMPLEMENT: TELL PROTESTER HE JUST PICKED UP GOLD
-    }
+    // If protester grabs the bribe, then set dead, play sound, and increase score (handled on StudentWorld side)
+    if (gold_world->radius_from_actor(x, y, 3.00, false, false, true)) { set_dead(); }
 
   }
   

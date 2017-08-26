@@ -390,7 +390,7 @@ bool StudentWorld::boulder_hit_actor(Actor* a, bool is_frackman, bool is_boulder
 
 int StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const { return sqrt(pow((x_2 - x_1), 2) + pow((y_2 - y_1), 2)); }
 
-bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester) const {
+bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester) {
   for (int i = 0; i < m_actors.size(); i++) {
     int actor_x = 0, actor_y = 0;
     // Checking radius with a boulder object
@@ -405,7 +405,16 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
       if (m_actors[i]->get_id() != IID_PROTESTER && m_actors[i]->get_id() != IID_HARD_CORE_PROTESTER ) { continue; }
       else { actor_x = m_actors[i]->get_x(); actor_y = m_actors[i]->get_y(); }
     }
-    if (radius(x, y, actor_x, actor_y) <= r) { return true; }
+    if (radius(x, y, actor_x, actor_y) <= r) {
+      // If protester picks up bribe, then set protester to leave the oil field immediately, play sound effect, and increase player score
+      if (is_protester) {
+        dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
+        dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
+        play_sound(SOUND_PROTESTER_FOUND_GOLD);
+        increase_score(25);
+      }
+      return true;
+    }
   }
   
   return false;
@@ -500,7 +509,6 @@ bool StudentWorld::is_in_line_of_sight(Protester* protester) const {
   return false;
 }
 
-
 bool StudentWorld::can_move_to_frackman(Protester* protester) {
   // Get protester's information
   int protester_x = protester->get_x();
@@ -588,7 +596,7 @@ GraphObject::Direction StudentWorld::generate_new_direction(Protester* protester
   return new_dir;
 }
 
-bool StudentWorld::can_move_in_new_direction(Protester* protester, GraphObject::Direction dir) const {
+bool StudentWorld::can_move_in_new_direction(Protester* protester, GraphObject::Direction dir) {
   // Get protester information
   int protester_x = protester->get_x();
   int protester_y = protester->get_y();  
