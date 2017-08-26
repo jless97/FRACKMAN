@@ -54,7 +54,7 @@ int StudentWorld::init() {
   
   // Initialize protester variables
   m_nprotesters = 0;
-  m_nticks_since_added_protester = MAX(25, (200 - get_level()));
+  m_nticks_since_added_protester = max(25, 200-get_level());
 
   return GWSTATUS_CONTINUE_GAME;
 }
@@ -130,9 +130,9 @@ void StudentWorld::add_actor(Actor* actor) { m_actors.push_back(actor); }
 
 void StudentWorld::add_initial_actors(void) {
   // Initialize boulders, gold nuggets, and oil barrels
-  int B = MIN(get_level() / 2 + 2, 6);
-  int G = MAX(5 - get_level() / 2, 2);
-  int L = MIN(2 + get_level(), 20);
+  int B = min(get_level() / 2 + 2, 6);
+  int G = max(5 - get_level() / 2, 2);
+  int L = min(2 + get_level(), 20);
   
   // Place boulders
   for (int i = 0; i < B; i++) {
@@ -180,7 +180,7 @@ void StudentWorld::add_initial_actors(void) {
       // Make sure that there are no actors within a given radius of one another
       if (!radius_from_actor(x, y, 6.00)) {
         // Add new gold nugget to the oil field
-        new Gold(x, y, this, 0, false);
+        new Gold(x, y, this, 0, true);
         regenerate = false;
       }
       else { regenerate = true; }
@@ -210,9 +210,9 @@ void StudentWorld::add_additional_actors(void) {
   }
   
   /* Add protesters */
-  int T = MAX(25, (200 - get_level()));
-  int P = MIN(15, 2 + get_level() * 1.5);
-  int probability_of_hardcore = MIN(90, get_level() * 10 + 30);
+  int T = max(25, (200 - get_level()));
+  int P = min(15, 2 + get_level() * 1.5);
+  int probability_of_hardcore = min(90, get_level() * 10 + 30);
   if ((m_nprotesters < P) && (m_nticks_since_added_protester >= T)) {
     // Reset protester timer
     m_nticks_since_added_protester = -1;
@@ -392,6 +392,11 @@ bool StudentWorld::boulder_hit_actor(Actor* a, bool is_frackman, bool is_boulder
 /////////////-----------MATH/MATH HELPER FUNCTIONS-------------////////////
 ///////////////////////////////////////////////////////////////////////////
 
+int StudentWorld::max(int x, int y) { if (x > y) { return x; } else { return y; } }
+
+int StudentWorld::min(int x, int y) { if (x < y) { return x; } else { return y; } } 
+
+
 int StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const { return sqrt(pow((x_2 - x_1), 2) + pow((y_2 - y_1), 2)); }
 
 bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester, bool is_bribe) {
@@ -426,7 +431,7 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
           }
           // If hardcore protester
           else {
-            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(MAX(50, 100 - get_level() * 10));
+            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(max(50, 100 - get_level() * 10));
             increase_score(50);
           }
           play_sound(SOUND_PROTESTER_FOUND_GOLD);
@@ -435,18 +440,7 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
         else {
           dynamic_cast<Protester*>(m_actors[i])->get_annoyed(2);
           // The resting ticks after a protester takes water squirt damage is dependent on the current level
-          if (get_level() <= 10) {
-            // Max resting ticks in this period is 50 ticks (for level 10)
-            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(30 + get_level() * 2);
-          }
-            // Max resting ticks in this period is 100 ticks (for level 20)
-          else if (get_level() > 10 && get_level() <= 20) {
-            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(60 + get_level() * 2);
-          }
-            // Max resting ticks in this period is 200 ticks (for level 30)
-          else if (get_level() > 20 && get_level() <= 30) {
-            dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(140 + get_level() * 2);
-          }
+          dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(max(65, 100 - get_level() * 10));
           play_sound(SOUND_PROTESTER_ANNOYED);
           
           // If protester killed by squirt gun, then set protester to leave the oil field, increment player's score, and play sound effect

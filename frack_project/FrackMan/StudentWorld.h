@@ -34,12 +34,7 @@ using namespace std;
 #define GRID_WIDTH 64
 
 // Extra live point value
-#define EXTRA_LIVE 100000
-
-//returns the lesser of two numbers
-#define MIN(a, b) (a < b) ? (a) : (b)
-//returns the greater of two numbers
-#define MAX(a, b) (a > b) ? (a) : (b)
+#define EXTRA_LIVE 250000
 
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////-----------STUDENTWORLD--------------///////////////////
@@ -70,6 +65,8 @@ public:
   bool is_boulder_or_waterpool(int x, int y, bool is_boulder=true) const; // Check if there is a boulder in a given location
   bool boulder_hit_actor(Actor* a, bool is_frackman=true, bool is_boulder=false);   // Check if there is a human below a boulder
   int radius(int x_1, int y_1, int x_2, int y_2) const;        // Returns the radius (Euclidean distance) between two objects
+  int max(int x, int y) ;                                      // Returns the max of two numbers
+  int min(int x, int y) ;                                      // Returns the min of two numbers
   // Objects should not be placed within a certain distance of others
   bool radius_from_actor(int x, int y, double r, bool is_boulder = false, bool is_frackman = false,
                          bool is_protester = false, bool is_bribe=false);

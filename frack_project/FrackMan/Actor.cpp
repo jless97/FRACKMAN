@@ -343,7 +343,7 @@ Protester::Protester(StudentWorld* world, int image_id, int start_health)
   set_visible(true);
   world->add_actor(this);
   set_squares_current_direction(world->rand_int(8, 60));
-  set_resting_ticks(MAX(0, 3 - world->get_level() / 4));
+  set_resting_ticks(world->max(0, 3 - world->get_level() / 4));
   m_ticks_since_shouted = 0;
   m_ticks_since_turned = 0;
   m_leave_oil_field_state = false;
@@ -403,12 +403,16 @@ void Protester::do_something(void) {
     return;
   }
   // If a hardcore protester, then implement tracking of frackman
-  else if (track_frackman()) { set_resting_ticks(MAX(0, 3 - world()->get_level() / 4)); update_ticks_since_shouted(-1); return; }
+  else if (track_frackman()) {
+    set_resting_ticks(protester_world->max(0, 3 - world()->get_level() / 4));
+    update_ticks_since_shouted(-1);
+    return;
+  }
   // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
   else if (protester_world->is_in_line_of_sight(this) && !protester_world->radius_from_actor(x, y, 4.00, false, true) &&
            protester_world->can_move_to_frackman(this)) {
     set_squares_current_direction(0);
-    set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
+    set_resting_ticks(protester_world->max(0, 3 - world()->get_level() / 4));
     update_ticks_since_shouted(-1);
     update_ticks_since_turned(-1);
     return;
@@ -494,7 +498,7 @@ void Protester::do_something(void) {
   }
   
   // Update protester tick variables
-  set_resting_ticks(MAX(0, 3 - world()->get_level() / 4));
+  set_resting_ticks(protester_world->max(0, 3 - world()->get_level() / 4));
   update_ticks_since_shouted(-1);
   update_ticks_since_turned(-1);
   
@@ -590,7 +594,7 @@ Goodie::Goodie(int image_id, int start_x, int start_y, Direction start_dir, floa
 
 int Goodie::get_remaining_ticks(void) const { return m_nticks_before_vanish; }
 
-void Goodie::set_remaining_ticks(void) { m_nticks_before_vanish = MAX(100, 300 - 10 * world()->get_level()); }
+void Goodie::set_remaining_ticks(void) { m_nticks_before_vanish = world()->max(100, 300 - 10 * world()->get_level()); }
 
 void Goodie::update_ticks(void) { m_nticks_before_vanish--; }
 
@@ -601,7 +605,7 @@ Goodie::~Goodie() {}
 ///////////////////////////////////////////////////////////////////////////
 
 Barrel::Barrel(int start_x, int start_y, StudentWorld* world)
-: Goodie(IID_BARREL, start_x, start_y, GraphObject::right, 1.00, 2, world, 0) { set_visible(false); world->add_actor(this); }
+: Goodie(IID_BARREL, start_x, start_y, GraphObject::right, 1.00, 2, world, 0) { set_visible(true); world->add_actor(this); }
 
 void Barrel::do_something(void) {
   // Check the status of the oil barrel
