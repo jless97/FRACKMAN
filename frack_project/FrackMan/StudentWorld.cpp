@@ -180,7 +180,7 @@ void StudentWorld::add_initial_actors(void) {
       // Make sure that there are no actors within a given radius of one another
       if (!radius_from_actor(x, y, 6.00)) {
         // Add new gold nugget to the oil field
-        new Gold(x, y, this, 0, true);
+        new Gold(x, y, this, 0, false);
         regenerate = false;
       }
       else { regenerate = true; }
@@ -219,7 +219,7 @@ void StudentWorld::add_additional_actors(void) {
     // Update protester counter
     m_nprotesters++;
     // Add new protester at x = 60, y = 60
-    if ((rand_int(1, probability_of_hardcore) % 5) == 1) { new HardcoreProtester(this); }
+    if ((rand_int(1, probability_of_hardcore) % 2) == 1) { new HardcoreProtester(this); }
     else { new Protester(this); }
   }
   
@@ -333,10 +333,22 @@ bool StudentWorld::is_dirt_in_square(int x, int y) const {
 //////////-----------STUDENTWORLD BOULDER FUNCTIONS-------------///////////
 ///////////////////////////////////////////////////////////////////////////
 
-bool StudentWorld::is_boulder_or_waterpool(int x, int y, bool is_boulder) const {
+bool StudentWorld::is_boulder(int x, int y) const {
   for (int i = 0; i < m_actors.size(); i++) {
-    if (is_boulder) { if (m_actors[i]->get_id() != IID_BOULDER) { continue; } }
-    else { if (m_actors[i]->get_id() != IID_WATER_POOL) { continue; } }
+    if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
+    for (int j = 0; j < 4; j++) {
+      for (int k = 0; k < 4; k++) {
+        if ((x == m_actors[i]->get_x() + j) && (y == m_actors[i]->get_y() + k)) { return true; }
+      }
+    }
+  }
+  
+  return false;
+}
+
+bool StudentWorld::is_waterpool(int x, int y) const {
+  for (int i = 0; i < m_actors.size(); i++) {
+    if (m_actors[i]->get_id() != IID_WATER_POOL) { continue; }
     for (int j = 0; j < 4; j++) {
       for (int k = 0; k < 4; k++) {
         if ((x == m_actors[i]->get_x() + j) && (y == m_actors[i]->get_y() + k)) { return true; }
@@ -490,7 +502,7 @@ void StudentWorld::generate_coordinates(int x_min, int x_max, int y_min, int y_m
     *y_coord = rand_int(y_min, y_max);
     // Generating coordinates for a water pool, find a dirt-less location
     if (is_water) {
-      if (is_dirt_in_square(*x_coord, *y_coord) || is_boulder_or_waterpool(*x_coord, *y_coord, false)) { regenerate = true; }
+      if (is_dirt_in_square(*x_coord, *y_coord) || is_boulder(*x_coord, *y_coord) || is_waterpool(*x_coord, *y_coord)) { regenerate = true; }
       else { regenerate = false; }
     }
     // Generating coordinates for an oil barrel, boulder, or gold nugget
@@ -550,7 +562,7 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     if (protester_y < frackman_y) {
       for (int i = protester_x; i < protester_x + 4; i++) {
         for (int j = protester_y; j < frackman_y; j++) {
-          if (is_dirt(i, j) || is_boulder_or_waterpool(i, j)) { return false; }
+          if (is_dirt(i, j) || is_boulder(i, j)) { return false; }
         }
       }
       protester->set_direction(GraphObject::up);
@@ -561,7 +573,7 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     if (protester_y > frackman_y) {
       for (int i = protester_x; i < protester_x + 4; i++) {
         for (int j = frackman_y; j < protester_y; j++) {
-          if (is_dirt(i, j) || is_boulder_or_waterpool(i, j)) { return false; }
+          if (is_dirt(i, j) || is_boulder(i, j)) { return false; }
         }
       }
       protester->set_direction(GraphObject::down);
@@ -575,7 +587,7 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     if (protester_x > frackman_x) {
       for (int i = protester_y; i < protester_y + 4; i++) {
         for (int j = frackman_x; j < protester_x; j++) {
-          if (is_dirt(j, i) || is_boulder_or_waterpool(j, i)) { return false; }
+          if (is_dirt(j, i) || is_boulder(j, i)) { return false; }
         }
       }
       protester->set_direction(GraphObject::left);
@@ -586,7 +598,7 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     if (protester_x < frackman_x) {
       for (int i = protester_y; i < protester_y + 4; i++) {
         for (int j = protester_x; j < frackman_x; j++) {
-          if (is_dirt(j, i) || is_boulder_or_waterpool(j, i)) { return false; }
+          if (is_dirt(j, i) || is_boulder(j, i)) { return false; }
         }
       }
       protester->set_direction(GraphObject::right);
