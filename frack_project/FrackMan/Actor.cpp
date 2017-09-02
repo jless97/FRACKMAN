@@ -58,7 +58,8 @@ Boulder::Boulder(int start_x, int start_y, StudentWorld* world)
 : Actor(IID_BOULDER, start_x, start_y, GraphObject::down, 1.00, 1, world), m_nticks_before_fall(30), m_state(stable)
 { set_visible(true); world->add_actor(this); }
 
-void Boulder::do_something(void) {
+void Boulder::do_something(void)
+{
   // Check if Boulder is still alive
   if (!is_alive()) { set_dead(); }
   
@@ -69,31 +70,29 @@ void Boulder::do_something(void) {
   StudentWorld* boulder_world = world();
   
   // Check state of the boulder
+  switch (m_state)
+  {
     // If in stable state, if there is no dirt directly below boulder, transition to waiting state
-  if (m_state == 0) {
-    if (!boulder_world->is_dirt(this, GraphObject::down)) { m_state = 1; }
-  }
+    case 0: if (!boulder_world->is_dirt(this, GraphObject::down)) { m_state = 1; } break;
     // If in waiting state, if 30 ticks have elapsed, transition to falling state (and play sound effect for falling boulder)
-  else if (m_state == 1) {
-    if (m_nticks_before_fall-- <= 0) { m_state = 2; boulder_world->play_sound(SOUND_FALLING_ROCK); }
+    case 1: if (m_nticks_before_fall-- <= 0) { m_state = 2; boulder_world->play_sound(SOUND_FALLING_ROCK); } break;
+    case 2:
+      // If hits bottom of oil field
+      if (y <= 0) { set_dead(); }
+      // If hits another boulder
+      else if (boulder_world->boulder_hit_actor(this, false, true)) { set_dead(); }
+      // If hits dirt
+      else if (boulder_world->is_dirt(this, GraphObject::down)) { set_dead(); }
+      // If hits frackman
+      else if (boulder_world->boulder_hit_actor(this)) { set_dead(); world()->annoy_frackman(100); }
+      // If hits a protester
+      else if (boulder_world->boulder_hit_actor(this, false)) { set_dead(); }
+      // Else move down one step
+      else { move_to(x, y - 1); }
+      break;
+    default:
+      break;
   }
-    // If in falling state, then move down 1 step each tick, until it hits bottom of oil field, another boulder, dirt, or human
-  else if (m_state == 2) {
-    // If hits bottom of oil field
-    if (y <= 0) { set_dead(); }
-    // If hits another boulder
-    else if (boulder_world->boulder_hit_actor(this, false, true)) { set_dead(); }
-    // If hits dirt
-    else if (boulder_world->is_dirt(this, GraphObject::down)) { set_dead(); }
-    // If hits frackman
-    else if (boulder_world->boulder_hit_actor(this)) { set_dead(); world()->annoy_frackman(100); }
-    // If hits a protester 
-    else if (boulder_world->boulder_hit_actor(this, false)) { set_dead(); }
-    // Else move down one step
-    else { move_to(x, y - 1); }
-  }
-  
-  return;
 }
 
 Boulder::~Boulder() { set_visible(false); }
@@ -106,7 +105,8 @@ WaterSquirt::WaterSquirt(int start_x, int start_y, StudentWorld* world, Directio
 : Actor(IID_WATER_SPURT, start_x, start_y, start_dir, 1.00, 1, world), m_nticks_before_vanish(6)
 { set_visible(true); world->add_actor(this); }
 
-void WaterSquirt::do_something(void) {
+void WaterSquirt::do_something(void)
+{
   // Get current water squirt coordinates
   int x = get_x(), y = get_y();
   
@@ -124,7 +124,8 @@ void WaterSquirt::do_something(void) {
   if (watersquirt_world->radius_from_actor(x, y, 3.00, true)) { set_dead(); }
     // If out of bounds or dirt blocks path (or protester blocks path)
   int direction = get_direction();
-  switch(direction) {
+  switch(direction)
+  {
     case GraphObject::left:
       if (x <= 0 || watersquirt_world->is_dirt(this, GraphObject::left)) { set_dead(); }
       else if (watersquirt_world->radius_from_actor(x, y, 3.00, false, false, true, false)) { set_dead(); }
@@ -151,8 +152,6 @@ void WaterSquirt::do_something(void) {
   
   // Update ticks before water squirt vanishes
   m_nticks_before_vanish--;
-  
-  return;
 }
 
 WaterSquirt::~WaterSquirt() { set_visible(false); }
@@ -178,7 +177,8 @@ Human::~Human() {}
 Frackman::Frackman(StudentWorld* world)
 : Human(IID_PLAYER, 30, 60, GraphObject::right, 1.00, 0, world, 10), m_squirts(5), m_sonars(1), m_gold(0) { set_visible(true); }
 
-void Frackman::do_something() {
+void Frackman::do_something()
+{
   // Check if Frackman is still alive
   if (!is_alive()) { return; }
   if (get_health() <= 0) { set_dead(); }
@@ -194,15 +194,18 @@ void Frackman::do_something() {
   
   // Check if player pressed a valid key
   int key;
-  if(frack_world->get_key(key)) {
-    switch(key) {
+  if(frack_world->get_key(key))
+  {
+    switch(key)
+    {
       // Aborts current level (i.e. player lost a live, reset level (if lives remaining))
       case KEY_PRESS_ESCAPE:
         get_annoyed(10);
         break;
       // Frackman fires a water squirt from squirt gun
       case KEY_PRESS_SPACE:
-        if (get_squirts() >= 1) {
+        if (get_squirts() >= 1)
+        {
           // Decrement water squirts
           m_squirts--;
           // Play sound effect
@@ -210,7 +213,8 @@ void Frackman::do_something() {
           // Get direction that frackman is facing
           Direction dir = get_direction();
           int x_coord = x, y_coord = y;
-          switch(dir) {
+          switch(dir)
+          {
             case GraphObject::left: x_coord -= 3; break;
             case GraphObject::right: x_coord += 3; break;
             case GraphObject::down: y_coord -= 3; break;
@@ -234,7 +238,8 @@ void Frackman::do_something() {
       case KEY_PRESS_Z:
       case KEY_PRESS_z:
         // If Frackman has 1 or more sonar kits, illuminate contents of oil field (radius of 12), play sound, decrement count
-        if (get_sonars() >= 1) {
+        if (get_sonars() >= 1)
+        {
           frack_world->illuminate_goodies();
           frack_world->play_sound(SOUND_SONAR);
           update_sonar(-1);
@@ -245,14 +250,13 @@ void Frackman::do_something() {
         // If not currently facing in the direction of key press
         if (get_direction() != GraphObject::left) { set_direction(GraphObject::left); break; }
         // If facing in the direction of key press, check that the movement is valid
-        if (x <= 0) {
-          // Move in place (per the spec)
-          move_to(x, y);
-        }
-        else {
+        if (x <= 0) {  move_to(x, y); } // Move in place (per the spec)
+        else
+        {
           // Check if there is a boulder blocking the way
           if (world()->radius_from_actor(x - 1, y, 3.00, true, false, false)) { move_to(x, y); }
-          else {
+          else
+          {
             move_to(x - 1, y);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
           }
@@ -263,14 +267,14 @@ void Frackman::do_something() {
         // If not currently facing in the direction of key press
         if (get_direction() != GraphObject::right) { set_direction(GraphObject::right); break; }
         // If facing in the direction of key press, check that the movement is valid
-        if (x >= 60) {
-          // Move in place (per the spec)
-          move_to(x, y);
-        }
-        else {
+        if (x >= 60)
+        { move_to(x, y); } // Move in place (per the spec)
+        else
+        {
           // Check if there is a boulder blocking the way
           if (world()->radius_from_actor(x + 1, y, 3.00, true, false, false)) { move_to(x, y); }
-          else {
+          else
+          {
             move_to(x + 1, y);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
           }
@@ -281,14 +285,13 @@ void Frackman::do_something() {
         // If not currently facing in the direction of key press
         if (get_direction() != GraphObject::down) { set_direction(GraphObject::down); break; }
         // If facing in the direction of key press, check that the movement is valid
-        if (y <= 0) {
-          // Move in place (per the spec)
-          move_to(x, y);
-        }
-        else {
+        if (y <= 0) { move_to(x, y); } // Move in place (per the spec)
+        else
+        {
           // Check if there is a boulder blocking the way
           if (world()->radius_from_actor(x, y - 1, 3.00, true, false, false)) { move_to(x, y); }
-          else {
+          else
+          {
             move_to(x, y - 1);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
           }
@@ -299,14 +302,13 @@ void Frackman::do_something() {
         // If not currently facing in the direction of key press
         if (get_direction() != GraphObject::up) { set_direction(GraphObject::up); break; }
         // If facing in the direction of key press, check that the movement is valid
-        if (y >= 60) {
-          // Move in place (per the spec)
-          move_to(x, y);
-        }
-        else {
+        if (y >= 60) { move_to(x, y); } // Move in place (per the spec)
+        else
+        {
           // Check if there is a boulder blocking the way
           if (world()->radius_from_actor(x, y + 1, 3.00, true, false, false)) { move_to(x, y); }
-          else {
+          else
+          {
             move_to(x, y + 1);
             if (frack_world->remove_dirt(this)) { frack_world->play_sound(SOUND_DIG); }
           }
@@ -315,8 +317,6 @@ void Frackman::do_something() {
       default: break;
     }
   }
-  
-  return;
 }
 
 int Frackman::get_squirts(void) const { return m_squirts; }
@@ -349,7 +349,8 @@ Protester::Protester(StudentWorld* world, int image_id, int start_health)
   m_leave_oil_field_state = false;
 }
 
-void Protester::do_something(void) {
+void Protester::do_something(void)
+{
   // Check the status of the regular protester
   if (!is_alive()) { return; }
   
@@ -367,17 +368,20 @@ void Protester::do_something(void) {
     // If already at the exit location for regular protester
     if (x == 60 && y == 60) { set_dead(); }
     // If not at the exit, then protester uses Queue-Based Maze-Searching Algorithm to find the exit
-    else {
+    else
+    {
       Direction first = GraphObject::none, second = GraphObject::none, third = GraphObject::none, fourth = GraphObject::none;
       Direction new_dir[4] = {first, second, third, fourth};
       // Generates the priority level for each of the four directions
       protester_world->generate_optimal_direction(this, new_dir[0], new_dir[1], new_dir[2], new_dir[3], true);
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 4; i++)
+      {
         // If the protester can move in a given direction, then set direction, and move one step in that direction
         if (protester_world->can_move_in_new_direction(x, y, new_dir[i]))
         {
           set_direction(new_dir[i]);
-          switch(new_dir[i]) {
+          switch(new_dir[i])
+          {
             case GraphObject::up: move_to(x, y + 1); break;
             case GraphObject::down: move_to(x, y - 1); break;
             case GraphObject::left: move_to(x - 1, y); break;
@@ -391,7 +395,8 @@ void Protester::do_something(void) {
   }
   // Check if within striking distance of frackman, and facing frackman, and can shout again
   else if (protester_world->radius_from_actor(x, y, 4.00, false, true) && protester_world->is_facing_frackman(this) &&
-           get_ticks_since_shouted() <= 0) {
+           get_ticks_since_shouted() <= 0)
+  {
     // Play protester shout sound effect
     protester_world->play_sound(SOUND_PROTESTER_YELL);
     // Inflict 2 points of damage on the frackman
@@ -403,14 +408,16 @@ void Protester::do_something(void) {
     return;
   }
   // If a hardcore protester, then implement tracking of frackman
-  else if (track_frackman()) {
+  else if (track_frackman())
+  {
     set_resting_ticks(protester_world->max(0, 3 - world()->get_level() / 4));
     update_ticks_since_shouted(-1);
     return;
   }
   // Check if frackman is in direct line of sight, and not within radius of 4 from frackman, and can actually move to frackman
   else if (protester_world->is_in_line_of_sight(this) && !protester_world->radius_from_actor(x, y, 4.00, false, true) &&
-           protester_world->can_move_to_frackman(this)) {
+           protester_world->can_move_to_frackman(this))
+  {
     set_squares_current_direction(0);
     set_resting_ticks(protester_world->max(0, 3 - world()->get_level() / 4));
     update_ticks_since_shouted(-1);
@@ -418,17 +425,21 @@ void Protester::do_something(void) {
     return;
   }
   // Else if protester doesn't have direct line of sight of frackman
-  else {
+  else
+  {
     // Update squares to move in current direction
     update_squares_current_direction(-1);
     
     // If number of squares to move in current direction is <= 0, then pick new direction to walk in
-    if (get_squares_current_direction() <= 0) {
+    if (get_squares_current_direction() <= 0)
+    {
       bool invalid_direction = false;
-      do {
+      do
+      {
         GraphObject::Direction temp_dir = protester_world->generate_new_direction(this);
         // If protester can't take a single step in the new direction, then pick new direction and recheck
-        if (protester_world->can_move_in_new_direction(x, y, temp_dir)) {
+        if (protester_world->can_move_in_new_direction(x, y, temp_dir))
+        {
           invalid_direction = false;
           set_direction(temp_dir);
         }
@@ -439,13 +450,16 @@ void Protester::do_something(void) {
       update_ticks_since_turned(-1);
     }
     // If can still move in the current direction, check to see if protester can move (i.e. check if there is dirt or boulder blocking it)
-    else {
+    else
+    {
       // If protester hasn't turned for the specified duration, check if it is at an intersection
-      if (get_ticks_since_turned() <= 0) {
+      if (get_ticks_since_turned() <= 0)
+      {
         // If at an intersection, and can take one step in a given path, choose a path
         bool turn = false, can_move_up = false, can_move_down = false, can_move_left = false, can_move_right = false;
         int temp_dir = -1;
-        switch(get_direction()) {
+        switch(get_direction())
+        {
           case GraphObject::up:
           case GraphObject::down:
             // Check if can make perpendicular move in left or right direction, or continue moving up
@@ -454,7 +468,8 @@ void Protester::do_something(void) {
             if (!can_move_left && !can_move_right) { /* Keep moving in current direction */ }
             else if (can_move_left && !can_move_right) { set_direction(GraphObject::left); turn = true; }
             else if (!can_move_left && can_move_right) { set_direction(GraphObject::right); turn = true; }
-            else if (can_move_left && can_move_right) {
+            else if (can_move_left && can_move_right)
+            {
               temp_dir = protester_world->rand_int(0, 1);
               if (temp_dir == 0) { set_direction(GraphObject::left); turn = true; }
               if (temp_dir == 1) { set_direction(GraphObject::right); turn = true; }
@@ -468,7 +483,8 @@ void Protester::do_something(void) {
             if (!can_move_down && !can_move_up) { /* Keep moving in current direction */ }
             else if (can_move_down && !can_move_up) { set_direction(GraphObject::down); turn = true; }
             else if (!can_move_down && can_move_up) { set_direction(GraphObject::up); turn = true; }
-            else if (can_move_down && can_move_up) {
+            else if (can_move_down && can_move_up)
+            {
               temp_dir = protester_world->rand_int(0, 1);
               if (temp_dir == 0) { set_direction(GraphObject::down); turn = true; }
               if (temp_dir == 1) { set_direction(GraphObject::up); turn = true; }
@@ -484,7 +500,8 @@ void Protester::do_something(void) {
       
       // If protester can move, then do the move
       if (protester_world->can_move_in_new_direction(x, y, get_direction())) {
-        switch (get_direction()) {
+        switch (get_direction())
+        {
           case GraphObject::up: move_to(x, y + 1); break;
           case GraphObject::down: move_to(x, y - 1); break;
           case GraphObject::left: move_to(x - 1, y); break;
@@ -501,8 +518,6 @@ void Protester::do_something(void) {
   set_resting_ticks(protester_world->max(0, 3 - world()->get_level() / 4));
   update_ticks_since_shouted(-1);
   update_ticks_since_turned(-1);
-  
-  return;
 }
 
 void Protester::set_squares_current_direction(int how_much) { m_steps_current_direction = how_much; }
@@ -546,7 +561,8 @@ Protester::~Protester() { set_visible(false); }
 HardcoreProtester::HardcoreProtester(StudentWorld* world)
 : Protester(world, IID_HARD_CORE_PROTESTER, 20) {}
 
-bool HardcoreProtester::track_frackman(void) {
+bool HardcoreProtester::track_frackman(void)
+{
   // Get current coordinates of hardcore protester
   int x = get_x();
   int y = get_y();
@@ -554,19 +570,23 @@ bool HardcoreProtester::track_frackman(void) {
   // Get pointer to StudentWorld
   StudentWorld* hardcore_world = world();
   
-  if (!(hardcore_world->radius_from_actor(x, y, 4.00, false, true))) {
+  if (!(hardcore_world->radius_from_actor(x, y, 4.00, false, true)))
+  {
     int M = 16 + hardcore_world->get_level() * 2;
-    if (hardcore_world->getSquaresFromFrackMan(this) < M) {
+    if (hardcore_world->getSquaresFromFrackMan(this) < M)
+    {
       Direction first = GraphObject::none, second = GraphObject::none, third = GraphObject::none, fourth = GraphObject::none;
       Direction new_dir[4] = {first, second, third, fourth};
       // Generates the priority level for each of the four directions
       hardcore_world->generate_optimal_direction(this, new_dir[0], new_dir[1], new_dir[2], new_dir[3], false);
-      for (int i = 0; i < 4; i++) {
+      for (int i = 0; i < 4; i++)
+      {
         // If the protester can move in a given direction, then set direction, and move one step in that direction
         if (hardcore_world->can_move_in_new_direction(x, y, new_dir[i]))
         {
           set_direction(new_dir[i]);
-          switch(new_dir[i]) {
+          switch(new_dir[i])
+          {
             case GraphObject::up: move_to(x, y + 1); break;
             case GraphObject::down: move_to(x, y - 1); break;
             case GraphObject::left: move_to(x - 1, y); break;
@@ -607,7 +627,8 @@ Goodie::~Goodie() {}
 Barrel::Barrel(int start_x, int start_y, StudentWorld* world)
 : Goodie(IID_BARREL, start_x, start_y, GraphObject::right, 1.00, 2, world, 0) { set_visible(false); world->add_actor(this); }
 
-void Barrel::do_something(void) {
+void Barrel::do_something(void)
+{
   // Check the status of the oil barrel
   if (!is_alive()) { return; }
   
@@ -621,14 +642,13 @@ void Barrel::do_something(void) {
   if (!is_visible() && barrel_world->radius_from_actor(x, y, 4.00, false, true, false)) { set_visible(true); return; }
   
   // If currently visible, and Frackman grabs the oil barrel, then set dead, play sound, and increase score
-  if (is_visible() && barrel_world->radius_from_actor(x, y, 3.00, false, true, false)) {
+  if (is_visible() && barrel_world->radius_from_actor(x, y, 3.00, false, true, false))
+  {
     set_dead();
     barrel_world->play_sound(SOUND_FOUND_OIL);
     barrel_world->increase_score(1000);
     barrel_world->dec_barrels();
   }
-  
-  return;
 }
 
 Barrel::~Barrel() { set_visible(false); }
@@ -641,7 +661,8 @@ Gold::Gold(int start_x, int start_y, StudentWorld* world, int state, bool is_vis
 : Goodie(IID_GOLD, start_x, start_y, GraphObject::right, 1.00, 2, world, 100), m_state(state)
 { set_visible(is_visible); world->add_actor(this); }
 
-void Gold::do_something(void) {
+void Gold::do_something(void)
+{
   // Check the status of the gold object
   if (!is_alive()) { return; }
   
@@ -652,12 +673,14 @@ void Gold::do_something(void) {
   StudentWorld* gold_world = world();
   
   // If in permanent state (i.e. can be picked up by frackman)
-  if (is_permanent_state()) {
+  if (is_permanent_state())
+  {
     // If currently invisible, and Frackman is nearby to gold, then set visible (and immediately return)
     if (!is_visible() && gold_world->radius_from_actor(x, y, 4.00, false, true, false)) { set_visible(true); return; }
     
     // If currently visible, and Frackman grabs the gold object, then set dead, play sound, and increase score
-    if (is_visible() && gold_world->radius_from_actor(x, y, 3.00, false, true, false)) {
+    if (is_visible() && gold_world->radius_from_actor(x, y, 3.00, false, true, false))
+    {
       set_dead();
       gold_world->play_sound(SOUND_GOT_GOODIE);
       gold_world->increase_score(10);
@@ -665,7 +688,8 @@ void Gold::do_something(void) {
     }
   }
   // If in temporary state (i.e. can be picked up by protesters)
-  else {
+  else
+  {
     // Check the time before the bribe vanishes
     if (get_remaining_ticks() <= 0) { set_dead(); }
     
@@ -676,8 +700,6 @@ void Gold::do_something(void) {
     if (gold_world->radius_from_actor(x, y, 3.00, false, false, true, true)) { set_dead(); }
 
   }
-  
-  return;
 }
 
 bool Gold::is_permanent_state(void) { return (m_state == 0); }
@@ -694,7 +716,8 @@ Sonar::Sonar(StudentWorld* world)
 : Goodie(IID_SONAR, 0, 60, GraphObject::right, 1.0, 2, world, 100)
 { set_visible(true); set_remaining_ticks(); world->add_actor(this); }
 
-void Sonar::do_something(void) {
+void Sonar::do_something(void)
+{
   // Check the status of the sonar kit
   if (!is_alive()) { return; }
   
@@ -705,7 +728,8 @@ void Sonar::do_something(void) {
   StudentWorld* sonar_world = world();
   
   // If frackman grabs the sonar kit, set state to dead, play sound effect, increase player score, and update frackman inventory
-  if (sonar_world->radius_from_actor(x, y, 3.00, false, true)) {
+  if (sonar_world->radius_from_actor(x, y, 3.00, false, true))
+  {
     set_dead();
     sonar_world->play_sound(SOUND_GOT_GOODIE);
     sonar_world->increase_score(75);
@@ -717,8 +741,6 @@ void Sonar::do_something(void) {
   
   // Update time before sonar kit vanishes
   update_ticks();
-  
-  return;
 }
 
 Sonar::~Sonar() { set_visible(false); }
@@ -731,7 +753,8 @@ WaterPool::WaterPool(int start_x, int start_y, StudentWorld* world)
 : Goodie(IID_WATER_POOL, start_x, start_y, GraphObject::right, 1.0, 2, world, 100)
 { set_visible(true); set_remaining_ticks(); world->add_actor(this); }
 
-void WaterPool::do_something(void) {
+void WaterPool::do_something(void)
+{
   // Check the status of the water pool
   if (!is_alive()) { return; }
   
@@ -742,7 +765,8 @@ void WaterPool::do_something(void) {
   StudentWorld* sonar_world = world();
   
   // If frackman grabs the water pool, set state to dead, play sound effect, increase player score, and update frackman inventory (by 5)
-  if (sonar_world->radius_from_actor(x, y, 3.00, false, true)) {
+  if (sonar_world->radius_from_actor(x, y, 3.00, false, true))
+  {
     set_dead();
     sonar_world->play_sound(SOUND_GOT_GOODIE);
     sonar_world->increase_score(100);
@@ -754,8 +778,6 @@ void WaterPool::do_something(void) {
   
   // Update time before sonar kit vanishes
   update_ticks();
-  
-  return;
 }
 
 WaterPool::~WaterPool() { set_visible(false); }

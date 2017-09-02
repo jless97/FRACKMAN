@@ -28,7 +28,8 @@
 
 class StudentWorld;
 
-class Actor : public GraphObject {
+class Actor : public GraphObject
+{
 public:
   Actor(int image_id, int start_x, int start_y, Direction start_dir, float image_size, unsigned int image_depth, StudentWorld* current_world);
   virtual void do_something() = 0;
@@ -46,7 +47,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_DIRT
-class Dirt : public Actor {
+class Dirt : public Actor
+{
 public:
   Dirt(int start_x, int start_y, StudentWorld* world);
   virtual void do_something();
@@ -59,7 +61,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_BOULDER
-class Boulder : public Actor {
+class Boulder : public Actor
+{
 public:
   Boulder(int start_x, int start_y, StudentWorld* world);
   virtual void do_something();
@@ -67,13 +70,13 @@ public:
 private:
   int state;
   int m_nticks_before_fall;
-  enum {
+  enum
+  {
     stable = 0,
     waiting = 1,
     falling = 2
   } BOULDER_STATE;
   int m_state;
-  
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -81,7 +84,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_WATER_SPURT
-class WaterSquirt : public Actor {
+class WaterSquirt : public Actor
+{
 public:
   WaterSquirt(int x, int y, StudentWorld* world, Direction dir);
   virtual void do_something(void);
@@ -95,7 +99,8 @@ private:
 ///////////////////////-----------HUMAN--------------//////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-class Human : public Actor {
+class Human : public Actor
+{
 public:
   Human(int image_id, int start_x, int start_y, Direction start_dir, float image_size,
         unsigned int image_depth, StudentWorld* current_world, int start_health);
@@ -112,7 +117,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_PLAYER
-class Frackman : public Human {
+class Frackman : public Human
+{
 public:
   Frackman(StudentWorld* world);
   virtual void do_something();
@@ -136,7 +142,8 @@ private:
 
 const int REST_TICKS_SHOUT = 30;
 
-class Protester : public Human {
+class Protester : public Human
+{
 public:
   Protester(StudentWorld* world, int image_id=IID_PROTESTER, int start_health=5);
   virtual void do_something(void);
@@ -172,7 +179,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_HARD_CORE_Protester
-class HardcoreProtester : public Protester {
+class HardcoreProtester : public Protester
+{
 public:
   HardcoreProtester(StudentWorld* world);
   virtual bool track_frackman(void);
@@ -185,7 +193,8 @@ private:
 ///////////////////////-----------GOODIE--------------/////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-class Goodie : public Actor {
+class Goodie : public Actor
+{
 public:
   Goodie(int image_id, int start_x, int start_y, Direction start_dir, float image_size,
          unsigned int image_depth, StudentWorld* world, int ticks);
@@ -204,7 +213,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_BARREL
-class Barrel : public Goodie {
+class Barrel : public Goodie
+{
 public:
   Barrel(int start_x, int start_y, StudentWorld* world);
   virtual void do_something(void);
@@ -218,7 +228,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_GOLD
-class Gold : public Goodie {
+class Gold : public Goodie
+{
 public:
   Gold(int start_x, int start_y, StudentWorld* world, int state, bool is_visible);
   virtual void do_something(void);
@@ -235,7 +246,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_SONAR
-class Sonar : public Goodie {
+class Sonar : public Goodie
+{
 public:
   Sonar(StudentWorld* world);
   virtual void do_something(void);
@@ -249,7 +261,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 //IID_WATER_POOL
-class WaterPool : public Goodie {
+class WaterPool : public Goodie
+{
 public:
   WaterPool(int start_x, int start_y, StudentWorld* world);
   virtual void do_something(void);

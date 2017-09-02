@@ -42,7 +42,8 @@ StudentWorld::~StudentWorld() { clean_up(); }
 //////////-----------GAMEWORLD VIRTUAL FUNCTIONS--------------/////////////
 ///////////////////////////////////////////////////////////////////////////
 
-int StudentWorld::init() {
+int StudentWorld::init()
+{
   // Initialize dirt in the oil field
   init_dirt();
   
@@ -59,7 +60,8 @@ int StudentWorld::init() {
   return GWSTATUS_CONTINUE_GAME;
 }
 
-int StudentWorld::move() {
+int StudentWorld::move()
+{
   // Update scoreboard
   update_scoreboard();
   
@@ -78,13 +80,15 @@ int StudentWorld::move() {
   for (int i = 0; i < m_actors.size(); i++) { m_actors[i]->do_something(); }
   
   // Remove newly-dead actors after each tick
-  for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); ) {
+  for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); )
+  {
     if (!(*it)->is_alive()) { delete *it; it = m_actors.erase(it); }
     else { it++; }
   }
   
   // If frackman died during this tick, decrement lives, play sound effect, and if out of lives (GameWorld goes to game over screen)
-  if (!m_frackman->is_alive()) {
+  if (!m_frackman->is_alive())
+  {
     play_sound(SOUND_PLAYER_GIVE_UP);
     dec_lives();
     return GWSTATUS_PLAYER_DIED;
@@ -97,21 +101,20 @@ int StudentWorld::move() {
   m_nticks_since_added_protester++;
   
   // If the player collected all of the barrels, advance to the next level (and play level completion sound effect)
-  if (m_nbarrels == 0) {
-    play_sound(SOUND_FINISHED_LEVEL);
-    return GWSTATUS_FINISHED_LEVEL;
-  }
+  if (m_nbarrels == 0) { play_sound(SOUND_FINISHED_LEVEL); return GWSTATUS_FINISHED_LEVEL; }
   
   // Continue with the level until one of the above conditions happens
   return GWSTATUS_CONTINUE_GAME;
 }
 
-void StudentWorld::clean_up() {
+void StudentWorld::clean_up()
+{
   // Remove dirt
   deinit_dirt();
   
   // Remove actors
-  for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); ) {
+  for (vector<Actor*>::iterator it = m_actors.begin(); it != m_actors.end(); )
+  {
     delete *it;
     it = m_actors.erase(it);
   }
@@ -128,21 +131,25 @@ void StudentWorld::clean_up() {
 
 void StudentWorld::add_actor(Actor* actor) { m_actors.push_back(actor); }
 
-void StudentWorld::add_initial_actors(void) {
+void StudentWorld::add_initial_actors(void)
+{
   // Initialize boulders, gold nuggets, and oil barrels
   int B = min(get_level() / 2 + 2, 6);
   int G = max(5 - get_level() / 2, 2);
   int L = min(2 + get_level(), 20);
   
   // Place boulders
-  for (int i = 0; i < B; i++) {
+  for (int i = 0; i < B; i++)
+  {
     int x, y;
     bool regenerate = false;
     // Generate boulder coordinates
-    do {
+    do
+    {
       generate_coordinates(0, 60, 20, 56, 20, &x, &y);
       // Make sure that there are no actors within a given radius of one another
-      if (!radius_from_actor(x, y, 6.00)) {
+      if (!radius_from_actor(x, y, 6.00))
+      {
         // Add new boulder to the oil field
         Boulder* new_boulder = new Boulder(x, y, this);
         // Remove dirt surrounding new boulder
@@ -154,14 +161,17 @@ void StudentWorld::add_initial_actors(void) {
   }
   
   // Place oil barrels
-  for (int i = 0; i < L; i++) {
+  for (int i = 0; i < L; i++)
+  {
     int x, y;
     bool regenerate = false;
     // Generate oil barrel coordinates
-    do {
+    do
+    {
       generate_coordinates(0, 60, 0, 56, 0, &x, &y);
       // Make sure that there are no actors within a given radius of one another
-      if (!radius_from_actor(x, y, 6.00)) {
+      if (!radius_from_actor(x, y, 6.00))
+      {
         // Add new oil barrel to the oil field
         new Barrel(x, y, this);
         regenerate = false;
@@ -171,14 +181,17 @@ void StudentWorld::add_initial_actors(void) {
   }
   
   // Place gold nuggets
-  for (int i = 0; i < G; i++) {
+  for (int i = 0; i < G; i++)
+  {
     int x, y;
     bool regenerate = false;
     // Generate gold nugget coordinates
-    do {
+    do
+    {
       generate_coordinates(0, 60, 0, 56, 4, &x, &y);
       // Make sure that there are no actors within a given radius of one another
-      if (!radius_from_actor(x, y, 6.00)) {
+      if (!radius_from_actor(x, y, 6.00))
+      {
         // Add new gold nugget to the oil field
         new Gold(x, y, this, 0, false);
         regenerate = false;
@@ -193,16 +206,19 @@ void StudentWorld::add_initial_actors(void) {
   return;
 }
 
-void StudentWorld::add_additional_actors(void) {
+void StudentWorld::add_additional_actors(void)
+{
   /* Add sonar kits and water pools */
   // There is a 1 in G chance that a new sonar kit or water pool will be added to the oil field
   int G = get_level() * 25 + 300;
-  if (rand_int(1, G) == 1) {
+  if (rand_int(1, G) == 1)
+  {
     // Sonar kit: 1/5 chance, Water pool: 4/5 chance
       // Sonar Kit
     if (rand_int(1, 5) == 1) { new Sonar(this); }
       // Water Pool
-    else {
+    else
+    {
       int x, y;
       generate_coordinates(0, 60, 0, 56, 0, &x, &y, true);
       new WaterPool(x, y, this);
@@ -213,7 +229,8 @@ void StudentWorld::add_additional_actors(void) {
   int T = max(25, (200 - get_level()));
   int P = min(15, 2 + get_level() * 1.5);
   int probability_of_hardcore = min(90, get_level() * 10 + 30);
-  if ((m_nprotesters < P) && (m_nticks_since_added_protester >= T)) {
+  if ((m_nprotesters < P) && (m_nticks_since_added_protester >= T))
+  {
     // Reset protester timer
     m_nticks_since_added_protester = -1;
     // Update protester counter
@@ -222,14 +239,13 @@ void StudentWorld::add_additional_actors(void) {
     if ((rand_int(1, probability_of_hardcore) % 2) == 1) { new HardcoreProtester(this); }
     else { new Protester(this); }
   }
-  
-  return;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 ////////////-----------SCOREBOARD/GOODIES FUNCTIONS-------------///////////
 ///////////////////////////////////////////////////////////////////////////
-void StudentWorld::update_scoreboard() {
+void StudentWorld::update_scoreboard()
+{
   // Update scoreboard parameters
   int score = get_score();
   int level = get_level();
@@ -263,8 +279,10 @@ void StudentWorld::update_sonar_count(void) { m_frackman->update_sonar(1); }
 
 void StudentWorld::update_water_count(void) { m_frackman->update_water(5); }
 
-void StudentWorld::illuminate_goodies(void) {
-  for (int i = 0; i < m_actors.size(); i++) {
+void StudentWorld::illuminate_goodies(void)
+{
+  for (int i = 0; i < m_actors.size(); i++)
+  {
     if ((m_actors[i]->get_id() == IID_GOLD || m_actors[i]->get_id() == IID_BARREL) &&
         (radius_from_actor(m_actors[i]->get_x(), m_actors[i]->get_y(), 12.00, false, true))) { m_actors[i]->set_visible(true); }
   }
@@ -280,11 +298,15 @@ void StudentWorld::set_squirt(int x, int y, GraphObject::Direction dir) { new Wa
 ////////////-----------STUDENTWORLD DIRT FUNCTIONS-------------////////////
 ///////////////////////////////////////////////////////////////////////////
 
-bool StudentWorld::remove_dirt(Actor* a) {
+bool StudentWorld::remove_dirt(Actor* a)
+{
   bool did_remove = false;
-  for (int i = a->get_x(); i < a->get_x() + 4; i++) {
-    for (int j = a->get_y(); j < a->get_y() + 4; j++) {
-      if (m_dirt[i][j] != nullptr) {
+  for (int i = a->get_x(); i < a->get_x() + 4; i++)
+  {
+    for (int j = a->get_y(); j < a->get_y() + 4; j++)
+    {
+      if (m_dirt[i][j] != nullptr)
+      {
         delete m_dirt[i][j];
         m_dirt[i][j] = nullptr;
         
@@ -297,13 +319,15 @@ bool StudentWorld::remove_dirt(Actor* a) {
   return did_remove;
 }
 
-bool StudentWorld::is_dirt(Actor* a, GraphObject::Direction start_dir) {
+bool StudentWorld::is_dirt(Actor* a, GraphObject::Direction start_dir)
+{
   // Get actor's coordinates
   int x = a->get_x(), y = a->get_y();
   
   int dir = start_dir;
   bool is_dirt = false;
-  switch (dir) {
+  switch (dir)
+  {
     case GraphObject::left: for (int i = y; i < y + 4; i++) { if (m_dirt[x - 1][i] != nullptr) { is_dirt = true; } } break;
     case GraphObject::right: for (int i = y; i < y + 4; i++) { if (m_dirt[x + 4][i] != nullptr) { is_dirt = true; } } break;
     case GraphObject::down: for (int i = x; i < x + 4; i++) { if (m_dirt[i][y - 1] != nullptr) { is_dirt = true; } } break;
@@ -314,15 +338,18 @@ bool StudentWorld::is_dirt(Actor* a, GraphObject::Direction start_dir) {
   return is_dirt;
 }
 
-bool StudentWorld::is_dirt(int x, int y) const {
+bool StudentWorld::is_dirt(int x, int y) const
+{
   if (m_dirt[x][y] != nullptr) { return true; }
   return false;
 }
 
-bool StudentWorld::is_dirt_in_square(int x, int y) const {
+bool StudentWorld::is_dirt_in_square(int x, int y) const
+{
   bool is_dirt = false;
   
-  for (int i = x; i < x + 4; i++) {
+  for (int i = x; i < x + 4; i++)
+  {
     for (int j = y; j < y + 4; j++) { if (m_dirt[i][j] != nullptr) { is_dirt = true; } }
   }
   
@@ -333,11 +360,15 @@ bool StudentWorld::is_dirt_in_square(int x, int y) const {
 //////////-----------STUDENTWORLD BOULDER FUNCTIONS-------------///////////
 ///////////////////////////////////////////////////////////////////////////
 
-bool StudentWorld::is_boulder(int x, int y) const {
-  for (int i = 0; i < m_actors.size(); i++) {
+bool StudentWorld::is_boulder(int x, int y) const
+{
+  for (int i = 0; i < m_actors.size(); i++)
+  {
     if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
-    for (int j = 0; j < 4; j++) {
-      for (int k = 0; k < 4; k++) {
+    for (int j = 0; j < 4; j++)
+    {
+      for (int k = 0; k < 4; k++)
+      {
         if ((x == m_actors[i]->get_x() + j) && (y == m_actors[i]->get_y() + k)) { return true; }
       }
     }
@@ -346,11 +377,15 @@ bool StudentWorld::is_boulder(int x, int y) const {
   return false;
 }
 
-bool StudentWorld::is_waterpool(int x, int y) const {
-  for (int i = 0; i < m_actors.size(); i++) {
+bool StudentWorld::is_waterpool(int x, int y) const
+{
+  for (int i = 0; i < m_actors.size(); i++)
+  {
     if (m_actors[i]->get_id() != IID_WATER_POOL) { continue; }
-    for (int j = 0; j < 4; j++) {
-      for (int k = 0; k < 4; k++) {
+    for (int j = 0; j < 4; j++)
+    {
+      for (int k = 0; k < 4; k++)
+      {
         if ((x == m_actors[i]->get_x() + j) && (y == m_actors[i]->get_y() + k)) { return true; }
       }
     }
@@ -365,17 +400,22 @@ bool StudentWorld::boulder_hit_actor(Actor* a, bool is_frackman, bool is_boulder
   int y = a->get_y();
 
   // Check if boulder hit frackman
-  if (is_frackman) {
+  if (is_frackman)
+  {
     int frack_x = m_frackman->get_x(), frack_y = m_frackman->get_y();
     if ((frack_y + 3 == y) && (frack_x >= (x - 3) && frack_x <= (x + 3)))  { return true; }
   }
   // Check if boulder hit a protester
-  else if (!is_boulder){
-    for (int i = 0; i < m_actors.size(); i++) {
-      if (m_actors[i]->get_id() == IID_PROTESTER || m_actors[i]->get_id() == IID_HARD_CORE_PROTESTER) {
+  else if (!is_boulder)
+  {
+    for (int i = 0; i < m_actors.size(); i++)
+    {
+      if (m_actors[i]->get_id() == IID_PROTESTER || m_actors[i]->get_id() == IID_HARD_CORE_PROTESTER)
+      {
         int protester_x = m_actors[i]->get_x(), protester_y = m_actors[i]->get_y();
         // Protester gets hit by boulder, fully annoy protester, set protester to leave the oil field immediately, play sound, increase score
-        if ((protester_y + 3 == y) && (protester_x >= (x - 3) && protester_x <= (x + 3))) {
+        if ((protester_y + 3 == y) && (protester_x >= (x - 3) && protester_x <= (x + 3)))
+        {
           dynamic_cast<Protester*>(m_actors[i])->get_annoyed(100);
           dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
           dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
@@ -387,9 +427,12 @@ bool StudentWorld::boulder_hit_actor(Actor* a, bool is_frackman, bool is_boulder
     }
   }
   // Check if boulder hits another boulder
-  else {
-    for (int i = 0; i < m_actors.size(); i++) {
-      if (m_actors[i]->get_id() == IID_BOULDER) {
+  else
+  {
+    for (int i = 0; i < m_actors.size(); i++)
+    {
+      if (m_actors[i]->get_id() == IID_BOULDER)
+      {
         int boulder_x = m_actors[i]->get_x(), boulder_y = m_actors[i]->get_y();
         // Boulder hits another boulder, remove the top boulder only
         if ((boulder_y + 3 == y) && (boulder_x >= (x - 3) && boulder_x <= (x + 3))) { return true; }
@@ -411,30 +454,37 @@ int StudentWorld::min(int x, int y) { if (x < y) { return x; } else { return y; 
 
 int StudentWorld::radius(int x_1, int y_1, int x_2, int y_2) const { return sqrt(pow((x_2 - x_1), 2) + pow((y_2 - y_1), 2)); }
 
-bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester, bool is_bribe) {
-  for (int i = 0; i < m_actors.size(); i++) {
+bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bool is_frackman, bool is_protester, bool is_bribe)
+{
+  for (int i = 0; i < m_actors.size(); i++)
+  {
     // Grabbing coordinates for initial placement of boulders, barrels, and gold nuggets (if no other condition met)
     int actor_x = m_actors[i]->get_x(), actor_y = m_actors[i]->get_y();
     
     // Checking radius with a boulder object
-    if (is_boulder) {
+    if (is_boulder)
+    {
       if (m_actors[i]->get_id() != IID_BOULDER) { continue; }
       else { actor_x = m_actors[i]->get_x(); actor_y = m_actors[i]->get_y(); }
     }
     // Checking radius with the frackman player
     if (is_frackman) { actor_x = m_frackman->get_x(); actor_y = m_frackman->get_y(); }
     // Checking radius with a protester
-    if (is_protester) {
+    if (is_protester)
+    {
       if (m_actors[i]->get_id() != IID_PROTESTER && m_actors[i]->get_id() != IID_HARD_CORE_PROTESTER ) { continue; }
       else { actor_x = m_actors[i]->get_x(); actor_y = m_actors[i]->get_y(); }
     }
-    if (radius(x, y, actor_x, actor_y) <= r) {
-      if (is_protester) {
+    if (radius(x, y, actor_x, actor_y) <= r)
+    {
+      if (is_protester)
+      {
         // If a protester is in a leave the oil field state, don't let him pick up bribes or get shot by the water gun
         if (dynamic_cast<Protester*>(m_actors[i])->get_leave_oil_field_state()) { continue; }
         
         // If protester picks up bribe, then set protester to leave the oil field immediately, play sound effect, and increase player score
-        if (is_bribe) {
+        if (is_bribe)
+        {
           // If regular protester
           if (m_actors[i]->get_id() == IID_PROTESTER) {
             dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
@@ -442,21 +492,24 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
             increase_score(25);
           }
           // If hardcore protester
-          else {
+          else
+          {
             dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(max(65, 100 - get_level() * 10));
             increase_score(50);
           }
           play_sound(SOUND_PROTESTER_FOUND_GOLD);
         }
         // If protester gets hit by a water squirt, then play sound effect, inflict damage on protester, and stun protester
-        else {
+        else
+        {
           dynamic_cast<Protester*>(m_actors[i])->get_annoyed(2);
           // The resting ticks after a protester takes water squirt damage is dependent on the current level
           dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(max(65, 100 - get_level() * 10));
           play_sound(SOUND_PROTESTER_ANNOYED);
           
           // If protester killed by squirt gun, then set protester to leave the oil field, increment player's score, and play sound effect
-          if (dynamic_cast<Protester*>(m_actors[i])->get_health() <= 0) {
+          if (dynamic_cast<Protester*>(m_actors[i])->get_health() <= 0)
+          {
             dynamic_cast<Protester*>(m_actors[i])->set_leave_oil_field_state();
             dynamic_cast<Protester*>(m_actors[i])->set_resting_ticks(0);
             if (m_actors[i]->get_id() == IID_PROTESTER) { increase_score(100); }
@@ -472,8 +525,10 @@ bool StudentWorld::radius_from_actor(int x, int y, double r, bool is_boulder, bo
   return false;
 }
 
-bool StudentWorld::is_out_of_bounds(int x, int y, GraphObject::Direction dir) const {
-  switch(dir) {
+bool StudentWorld::is_out_of_bounds(int x, int y, GraphObject::Direction dir) const
+{
+  switch(dir)
+  {
     case GraphObject::up: if (y + 1 > 60) { return true; } break;
     case GraphObject::down: if (y - 1 < 0) { return true; } break;
     case GraphObject::left: if (x - 1 < 0) { return true; } break;
@@ -485,7 +540,8 @@ bool StudentWorld::is_out_of_bounds(int x, int y, GraphObject::Direction dir) co
 }
 
 //Generate a random number (Equation used from Project 1 (no need to reinvent the wheel))
-int StudentWorld::rand_int(int min, int max) const {
+int StudentWorld::rand_int(int min, int max) const
+{
   if (max < min) { swap(max, min); }
   std::random_device rd;
   std::mt19937 generator(rd());
@@ -494,19 +550,23 @@ int StudentWorld::rand_int(int min, int max) const {
 }
 
 void StudentWorld::generate_coordinates(int x_min, int x_max, int y_min, int y_max, int shaft_y_coord,
-                                        int* x_coord, int* y_coord, bool is_water) {
+                                        int* x_coord, int* y_coord, bool is_water)
+{
   bool regenerate = false;
-  do {
+  do
+  {
     // "Randomly" generate oil barrel position
     *x_coord = rand_int(x_min, x_max);
     *y_coord = rand_int(y_min, y_max);
     // Generating coordinates for a water pool, find a dirt-less location
-    if (is_water) {
+    if (is_water)
+    {
       if (is_dirt_in_square(*x_coord, *y_coord) || is_boulder(*x_coord, *y_coord) || is_waterpool(*x_coord, *y_coord)) { regenerate = true; }
       else { regenerate = false; }
     }
     // Generating coordinates for an oil barrel, boulder, or gold nugget
-    else {
+    else
+    {
       // If a oil barrel receives coordinates within the mineshaft, then regenerate coordinates
       if (*x_coord >= 27 && *x_coord <= 33 && *y_coord >= shaft_y_coord) { regenerate = true; }
       else { regenerate = false; }
@@ -520,7 +580,8 @@ void StudentWorld::annoy_frackman(int how_much) { m_frackman->get_annoyed(how_mu
 ////////-----------STUDENTWORLD PROTESTER FUNCTIONS-------------///////////
 ///////////////////////////////////////////////////////////////////////////
 
-bool StudentWorld::is_facing_frackman(Protester* protester) const {
+bool StudentWorld::is_facing_frackman(Protester* protester) const
+{
   // Get protester's information
   int protester_x = protester->get_x(), protester_y = protester->get_y();
   GraphObject::Direction protester_direction = protester->get_direction();
@@ -529,16 +590,20 @@ bool StudentWorld::is_facing_frackman(Protester* protester) const {
   
   // Take the protester's location as the origin of a coordinate system
   // Check each of the four quadrants for frackman
-  if ((frackman_x >= protester_x) && (frackman_y >= protester_y)) {
+  if ((frackman_x >= protester_x) && (frackman_y >= protester_y))
+  {
     if ((protester_direction == GraphObject::right) || (protester_direction == GraphObject::up)) { return true; }
   }
-  if ((frackman_x <= protester_x) && (frackman_y >= protester_y)) {
+  if ((frackman_x <= protester_x) && (frackman_y >= protester_y))
+  {
     if ((protester_direction == GraphObject::left) || (protester_direction == GraphObject::up)) { return true; }
   }
-  if ((frackman_x <= protester_x) && (frackman_y <= protester_y)) {
+  if ((frackman_x <= protester_x) && (frackman_y <= protester_y))
+  {
     if ((protester_direction == GraphObject::left) || (protester_direction == GraphObject::down)) { return true; }
   }
-  if ((frackman_x >= protester_x) && (frackman_y <= protester_y)) {
+  if ((frackman_x >= protester_x) && (frackman_y <= protester_y))
+  {
     if ((protester_direction == GraphObject::right) || (protester_direction == GraphObject::down)) { return true; }
   }
   
@@ -550,18 +615,23 @@ bool StudentWorld::is_in_line_of_sight(Protester* protester) const {
   return false;
 }
 
-bool StudentWorld::can_move_to_frackman(Protester* protester) {
+bool StudentWorld::can_move_to_frackman(Protester* protester)
+{
   // Get protester's information
   int protester_x = protester->get_x(), protester_y = protester->get_y();
   // Get frackman's coordinates
   int frackman_x = m_frackman->get_x(), frackman_y = m_frackman->get_y();
 
   // Can potentially move up or down to frackman
-  if (protester_x == frackman_x) {
+  if (protester_x == frackman_x)
+  {
     // Check if can move up to frackman
-    if (protester_y < frackman_y) {
-      for (int i = protester_x; i < protester_x + 4; i++) {
-        for (int j = protester_y; j < frackman_y; j++) {
+    if (protester_y < frackman_y)
+    {
+      for (int i = protester_x; i < protester_x + 4; i++)
+      {
+        for (int j = protester_y; j < frackman_y; j++)
+        {
           if (is_dirt(i, j) || is_boulder(i, j)) { return false; }
         }
       }
@@ -570,9 +640,12 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
       return true;
     }
     // Check if can move down to frackman
-    if (protester_y > frackman_y) {
-      for (int i = protester_x; i < protester_x + 4; i++) {
-        for (int j = frackman_y; j < protester_y; j++) {
+    if (protester_y > frackman_y)
+    {
+      for (int i = protester_x; i < protester_x + 4; i++)
+      {
+        for (int j = frackman_y; j < protester_y; j++)
+        {
           if (is_dirt(i, j) || is_boulder(i, j)) { return false; }
         }
       }
@@ -582,11 +655,14 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
     }
   }
   // Can potentially move left or right to frackman
-  if (protester_y == frackman_y) {
+  if (protester_y == frackman_y)
+  {
     // Check if can move left to frackman
     if (protester_x > frackman_x) {
-      for (int i = protester_y; i < protester_y + 4; i++) {
-        for (int j = frackman_x; j < protester_x; j++) {
+      for (int i = protester_y; i < protester_y + 4; i++)
+      {
+        for (int j = frackman_x; j < protester_x; j++)
+        {
           if (is_dirt(j, i) || is_boulder(j, i)) { return false; }
         }
       }
@@ -595,9 +671,12 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
       return true;
     }
     // Check if can move right to frackman
-    if (protester_x < frackman_x) {
-      for (int i = protester_y; i < protester_y + 4; i++) {
-        for (int j = protester_x; j < frackman_x; j++) {
+    if (protester_x < frackman_x)
+    {
+      for (int i = protester_y; i < protester_y + 4; i++)
+      {
+        for (int j = protester_x; j < frackman_x; j++)
+        {
           if (is_dirt(j, i) || is_boulder(j, i)) { return false; }
         }
       }
@@ -610,11 +689,13 @@ bool StudentWorld::can_move_to_frackman(Protester* protester) {
   return false;
 }
 
-GraphObject::Direction StudentWorld::generate_new_direction(Protester* protester) {
+GraphObject::Direction StudentWorld::generate_new_direction(Protester* protester)
+{
   GraphObject::Direction new_dir = GraphObject::none;
   
   int temp_dir = rand_int(0, 3);
-  switch (temp_dir) {
+  switch (temp_dir)
+  {
     case 0: new_dir = GraphObject::up; break;
     case 1: new_dir = GraphObject::down; break;
     case 2: new_dir = GraphObject::left; break;
@@ -625,9 +706,11 @@ GraphObject::Direction StudentWorld::generate_new_direction(Protester* protester
   return new_dir;
 }
 
-bool StudentWorld::can_move_in_new_direction(int x, int y, GraphObject::Direction dir) {
+bool StudentWorld::can_move_in_new_direction(int x, int y, GraphObject::Direction dir)
+{
   // Check if there is dirt, boulder, or out of bounds
-  switch(dir) {
+  switch(dir)
+  {
     case GraphObject::up:
       if (is_out_of_bounds(x, y, dir)) { return false; }
       if (radius_from_actor(x, y + 1, 3.00, true)) { return false; }
@@ -658,9 +741,12 @@ bool StudentWorld::can_move_in_new_direction(int x, int y, GraphObject::Directio
 //////////-----------STUDENTWORLD PRIVATE FUNCTIONS-------------///////////
 ///////////////////////////////////////////////////////////////////////////
 
-void StudentWorld::init_dirt(void) {
-  for (int i = 0; i < GRID_WIDTH; i++) {
-    for (int j = 0; j < GRID_HEIGHT; j++) {
+void StudentWorld::init_dirt(void)
+{
+  for (int i = 0; i < GRID_WIDTH; i++)
+  {
+    for (int j = 0; j < GRID_HEIGHT; j++)
+    {
       if ((i >= 30 && i <= 33 && j >= 4 && j <= 59) || (j > 59)) { m_dirt[i][j] = nullptr; }
       else { m_dirt[i][j] = new Dirt(i, j, this); }
     }
@@ -669,8 +755,10 @@ void StudentWorld::init_dirt(void) {
   return;
 }
 
-void StudentWorld::deinit_dirt(void) {
-  for (int i = 0; i < GRID_WIDTH; i++) {
+void StudentWorld::deinit_dirt(void)
+{
+  for (int i = 0; i < GRID_WIDTH; i++)
+  {
     for (int j = 0; j < GRID_HEIGHT; j++) { delete m_dirt[i][j]; m_dirt[i][j] = nullptr; }
   }
 }
@@ -679,28 +767,33 @@ void StudentWorld::deinit_dirt(void) {
 ///////-----------QUEUE-BASED MAZE-SEARCHING FUNCTIONS-------------////////
 ///////////////////////////////////////////////////////////////////////////
 
-void StudentWorld::generate_optimal_direction(Protester* protester, GraphObject::Direction& first, GraphObject::Direction& second, GraphObject::Direction& third, GraphObject::Direction& fourth, bool is_exit_maze) {
+void StudentWorld::generate_optimal_direction(Protester* protester, GraphObject::Direction& first, GraphObject::Direction& second, GraphObject::Direction& third, GraphObject::Direction& fourth, bool is_exit_maze)
+{
   // Get the current coordinates of the protester
   int x = protester->get_x();
   int y = protester->get_y();
   
   // Load in the current status of the oil field in the four cardinal directions around the protester (i.e. up, down, left, right)
   int surrounding_oilfield[4];
-  if (is_exit_maze) {
+  if (is_exit_maze)
+  {
     surrounding_oilfield[0] = m_oilfield[x][y + 1];
     surrounding_oilfield[1] = m_oilfield[x][y - 1];
     surrounding_oilfield[2] = m_oilfield[x - 1][y];
     surrounding_oilfield[3] = m_oilfield[x + 1][y];
   }
-  else {
+  else
+  {
     surrounding_oilfield[0] = m_find_frackman[x][y + 1];
     surrounding_oilfield[1] = m_find_frackman[x][y - 1];
     surrounding_oilfield[2] = m_find_frackman[x - 1][y];
     surrounding_oilfield[3] = m_find_frackman[x + 1][y];
   }
   int surrounding_status = 0;
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++) {
+  for (int i = 0; i < 4; i++)
+  {
+    for (int j = 0; j < 4; j++)
+    {
       if (surrounding_oilfield[j] < surrounding_oilfield[surrounding_status])
         surrounding_status = j;
     }
@@ -709,49 +802,57 @@ void StudentWorld::generate_optimal_direction(Protester* protester, GraphObject:
     surrounding_oilfield[surrounding_status] = 1000;
     
     // Set the priority of the optimal direction to take
-    switch (i) {
+    switch (i)
+    {
       case 0:
-        switch (surrounding_status) {
-        case 0: first = GraphObject::up; break;
-        case 1: first = GraphObject::down; break;
-        case 2: first = GraphObject::left; break;
-        case 3: first = GraphObject::right; break;
+        switch (surrounding_status)
+        {
+          case 0: first = GraphObject::up; break;
+          case 1: first = GraphObject::down; break;
+          case 2: first = GraphObject::left; break;
+          case 3: first = GraphObject::right; break;
         }
         break;
       case 1:
-        switch (surrounding_status) {
-        case 0: second = GraphObject::up; break;
-        case 1: second = GraphObject::down; break;
-        case 2: second = GraphObject::left; break;
-        case 3: second = GraphObject::right; break;
+        switch (surrounding_status)
+        {
+          case 0: second = GraphObject::up; break;
+          case 1: second = GraphObject::down; break;
+          case 2: second = GraphObject::left; break;
+          case 3: second = GraphObject::right; break;
         }
         break;
       case 2:
-        switch (surrounding_status) {
-        case 0: third = GraphObject::up; break;
-        case 1: third = GraphObject::down; break;
-        case 2: third = GraphObject::left; break;
-        case 3: third = GraphObject::right; break;
+        switch (surrounding_status)
+        {
+          case 0: third = GraphObject::up; break;
+          case 1: third = GraphObject::down; break;
+          case 2: third = GraphObject::left; break;
+          case 3: third = GraphObject::right; break;
         }
         break;
       case 3:
-        switch (surrounding_status) {
-        case 0: fourth = GraphObject::up; break;
-        case 1: fourth = GraphObject::down; break;
-        case 2: fourth = GraphObject::left; break;
-        case 3: fourth = GraphObject::right; break;
+        switch (surrounding_status)
+        {
+          case 0: fourth = GraphObject::up; break;
+          case 1: fourth = GraphObject::down; break;
+          case 2: fourth = GraphObject::left; break;
+          case 3: fourth = GraphObject::right; break;
         }
         break;
     }
   }
 }
 
-void StudentWorld::update_maze(int x, int y, int a[][GRID_HEIGHT]) {
+void StudentWorld::update_maze(int x, int y, int a[][GRID_HEIGHT])
+{
   queue<Coord> coordQueue;
   
   // Re-initialize the maze each time this function is called (to get most updated version of oil field)
-  for (int i = 0; i < GRID_WIDTH; i++) {
-    for (int j = 0; j < GRID_HEIGHT; j++) {
+  for (int i = 0; i < GRID_WIDTH; i++)
+  {
+    for (int j = 0; j < GRID_HEIGHT; j++)
+    {
       a[i][j] = -1;
     }
   }
@@ -761,36 +862,45 @@ void StudentWorld::update_maze(int x, int y, int a[][GRID_HEIGHT]) {
   a[x][y] = 0;
   
   // While the queue isn't empty, keep checking for path to the exit
-  while (!coordQueue.empty()) {
+  while (!coordQueue.empty())
+  {
     Coord start = coordQueue.front();
     int r = start.row(), c = start.col();
     coordQueue.pop();
     
     // Check if protester can move in the four cardinal directions (i.e. up, down, left, or right)
     // Direction: up
-    if ((r >= 0 && r <= 60) && (c + 1 >= 0 && c + 1 <= 60)) {
-      if (can_move_in_new_direction(r, c, GraphObject::up) && a[r][c + 1] == -1) {
+    if ((r >= 0 && r <= 60) && (c + 1 >= 0 && c + 1 <= 60))
+    {
+      if (can_move_in_new_direction(r, c, GraphObject::up) && a[r][c + 1] == -1)
+      {
         a[r][c + 1] = a[r][c] + 1;
         coordQueue.push(Coord(r, c + 1));
       }
     }
     // Direction: down
-    if ((r >= 0 && r <= 60) && (c - 1 >= 0 && c - 1 <= 60)) {
-      if (can_move_in_new_direction(r, c, GraphObject::down) && a[r][c - 1] == -1) {
+    if ((r >= 0 && r <= 60) && (c - 1 >= 0 && c - 1 <= 60))
+    {
+      if (can_move_in_new_direction(r, c, GraphObject::down) && a[r][c - 1] == -1)
+      {
         a[r][c - 1] = a[r][c] + 1;
         coordQueue.push(Coord(r, c - 1));
       }
     }
     // Direction: left
-    if ((r - 1 >= 0 && r - 1 <= 60) &&  (c >= 0 && c <= 60)) {
-      if (can_move_in_new_direction(r, c, GraphObject::left) && a[r - 1][c] == -1) {
+    if ((r - 1 >= 0 && r - 1 <= 60) &&  (c >= 0 && c <= 60))
+    {
+      if (can_move_in_new_direction(r, c, GraphObject::left) && a[r - 1][c] == -1)
+      {
         a[r - 1][c] = a[r][c] + 1;
         coordQueue.push(Coord(r - 1, c));
       }
     }
     // Direction: right
-    if ((r + 1 >= 0 && r + 1 <= 60) && (c >= 0 && c <= 60)) {
-      if (can_move_in_new_direction(r, c, GraphObject::right) && a[r + 1][c] == -1) {
+    if ((r + 1 >= 0 && r + 1 <= 60) && (c >= 0 && c <= 60))
+    {
+      if (can_move_in_new_direction(r, c, GraphObject::right) && a[r + 1][c] == -1)
+      {
         a[r + 1][c] = a[r][c] + 1;
         coordQueue.push(Coord(r + 1, c));
       }

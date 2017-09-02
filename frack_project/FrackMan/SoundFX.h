@@ -25,7 +25,7 @@ class SoundFXController
 			m_engine->stopAllSounds();
 	}
 
-	static SoundFXController& getInstance();
+	static SoundFXController& get_instance();
 
   private:
 	irrklang::ISoundEngine* m_engine;
@@ -64,7 +64,7 @@ class SoundFXController
 	{
 	}
 	
-	static SoundFXController& getInstance();
+	static SoundFXController& get_instance();
 };
 
 #else  // forget about sound
@@ -74,13 +74,13 @@ class SoundFXController
   public:
 	void playClip(std::string soundFile) {}
 	void abortClip() {}
-	static SoundFXController& getInstance();
+	static SoundFXController& get_instance();
 };
 
 #endif
 
   // Meyers singleton pattern
-inline SoundFXController& SoundFXController::getInstance()
+inline SoundFXController& SoundFXController::get_instance()
 {
 	static SoundFXController instance;
 	return instance;
@@ -88,7 +88,7 @@ inline SoundFXController& SoundFXController::getInstance()
 
 inline SoundFXController& SoundFX()
 {
-	return SoundFXController::getInstance();
+	return SoundFXController::get_instance();
 }
 
 #endif // SOUNDFX_H_

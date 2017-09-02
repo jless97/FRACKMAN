@@ -415,7 +415,7 @@ FGAPI int     FGAPIENTRY glutCreateSubWindow( int window, int x, int y, int widt
 FGAPI void    FGAPIENTRY glutDestroyWindow( int window );
 FGAPI void    FGAPIENTRY glutSetWindow( int window );
 FGAPI int     FGAPIENTRY glutGetWindow( void );
-FGAPI void    FGAPIENTRY glutSetWindowTitle( const char* title );
+FGAPI void    FGAPIENTRY glutSetwindow_title( const char* title );
 FGAPI void    FGAPIENTRY glutSetIconTitle( const char* title );
 FGAPI void    FGAPIENTRY glutReshapeWindow( int width, int height );
 FGAPI void    FGAPIENTRY glutPositionWindow( int x, int y );

@@ -63,7 +63,7 @@ static void convertToGlutCoords(double x, double y, double& gx, double& gy, doub
 static void drawPrompt(string mainMessage, string secondMessage);
 static void drawScoreAndLives(string);
 
-void GameController::initDrawersAndSounds()
+void GameController::init_drawers_and_sounds()
 {
 	SpriteInfo drawers[] = {
 		{ IID_PLAYER		   , 0, "frack1.tga"},
@@ -112,11 +112,11 @@ void GameController::initDrawersAndSounds()
 		if (!path.empty())
 			path += '/';
 		const SpriteInfo& d = drawers[k];
-		if (!m_spriteManager.loadSprite(path + d.tgaFileName, d.image_id, d.frameNum))
+		if (!m_sprite_manager.loadSprite(path + d.tgaFileName, d.image_id, d.frameNum))
 			exit(0);
 	}
 	for (int k = 0; k < sizeof(sounds)/sizeof(sounds[0]); k++)
-		m_soundMap[sounds[k].first] = sounds[k].second;
+		m_sound_map[sounds[k].first] = sounds[k].second;
 }
 
 static void do_somethingCallback()
@@ -129,14 +129,14 @@ static void reshapeCallback(int w, int h)
 	Game().reshape(w, h);
 }
 
-static void keyboardEventCallback(BYTE key, int x, int y)
+static void keyboard_eventCallback(BYTE key, int x, int y)
 {
-	Game().keyboardEvent(key, x, y);
+	Game().keyboard_event(key, x, y);
 }
 
-static void specialKeyboardEventCallback(int key, int x, int y)
+static void specialkeyboard_eventCallback(int key, int x, int y)
 {
-	Game().specialKeyboardEvent(key, x, y);
+	Game().specialkeyboard_event(key, x, y);
 }
 
 static void timerFuncCallback(int val)
@@ -145,27 +145,27 @@ static void timerFuncCallback(int val)
 	glutTimerFunc(MS_PER_FRAME, timerFuncCallback, 0);
 }
 
-void GameController::run(int argc, char* argv[], GameWorld* gw, string windowTitle)
+void GameController::run(int argc, char* argv[], GameWorld* gw, string window_title)
 {
 	gw->set_controller(this);
 	m_gw = gw;
-	setGameState(welcome);
-	m_lastKeyHit = INVALID_KEY;
+	set_game_state(welcome);
+	m_last_key_hit = INVALID_KEY;
 	m_singleStep = false;
-	m_curIntraFrameTick = 0;
-	m_playerWon = false;
+	m_cur_intra_frame_tick = 0;
+	m_player_won = false;
 
 	glutInit(&argc, argv);
 
 	glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutInitWindowPosition(0, 0);
-	glutCreateWindow(windowTitle.c_str());
+	glutCreateWindow(window_title.c_str());
 
-	initDrawersAndSounds();
+	init_drawers_and_sounds();
 
-	glutKeyboardFunc(keyboardEventCallback);
-	glutSpecialFunc(specialKeyboardEventCallback);
+	glutKeyboardFunc(keyboard_eventCallback);
+	glutSpecialFunc(specialkeyboard_eventCallback);
 	glutReshapeFunc(reshapeCallback);
 	glutDisplayFunc(do_somethingCallback);
 	glutTimerFunc(MS_PER_FRAME, timerFuncCallback, 0);
@@ -175,41 +175,41 @@ void GameController::run(int argc, char* argv[], GameWorld* gw, string windowTit
 	delete m_gw;
 }
 
-void GameController::keyboardEvent(BYTE key, int /* x */, int /* y */)
+void GameController::keyboard_event(BYTE key, int /* x */, int /* y */)
 {
 	switch (key)
 	{
-		case 'a': case '4': m_lastKeyHit = KEY_PRESS_LEFT;	break;
-		case 'd': case '6': m_lastKeyHit = KEY_PRESS_RIGHT; break;
-		case 'w': case '8': m_lastKeyHit = KEY_PRESS_UP;	break;
-		case 's': case '2': m_lastKeyHit = KEY_PRESS_DOWN;	break;
-		case 't':			m_lastKeyHit = KEY_PRESS_TAB;	break;
+		case 'a': case '4': m_last_key_hit = KEY_PRESS_LEFT;	break;
+		case 'd': case '6': m_last_key_hit = KEY_PRESS_RIGHT; break;
+		case 'w': case '8': m_last_key_hit = KEY_PRESS_UP;	break;
+		case 's': case '2': m_last_key_hit = KEY_PRESS_DOWN;	break;
+		case 't':			m_last_key_hit = KEY_PRESS_TAB;	break;
 		case 'f':			m_singleStep = true;			break;
 		case 'r':			m_singleStep = false;			break;
-		case 'q': case 'Q': setGameState(quit);				break;
-		default:			m_lastKeyHit = key;				break;
+		case 'q': case 'Q': set_game_state(quit);				break;
+		default:			m_last_key_hit = key;				break;
 	}
 }
 
-void GameController::specialKeyboardEvent(int key, int /* x */, int /* y */)
+void GameController::specialkeyboard_event(int key, int /* x */, int /* y */)
 {
 	switch (key)
 	{
-		case GLUT_KEY_LEFT:	 m_lastKeyHit = KEY_PRESS_LEFT;	 break;
-		case GLUT_KEY_RIGHT: m_lastKeyHit = KEY_PRESS_RIGHT; break;
-		case GLUT_KEY_UP:	 m_lastKeyHit = KEY_PRESS_UP;	 break;
-		case GLUT_KEY_DOWN:	 m_lastKeyHit = KEY_PRESS_DOWN;	 break;
-		default:			 m_lastKeyHit = INVALID_KEY;	 break;
+		case GLUT_KEY_LEFT:	 m_last_key_hit = KEY_PRESS_LEFT;	 break;
+		case GLUT_KEY_RIGHT: m_last_key_hit = KEY_PRESS_RIGHT; break;
+		case GLUT_KEY_UP:	 m_last_key_hit = KEY_PRESS_UP;	 break;
+		case GLUT_KEY_DOWN:	 m_last_key_hit = KEY_PRESS_DOWN;	 break;
+		default:			 m_last_key_hit = INVALID_KEY;	 break;
 	}
 }
 
-void GameController::play_sound(int soundID)
+void GameController::play_sound(int sound_id)
 {
-	if (soundID == SOUND_NONE)
+	if (sound_id == SOUND_NONE)
 		return;
 
-	SoundMapType::const_iterator p = m_soundMap.find(soundID);
-	if (p != m_soundMap.end())
+	SoundMapType::const_iterator p = m_sound_map.find(sound_id);
+	if (p != m_sound_map.end())
 	{
 		string path = m_gw->asset_directory();
 		if (!path.empty())
@@ -220,83 +220,83 @@ void GameController::play_sound(int soundID)
 
 void GameController::do_something()
 {
-	switch (m_gameState)
+	switch (m_game_state)
 	{
 		case not_applicable:
 			break;
 		case welcome:
 			play_sound(SOUND_THEME);
-			m_mainMessage = "Welcome to Frackman!";
-			m_secondMessage = "Press Enter to begin play...";
-			setGameState(prompt);
-			m_nextStateAfterPrompt = init;
+			m_main_message = "Welcome to Frackman!";
+			m_second_message = "Press Enter to begin play...";
+			set_game_state(prompt);
+			m_next_state_after_prompt = init;
 			break;
 		case contgame:
-			m_mainMessage = "You lost a life!";
-			m_secondMessage = "Press Enter to continue playing...";
-			setGameState(prompt);
-			m_nextStateAfterPrompt = clean_up;
+			m_main_message = "You lost a life!";
+			m_second_message = "Press Enter to continue playing...";
+			set_game_state(prompt);
+			m_next_state_after_prompt = clean_up;
 			break;
 		case finishedlevel:
-			m_mainMessage = "Woot! You finished the level!";
-			m_secondMessage = "Press Enter to continue playing...";
-			setGameState(prompt);
-			m_nextStateAfterPrompt = clean_up;
+			m_main_message = "Woot! You finished the level!";
+			m_second_message = "Press Enter to continue playing...";
+			set_game_state(prompt);
+			m_next_state_after_prompt = clean_up;
 			break;
 		case makemove:
-			m_curIntraFrameTick = ANIMATION_POSITIONS_PER_TICK;
-			m_nextStateAfterAnimate = not_applicable;
+			m_cur_intra_frame_tick = ANIMATION_POSITIONS_PER_TICK;
+			m_next_state_after_animate = not_applicable;
 			{
 				int status = m_gw->move();
 				if (status == GWSTATUS_PLAYER_DIED)
 				{
 					  // animate one last frame so the player can see what happened
-					m_nextStateAfterAnimate = (m_gw->is_game_over() ? gameover : contgame);
+					m_next_state_after_animate = (m_gw->is_game_over() ? gameover : contgame);
 				}
 				else if (status == GWSTATUS_FINISHED_LEVEL)
 				{
 					m_gw->advance_to_next_level();
 					  // animate one last frame so the player can see what happened
-					m_nextStateAfterAnimate = finishedlevel;
+					m_next_state_after_animate = finishedlevel;
 				}
 			}
-			setGameState(animate);
+			set_game_state(animate);
 			break;
 		case animate:
-			displayGamePlay();
-			if (m_curIntraFrameTick-- <= 0)
+			display_gameplay();
+			if (m_cur_intra_frame_tick-- <= 0)
 			{
-				if (m_nextStateAfterAnimate != not_applicable)
-					setGameState(m_nextStateAfterAnimate);
+				if (m_next_state_after_animate != not_applicable)
+					set_game_state(m_next_state_after_animate);
 				else
 				{
 					int key;
-					if (!m_singleStep  ||  getLastKey(key))
-						setGameState(makemove);
+					if (!m_singleStep  ||  get_last_key(key))
+						set_game_state(makemove);
 				}
 			}
 			break;
 		case clean_up:
 			m_gw->clean_up();
-			setGameState(init);
+			set_game_state(init);
 			break;
 		case gameover:
 			{
 				ostringstream oss;
-				oss << (m_playerWon ? "You won the game!" : "Game Over!")
+				oss << (m_player_won ? "You won the game!" : "Game Over!")
 					<< " Final score: " << m_gw->get_score() << "!";
-				m_mainMessage = oss.str();
+				m_main_message = oss.str();
 			}
-			m_secondMessage = "Press Enter to quit...";
-			setGameState(prompt);
-			m_nextStateAfterPrompt = quit;
+			m_second_message = "Press Enter to quit...";
+			set_game_state(prompt);
+			m_next_state_after_prompt = quit;
 			break;
 		case prompt:
-			drawPrompt(m_mainMessage, m_secondMessage);
+			drawPrompt(m_main_message, m_second_message);
 			{
 				int key;
-				if (getLastKey(key) && key == '\r')
-					setGameState(m_nextStateAfterPrompt);
+				if (get_last_key(key) && key == '\r')
+					set_game_state(m_next_state_after_prompt);
 			}
 			break;
 		case init:
@@ -305,18 +305,18 @@ void GameController::do_something()
 				SoundFX().abortClip();
 				if (status == GWSTATUS_PLAYER_WON)
 				{
-					m_playerWon = true;
-					setGameState(gameover);
+					m_player_won = true;
+					set_game_state(gameover);
 				}
 				else if (status == GWSTATUS_LEVEL_ERROR)
 				{
-					m_mainMessage = "Error in level data file encoding!";
-					m_secondMessage = "Press Enter to quit...";
-					setGameState(prompt);
-					m_nextStateAfterPrompt = quit;
+					m_main_message = "Error in level data file encoding!";
+					m_second_message = "Press Enter to quit...";
+					set_game_state(prompt);
+					m_next_state_after_prompt = quit;
 				}
 				else
-					setGameState(makemove);
+					set_game_state(makemove);
 			}
 			break;
 		case quit:
@@ -325,7 +325,7 @@ void GameController::do_something()
 	}
 }
 
-void GameController::drawDirt(double gx, double gy, double gz, double size)
+void GameController::draw_dirt(double gx, double gy, double gz, double size)
 {
 	glPushMatrix();
 
@@ -361,7 +361,7 @@ void GameController::drawDirt(double gx, double gy, double gz, double size)
 
 }
 
-void GameController::displayGamePlay()
+void GameController::display_gameplay()
 {
 	glEnable(GL_DEPTH_TEST); // must be done each time before displaying graphics or gets disabled for some reason
 	glLoadIdentity();
@@ -406,14 +406,14 @@ void GameController::displayGamePlay()
 
 				// the specialized Dirt plotting is an optimization to deal with the background Dirt, which requires a lot of horsepower to plot
 				if (image_id == IID_DIRT)
-					drawDirt(gx, gy, gz, cur->get_size());
+					draw_dirt(gx, gy, gz, cur->get_size());
 				else
-					m_spriteManager.plotSprite(image_id, cur->get_animation_number() % m_spriteManager.getNumFrames(image_id), gx, gy, gz, angle, cur->get_size());
+					m_sprite_manager.plotSprite(image_id, cur->get_animation_number() % m_sprite_manager.getNumFrames(image_id), gx, gy, gz, angle, cur->get_size());
 			}
 		}
 	}
 
-	drawScoreAndLives(m_gameStatText);
+	drawScoreAndLives(m_game_stat_text);
 
 	glutSwapBuffers();
 }

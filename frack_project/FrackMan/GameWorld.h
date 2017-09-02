@@ -41,7 +41,7 @@ public:
   virtual void clean_up() = 0; // Clean up actors
   void set_game_stat_text(std::string text); // Initialize the scoreboard
   bool get_key(int& value); // Get user input from keyboard
-  void play_sound(int soundID); // Play object sound
+  void play_sound(int sound_id); // Play object sound
   
   /* Functions to be utilized by StudentWorld (and to update game) */
   UINT get_level() const { return m_level; } // Get the current level

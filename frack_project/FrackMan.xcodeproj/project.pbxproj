@@ -38,7 +38,7 @@
 		034303B51F4E07FF00A43EC9 /* freeglut_std.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = freeglut_std.h; sourceTree = "<group>"; };
 		034303B61F4E07FF00A43EC9 /* freeglut.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = freeglut.h; sourceTree = "<group>"; };
 		034303B71F4E07FF00A43EC9 /* GameConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameConstants.h; sourceTree = "<group>"; };
-		034303B81F4E07FF00A43EC9 /* GameController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameController.h; sourceTree = "<group>"; };
+		034303B81F4E07FF00A43EC9 /* GameController.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = GameController.h; sourceTree = "<group>"; tabWidth = 2; };
 		034303B91F4E07FF00A43EC9 /* GameWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = GameWorld.h; sourceTree = "<group>"; tabWidth = 2; };
 		034303BA1F4E07FF00A43EC9 /* globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = globals.h; sourceTree = "<group>"; };
 		034303BB1F4E07FF00A43EC9 /* GraphObject.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = GraphObject.h; sourceTree = "<group>"; tabWidth = 2; };

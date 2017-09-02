@@ -39,7 +39,8 @@
 ///////////////////-----------STUDENTWORLD--------------///////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-class StudentWorld : public GameWorld {
+class StudentWorld : public GameWorld
+{
 public:
   /* Standard Control Flow Functions */
   StudentWorld(std::string asset_dir);
@@ -97,7 +98,8 @@ private:
   
   // Queue-Based Maze-Searching Algorithm Container (for protesters exiting oil field, and hardcore protesters honing in on frackman)
   // Note: This algorithm was adapted from a previous project from UCLA's CS32 course
-  class Coord {
+  class Coord
+  {
   public:
     Coord(int row, int col) :m_row(row), m_col(col) {}
     int row() const { return m_row; }
